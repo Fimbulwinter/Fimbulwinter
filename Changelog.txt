@@ -1,0 +1,9 @@
+Data: Dia/Mês/Ano
+	* Notação
+	- issue: X (opcional, só utilizado caso tenha sido corrigido um erro reportado)
+	- Comentário (opcional)
+		+ Comentário Adicional (opcional)
+
+06/12/2011
+	* Base adicionada [GreenBox]
+		

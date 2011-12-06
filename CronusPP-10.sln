@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AuthServer", "AuthServer\AuthServer.vcxproj", "{F926FEAA-D0F3-442D-9CD0-A524E1CA0224}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{975CE490-75E5-4B82-BDB6-2489D97E8C9B}"
+	ProjectSection(SolutionItems) = preProject
+		Changelog.txt = Changelog.txt
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F926FEAA-D0F3-442D-9CD0-A524E1CA0224}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F926FEAA-D0F3-442D-9CD0-A524E1CA0224}.Debug|Win32.Build.0 = Debug|Win32
+		{F926FEAA-D0F3-442D-9CD0-A524E1CA0224}.Release|Win32.ActiveCfg = Release|Win32
+		{F926FEAA-D0F3-442D-9CD0-A524E1CA0224}.Release|Win32.Build.0 = Release|Win32
+		{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}.Debug|Win32.Build.0 = Debug|Win32
+		{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}.Release|Win32.ActiveCfg = Release|Win32
+		{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
