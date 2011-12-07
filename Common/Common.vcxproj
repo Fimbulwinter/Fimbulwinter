@@ -11,9 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Core.cpp" />
+    <ClCompile Include="config_file.cpp" />
+    <ClCompile Include="tcp_connection.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="config_file.hpp" />
     <ClInclude Include="tcp_connection.hpp" />
     <ClInclude Include="tcp_server.hpp" />
   </ItemGroup>
@@ -44,7 +46,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>

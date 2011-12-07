@@ -1,4 +1,4 @@
-#include "config_file.h"
+#include "config_file.hpp"
 
 config_file::config_file(string filename, string delimiter, string comment, string sentry)
 	: delimiter_(delimiter), comment_(comment), sentry_(sentry)
@@ -37,11 +37,11 @@ void config_file::trim(string& s)
 
 std::ostream& operator<<(std::ostream& os, const config_file& cf)
 {
-	for(config_file::mapci p = cf.myContents.begin();
-		p != cf.myContents.end();
+	for(config_file::mapci p = cf.contents_.begin();
+		p != cf.contents_.end();
 		++p)
 	{
-		os << p->first << " " << cf.myDelimiter << " ";
+		os << p->first << " " << cf.delimiter_ << " ";
 		os << p->second << std::endl;
 	}
 	return os;
