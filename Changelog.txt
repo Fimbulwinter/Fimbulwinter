@@ -6,4 +6,7 @@ Data: Dia/Mês/Ano
 
 06/12/2011
 	* Base adicionada [GreenBox]
+
+07/12/2011
+	* Adicionada camada básica de sockets [GreenBox]
 		

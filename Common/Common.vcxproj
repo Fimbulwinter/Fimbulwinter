@@ -10,6 +10,13 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Core.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="tcp_connection.hpp" />
+    <ClInclude Include="tcp_server.hpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -44,7 +51,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>;$(SolutionDir)\3rdparty\soci\include;$(SolutionDir)\Common\;$(SolutionDir)\3rdparty\mysql\include;$(SolutionDir)\3rdparty\boost;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -59,7 +67,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>;$(SolutionDir)\3rdparty\soci\include;$(SolutionDir)\Common\;$(SolutionDir)\3rdparty\mysql\include;$(SolutionDir)\3rdparty\boost;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
