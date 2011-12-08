@@ -13,7 +13,7 @@ using namespace boost::asio::ip;
 #define FIFOSIZE_SERVERLINK (256 * 1024)
 
 #define RFIFOHEAD(cl)
-#define WFIFOHEAD(cl, size) if(cl->wdata_size + (size) > cl->max_wdata) realloc_writefifo(fd, size);
+#define WFIFOHEAD(cl, size) if(cl->wdata_size + (size) > cl->max_wdata) cl->realloc_writefifo(size);
 #define RFIFOP(cl,pos) (cl->rdata + cl->rdata_pos + (pos))
 #define WFIFOP(cl,pos) (cl->wdata + cl->wdata_size + (pos))
 

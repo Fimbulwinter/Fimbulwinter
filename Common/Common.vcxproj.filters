@@ -11,5 +11,6 @@
     <ClInclude Include="config_file.hpp" />
     <ClInclude Include="show_message.hpp" />
     <ClInclude Include="database_helper.h" />
+    <ClInclude Include="ragnarok.hpp" />
   </ItemGroup>
 </Project>
