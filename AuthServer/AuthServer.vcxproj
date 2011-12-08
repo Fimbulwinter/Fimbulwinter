@@ -92,6 +92,7 @@
     <ClCompile Include="AuthServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AccountDB.h" />
     <ClInclude Include="AuthServer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

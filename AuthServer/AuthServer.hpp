@@ -6,6 +6,8 @@
 
 #include <soci/soci.h>
 
+#include "AccountDB.h"
+
 using namespace std;
 
 class AuthServer
@@ -32,5 +34,6 @@ public:
 
 	// Database
 	static soci::session *database;
+	static AccountDB *accounts;
 private:
 };

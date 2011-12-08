@@ -16,6 +16,7 @@ tcp_server *AuthServer::server;
 
 // Database
 soci::session *AuthServer::database;
+AccountDB *AuthServer::accounts;
 
 void AuthServer::run()
 {
@@ -48,6 +49,7 @@ void AuthServer::run()
 		ShowInfo("Opening connection to database...\n");
 
 		database = database_helper::get_session(database_config);
+		accounts = new AccountDB(database);
 
 		ShowSQL("Successfully opened database connection.\n");
 	}

@@ -5,5 +5,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AuthServer.hpp" />
+    <ClInclude Include="AccountDB.h" />
   </ItemGroup>
 </Project>
