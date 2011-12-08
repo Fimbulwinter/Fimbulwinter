@@ -90,11 +90,6 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
-		case 0x0064:
-
-
-
-			break;
 		default:
 			ShowWarning("Unknown packet 0x%x sent from %s:%d, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str(), cl->socket().remote_endpoint().port());
 			cl->set_eof();

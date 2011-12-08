@@ -79,10 +79,16 @@ void tcp_connection::start_read()
 
 void tcp_connection::handle_read(const boost::system::error_code &error, size_t bytes_transferred)
 {
+	if (!socket_.is_open() && !flags.eof)
+	{
+		set_eof();
+	}
+
+	if (flags.eof)
+		return;
+
 	if (error)
 	{
-		ShowError("%s\n", error.message());
-
 		set_eof();
 		do_close();
 	}
