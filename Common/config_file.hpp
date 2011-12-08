@@ -21,7 +21,7 @@ protected:
 
 public:
 	config_file(string filename,
-		string delimiter = ":",
+		string delimiter = "=",
 		string comment = "#",
 		string sentry = "EndConfigFile");
 	config_file();

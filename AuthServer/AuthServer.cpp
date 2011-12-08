@@ -1,36 +1,103 @@
+#include "AuthServer.hpp"
+
+#include <show_message.hpp>
+#include <database_helper.h>
+
 #include <iostream>
-#include <tcp_server.hpp>
-#include <soci/soci.h>
-#include <soci/soci-mysql.h>
 
-void parse_login(tcp_connection::pointer cl)
+// Config
+config_file *AuthServer::auth_config;
+config_file *AuthServer::database_config;
+
+struct AuthServer::login_config AuthServer::config;
+
+// Network
+tcp_server *AuthServer::server;
+
+// Database
+soci::session *AuthServer::database;
+
+void AuthServer::run()
 {
-	size_t len = RFIFOREST(cl);
+	boost::asio::io_service io_service;
 
-	memmove(WFIFOP(cl, 0), RFIFOP(cl, 0), len);
+	// Read Config Files
+	try
+	{
+		auth_config = new config_file("./Config/authserver.conf");
+		{
+			config.network_bindip = auth_config->read<string>("network.bindip", "0.0.0.0");
+			config.network_bindport = auth_config->read<unsigned short>("network.bindport", 6900);
+		}
+		ShowStatus("Finished reading authserver.conf.\n");
 
-	cl->send_buffer(len);
-	cl->skip(len);
+		database_config = new config_file("./Config/database.conf");
+		{
+			// Validate something?
+		}
+		ShowStatus("Finished reading database.conf.\n");
+	}
+	catch (config_file::file_not_found *fnf)
+	{
+		ShowFatalError("Config file not found: %s.\n", fnf->filename);
+		return;
+	}
+
+	// Initialize Database System
+	{
+		ShowInfo("Opening connection to database...\n");
+
+		database = database_helper::get_session(database_config);
+
+		ShowSQL("Successfully opened database connection.\n");
+	}
+
+	// Initialize Network System
+	{
+		boost::system::error_code err;
+		address_v4 bindip = address_v4::from_string(config.network_bindip, err);
+
+		if (err)
+		{
+			ShowFatalError("%s\n", err.message().c_str());
+			return;
+		}
+
+		server = new tcp_server(io_service, (address)bindip, config.network_bindport);
+		server->set_default_parser(AuthServer::parse_from_client);
+
+		ShowStatus("AuthServer is ready and listening on %s:%d.\n", config.network_bindip.c_str(), config.network_bindport);
+	}
+
+	// Run IO service service and start pooling events
+	io_service.run();
+}
+
+int AuthServer::parse_from_client(tcp_connection::pointer cl)
+{
+
+
+	return 0;
 }
 
 int main(int argc, char *argv[])
 {
+	ShowMessage(""CL_WTBL"          (=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=)"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BT_YELLOW"       Equipe Cronus de Desenvolvimento Apresenta        "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BOLD"      _________                                          "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BOLD"      \\_   ___ \\_______  ____   ____  __ __  ______      "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BOLD"      /    \\  \\/\\_  __ \\/  _ \\ /    \\|  |  \\/  ___/      "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BOLD"      \\     \\____|  | \\(  <_> )   |  \\  |  /\\___ \\       "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BOLD"       \\______  /|__|   \\____/|___|  /____//____  >      "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BOLD"              \\/                   \\/           \\/       "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BOLD"                                                         "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BT_RED"                         Cronus++                        "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BOLD"                  www.cronus-emulator.com                "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_XXBL"          ("CL_BOLD"                                                         "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
+	ShowMessage(""CL_WTBL"          (=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=)"CL_CLL""CL_NORMAL"\n\n");
 
-
-	try
-	{
-		boost::asio::io_service io_service;
-		tcp_server server(io_service, (address)address_v4::any(), 6900);
-		server.set_default_parser(parse_login);
-
-		io_service.run();
-	}
-	catch(std::exception &e)
-	{
-		std::cerr << e.what() << std::endl;
-	}
+	AuthServer::run();
 
 	getchar();
-
 	return 0;
 }

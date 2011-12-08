@@ -64,7 +64,7 @@ class tcp_connection
 {
 public:
 	typedef boost::shared_ptr<tcp_connection> pointer;
-	typedef void (*parse)(pointer cl);
+	typedef boost::function<int (pointer)> parse;
 
 	static pointer create(boost::asio::io_service &io_service)
 	{
@@ -91,7 +91,7 @@ public:
 		flags.eof = 1;
 
 		if (parse_)
-			parse_(this->shared_from_this());
+			parse_((pointer)this->shared_from_this());
 	}
 
 	void *get_data()

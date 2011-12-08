@@ -9,4 +9,8 @@ Data: Dia/Mês/Ano
 
 07/12/2011
 	* Adicionada camada básica de sockets [GreenBox]
+
+08/12/2011
+	* Adicionado suporte a database [GreenBox]
+	* Leitura basica dos arquivos de configuração [GreenBox]
 		

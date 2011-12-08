@@ -12,10 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="config_file.cpp" />
+    <ClCompile Include="show_message.cpp" />
     <ClCompile Include="tcp_connection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config_file.hpp" />
+    <ClInclude Include="database_helper.h" />
+    <ClInclude Include="show_message.hpp" />
     <ClInclude Include="tcp_connection.hpp" />
     <ClInclude Include="tcp_server.hpp" />
   </ItemGroup>
@@ -28,13 +31,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

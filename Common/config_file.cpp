@@ -3,7 +3,6 @@
 config_file::config_file(string filename, string delimiter, string comment, string sentry)
 	: delimiter_(delimiter), comment_(comment), sentry_(sentry)
 {
-
 	std::ifstream in(filename.c_str());
 
 	if(!in) throw file_not_found(filename); 
