@@ -77,7 +77,30 @@ void AuthServer::run()
 
 int AuthServer::parse_from_client(tcp_connection::pointer cl)
 {
+	if (cl->flags.eof)
+	{
+		cl->do_close();
 
+		return 0;
+	}
+
+	while(RFIFOREST(cl) >= 2)
+	{
+		unsigned short cmd = RFIFOW(cl, 0);
+
+		switch (cmd)
+		{
+		case 0x0064:
+
+
+
+			break;
+		default:
+			ShowWarning("Unknown packet 0x%x sent from %s:%d, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str(), cl->socket().remote_endpoint().port());
+			cl->set_eof();
+			return 0;
+		}
+	}
 
 	return 0;
 }

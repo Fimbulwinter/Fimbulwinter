@@ -1,4 +1,5 @@
 #include <tcp_connection.hpp>
+#include <show_message.hpp>
 
 int tcp_connection::realloc_fifo(int fd, unsigned int rfifo_size, unsigned int wfifo_size)
 {
@@ -80,8 +81,7 @@ void tcp_connection::handle_read(const boost::system::error_code &error, size_t 
 {
 	if (error)
 	{
-		// Display some error?
-		std::cout << error.message() << std::endl;
+		ShowError("%s\n", error.message());
 
 		set_eof();
 		do_close();

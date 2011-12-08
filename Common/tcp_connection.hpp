@@ -17,14 +17,14 @@ using namespace boost::asio::ip;
 #define RFIFOP(cl,pos) (cl->rdata + cl->rdata_pos + (pos))
 #define WFIFOP(cl,pos) (cl->wdata + cl->wdata_size + (pos))
 
-#define RFIFOB(cl,pos) (*(unsigned char*)RFIFOP(fd,pos))
-#define WFIFOB(cl,pos) (*(unsigned char*)WFIFOP(fd,pos))
-#define RFIFOW(cl,pos) (*(unsigned short*)RFIFOP(fd,pos))
-#define WFIFOW(cl,pos) (*(unsigned short*)WFIFOP(fd,pos))
-#define RFIFOL(cl,pos) (*(unsigned int*)RFIFOP(fd,pos))
-#define WFIFOL(cl,pos) (*(unsigned int*)WFIFOP(fd,pos))
-#define RFIFOQ(cl,pos) (*(unsigned long long*)RFIFOP(fd,pos))
-#define WFIFOQ(cl,pos) (*(unsigned long long*)WFIFOP(fd,pos))
+#define RFIFOB(cl,pos) (*(unsigned char*)RFIFOP(cl,pos))
+#define WFIFOB(cl,pos) (*(unsigned char*)WFIFOP(cl,pos))
+#define RFIFOW(cl,pos) (*(unsigned short*)RFIFOP(cl,pos))
+#define WFIFOW(cl,pos) (*(unsigned short*)WFIFOP(cl,pos))
+#define RFIFOL(cl,pos) (*(unsigned int*)RFIFOP(cl,pos))
+#define WFIFOL(cl,pos) (*(unsigned int*)WFIFOP(cl,pos))
+#define RFIFOQ(cl,pos) (*(unsigned long long*)RFIFOP(cl,pos))
+#define WFIFOQ(cl,pos) (*(unsigned long long*)WFIFOP(cl,pos))
 #define RFIFOSPACE(cl) (cl->max_rdata - cl->rdata_size)
 #define WFIFOSPACE(cl) (cl->max_wdata - cl->wdata_size)
 
@@ -78,7 +78,13 @@ public:
 
 	void do_close()
 	{
-		socket_.close();
+		try
+		{
+			socket_.close();
+		}
+		catch (void *)
+		{
+		}
 	}
 
 	bool is_eof() 
