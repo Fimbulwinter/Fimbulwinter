@@ -1,3 +1,18 @@
+/*============ Cronus++ developer team presents: ==========*
+*	______ _           _           _           _		   *
+*	|  ___(_)         | |         | |         | |		   *
+*	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
+*	|  _| | | '_ ` _ \| '_ \| | | | \ \ / / _ \ __| '__|   *
+*	| |   | | | | | | | |_) | |_| | |\ V /  __/ |_| |      *
+*	\_|   |_|_| |_| |_|_.__/ \__,_|_| \_/ \___|\__|_|      *
+* -------------------------------------------------------- *
+*               An Ragnarok Online Emulator                *
+* -------------------------------------------------------- *
+*                Licenced under GNU GPL v3                 *
+* -------------------------------------------------------- *
+*                  Authentication Server				   *
+* ======================================================== */
+
 #include "AuthServer.hpp"
 
 #include <show_message.hpp>
@@ -28,6 +43,12 @@ AccountDB *AuthServer::accounts;
 // Interconnection
 AuthServer::char_server_db AuthServer::servers;
 
+/*==============================================================*
+* Function:	Auth::Run											*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Start Auth-Server and load configurations        *
+**==============================================================*/
 void AuthServer::run()
 {
 	boost::asio::io_service io_service;
@@ -97,6 +118,12 @@ void AuthServer::run()
 	io_service.run();
 }
 
+/*==============================================================*
+* Function:	Send all WoS										*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description:									                *
+**==============================================================*/
 void AuthServer::char_sendallwos(int cs, unsigned char *buf, size_t len)
 {			
 	BOOST_FOREACH(char_server_db::value_type &pair, servers)
@@ -110,6 +137,12 @@ void AuthServer::char_sendallwos(int cs, unsigned char *buf, size_t len)
 	}
 }
 
+/*==============================================================*
+* Function:	Parse from Char										*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Parse informations from char-server              *
+**==============================================================*/
 int AuthServer::parse_from_char(tcp_connection::pointer cl)
 {
 	AuthSessionData *asd = ((AuthSessionData *)cl->get_data());
@@ -246,6 +279,12 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 	return 0;
 }
 
+/*==============================================================*
+* Function:	Parse from Client ( Auth )							*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Parse informations from the client               *
+**==============================================================*/
 int AuthServer::parse_from_client(tcp_connection::pointer cl)
 {
 	AuthSessionData *asd = ((AuthSessionData *)cl->get_data());
@@ -466,6 +505,13 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 	return 0;
 }
 
+
+/*==============================================================*
+* Function:	Add user Online										*
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Set a user into the online list	                *
+**==============================================================*/
 void AuthServer::add_online_user(int id, int accid)
 {
 	online_accounts[accid].charserver = id;

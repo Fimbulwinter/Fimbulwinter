@@ -1,3 +1,18 @@
+/*============ Cronus++ developer team presents: ==========*
+*	______ _           _           _           _		   *
+*	|  ___(_)         | |         | |         | |		   *
+*	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
+*	|  _| | | '_ ` _ \| '_ \| | | | \ \ / / _ \ __| '__|   *
+*	| |   | | | | | | | |_) | |_| | |\ V /  __/ |_| |      *
+*	\_|   |_|_| |_| |_|_.__/ \__,_|_| \_/ \___|\__|_|      *
+* -------------------------------------------------------- *
+*               An Ragnarok Online Emulator                *
+* -------------------------------------------------------- *
+*                Licenced under GNU GPL v3                 *
+* -------------------------------------------------------- *
+*					 Character Server					   *
+* ======================================================== */
+
 #include "CharServer.hpp"
 
 #include <show_message.hpp>
@@ -30,6 +45,12 @@ CharServer::auth_node_db CharServer::auth_nodes;
 CharServer::online_account_db CharServer::online_chars;
 bool CharServer::auth_conn_ok;
 
+/*==============================================================*
+* Function:	Start Char Server									*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Start the char-server and load the confs         *
+**==============================================================*/
 void CharServer::run()
 {
 	io_service = new boost::asio::io_service();
@@ -122,6 +143,12 @@ void CharServer::run()
 	io_service->run();
 }
 
+/*==============================================================*
+* Function:	Connect to Auth-Server								*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Do the Connection between char and auth server   *
+**==============================================================*/
 void CharServer::connect_to_auth()
 {
 	auth_conn_ok = false;
@@ -178,11 +205,23 @@ void CharServer::connect_to_auth()
 	}
 }
 
+/*==============================================================*
+* Function:	Parse from Zone Server								*                                                     
+* Author: TODO													*
+* Date: TODO 													*
+* Description: TODO									            *
+**==============================================================*/
 int CharServer::parse_from_zone(tcp_connection::pointer cl)
 {
 	return 0;
 }
 
+/*==============================================================*
+* Function:	Parse from Login Server								*                                                     
+* Author: GreenBox												*
+* Date: 08/05/11												*
+* Description: Parse informations from auth server	            *
+**==============================================================*/
 int CharServer::parse_from_login(tcp_connection::pointer cl)
 {
 	CharSessionData *csd;
@@ -317,6 +356,12 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 	return 0;
 }
 
+/*==============================================================*
+* Function:	Parse from Client									*                                                     
+* Author: GreenBox												*
+* Date: 08/05/11												*
+* Description: Parse informations from client		            *
+**==============================================================*/
 int CharServer::parse_from_client(tcp_connection::pointer cl)
 {
 	CharSessionData *csd = ((CharSessionData *)cl->get_data());
@@ -411,6 +456,12 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 	return 0;
 }
 
+/*==============================================================*
+* Function:	Connection Success into Char Server					*                                                     
+* Author: GreenBox												*
+* Date: 08/05/11												*
+* Description:										            *
+**==============================================================*/
 void CharServer::auth_ok(tcp_connection::pointer cl, CharSessionData *csd)
 {
 	if (online_chars.count(csd->account_id))
@@ -457,11 +508,24 @@ void CharServer::auth_ok(tcp_connection::pointer cl, CharSessionData *csd)
 	set_charsel(csd->account_id, cl);
 }
 
+/*==============================================================*
+* Function:	Disconnect Char										*                                                     
+* Author: GreenBox												*
+* Date: 08/05/11												*
+* Description: Disconnect an char from charserver		        *
+**==============================================================*/
 void CharServer::disconnect_char(int timer, int accid)
 {
 	set_char_offline(accid, -1);
 }
 
+
+/*==============================================================*
+* Function:	Character Selection									*                                                     
+* Author: GreenBox												*
+* Date: 08/05/11												*
+* Description:											        *
+**==============================================================*/
 void CharServer::set_charsel(int account_id, tcp_connection::pointer cl)
 {
 	// TODO: Decrement ZoneServer user on
@@ -482,6 +546,12 @@ void CharServer::set_charsel(int account_id, tcp_connection::pointer cl)
 	}
 }
 
+/*==============================================================*
+* Function:	Set a character to offline							*                                                     
+* Author: GreenBox												*
+* Date: 08/05/11												*
+* Description:											        *
+**==============================================================*/
 void CharServer::set_char_offline(int account_id, char char_id)
 {
 	if (online_chars.count(account_id))
@@ -512,6 +582,12 @@ void CharServer::set_char_offline(int account_id, char char_id)
 
 #define MAX_CHAR_BUF 140
 
+/*==============================================================*
+* Function:	Send Characters										*                                                     
+* Author: GreenBox												*
+* Date: 08/05/11												*
+* Description: Send to the client character infos		        *
+**==============================================================*/
 void CharServer::send_chars(int account_id, tcp_connection::pointer cl)
 {
 	int i, j, found_num, offset = 0;

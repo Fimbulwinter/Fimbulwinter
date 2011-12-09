@@ -1,10 +1,25 @@
+/*============ Cronus++ developer team presents: ==========*
+*	______ _           _           _           _		   *
+*	|  ___(_)         | |         | |         | |		   *
+*	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
+*	|  _| | | '_ ` _ \| '_ \| | | | \ \ / / _ \ __| '__|   *
+*	| |   | | | | | | | |_) | |_| | |\ V /  __/ |_| |      *
+*	\_|   |_|_| |_| |_|_.__/ \__,_|_| \_/ \___|\__|_|      *
+* -------------------------------------------------------- *
+*               An Ragnarok Online Emulator                *
+* -------------------------------------------------------- *
+*                Licenced under GNU GPL v3                 *
+* -------------------------------------------------------- *
+*                  Authentication Systems				   *
+* ======================================================== */
+
 #include "AuthServer.hpp"
 
 #include <show_message.hpp>
 #include <database_helper.h>
 #include <ragnarok.hpp>
 #include <timers.hpp>
-#include <md5.hpp>;
+#include <md5.hpp>
 #include <boost/foreach.hpp>
 #include <iostream>
 
@@ -223,10 +238,12 @@ bool md5check(const char* str1, const char* str2, const char* passwd)
 {
 	char md5str[64+1];
 
-	snprintf(md5str, sizeof(md5str), "%s%s", str1, str2);
+	strcpy(md5str,str1);
+	strcat(md5str,str2);
 	md5(md5str);
 
-	return (0==strcmp(passwd, md5str));
+	return !(strcmp(passwd,md5str));
+
 }
 
 /*==============================================================*
