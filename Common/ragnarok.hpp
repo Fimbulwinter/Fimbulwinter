@@ -1070,7 +1070,12 @@ enum
 	HEADER_ZC_PARTY_BOOKING_NOTIFY_INSERT =  0x809,
 	HEADER_ZC_PARTY_BOOKING_NOTIFY_UPDATE =  0x80a,
 	HEADER_ZC_PARTY_BOOKING_NOTIFY_DELETE =  0x80b,
-	HEADER_LAST =  0x80c,
+
+	// Unconfirmed names.
+	// Replace with official ones when possible.
+	HEADER_CA_LOGIN_TOKEN =  0x825,
+
+	HEADER_LAST,
 };
 
 #define sex_num2str(num) ( (num ==  SEX_FEMALE  ) ? 'F' : (num ==  SEX_MALE  ) ? 'M' : 'S' )

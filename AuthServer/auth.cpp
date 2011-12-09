@@ -83,7 +83,7 @@ void AuthServer::send_auth_err(AuthSessionData *asd, int result)
 	string ip = asd->cl->socket().remote_endpoint().address().to_string();
 
 	WFIFOHEAD(cl,23);
-	WFIFOW(cl,0) = 0x6a;
+	WFIFOW(cl,0) = HEADER_AC_REFUSE_LOGIN;
 	WFIFOB(cl,2) = (unsigned char)result;
 	if( result != 6 )
 	{
@@ -120,7 +120,7 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 		ShowStatus("Connection of the account '%s' accepted.\n", asd->username);
 
 	WFIFOHEAD(cl,47+32*server_num);
-	WFIFOW(cl,0) = 0x69;
+	WFIFOW(cl,0) = HEADER_AC_ACCEPT_LOGIN;
 	WFIFOW(cl,2) = 47+32*server_num;
 	WFIFOL(cl,4) = asd->login_id1;
 	WFIFOL(cl,8) = asd->account_id;

@@ -3,6 +3,7 @@
 #include <show_message.hpp>
 #include <database_helper.h>
 #include <ragnarok.hpp>
+#include <core.hpp>
 #include <timers.hpp>
 #include <iostream>
 
@@ -138,15 +139,15 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 		switch (cmd)
 		{
 			// request client login (raw password)
-		case 0x0064: // S 0064 <version>.L <username>.24B <password>.24B <clienttype>.B
-		case 0x0277: // S 0277 <version>.L <username>.24B <password>.24B <clienttype>.B <ip address>.16B <adapter address>.13B
-		case 0x02b0: // S 02b0 <version>.L <username>.24B <password>.24B <clienttype>.B <ip address>.16B <adapter address>.13B <g_isGravityID>.B
+		case HEADER_CA_LOGIN:			// S 0064 <version>.L <username>.24B <password>.24B <clienttype>.B
+		case HEADER_CA_LOGIN_PCBANG:	// S 0277 <version>.L <username>.24B <password>.24B <clienttype>.B <ip address>.16B <adapter address>.13B
+		case HEADER_CA_LOGIN_CHANNEL:	// S 02b0 <version>.L <username>.24B <password>.24B <clienttype>.B <ip address>.16B <adapter address>.13B <g_isGravityID>.B
 			// request client login (md5-hashed password)
-		case 0x01dd: // S 01dd <version>.L <username>.24B <password hash>.16B <clienttype>.B
-		case 0x01fa: // S 01fa <version>.L <username>.24B <password hash>.16B <clienttype>.B <?>.B(index of the connection in the clientinfo file (+10 if the command-line contains "pc"))
-		case 0x027c: // S 027c <version>.L <username>.24B <password hash>.16B <clienttype>.B <?>.13B(junk)
+		case HEADER_CA_LOGIN2:			// S 01dd <version>.L <username>.24B <password hash>.16B <clienttype>.B
+		case HEADER_CA_LOGIN3:			// S 01fa <version>.L <username>.24B <password hash>.16B <clienttype>.B <?>.B(index of the connection in the clientinfo file (+10 if the command-line contains "pc"))
+		case HEADER_CA_LOGIN4:			// S 027c <version>.L <username>.24B <password hash>.16B <clienttype>.B <?>.13B(junk)
 			// token-based login
-		case 0x0825: // S 0825 <packetsize>.W <version>.L <clienttype>.B <userid>.24B <password>.27B <mac>.17B <ip>.15B <token>.(packetsize - 0x5C)B
+		case HEADER_CA_LOGIN_TOKEN:		// S 0825 <packetsize>.W <version>.L <clienttype>.B <userid>.24B <password>.27B <mac>.17B <ip>.15B <token>.(packetsize - 0x5C)B
 			{
 				// TODO: Implement token based login
 				size_t packet_len = RFIFOREST(cl);
@@ -155,20 +156,20 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				char password[NAME_LENGTH];
 				unsigned char passhash[16];
 				unsigned char clienttype;
-				bool israwpass = (cmd == 0x0064 || cmd == 0x0277 || cmd == 0x02b0 || cmd == 0x0825);
+				bool israwpass = (cmd == HEADER_CA_LOGIN || cmd == HEADER_CA_LOGIN_PCBANG || cmd == HEADER_CA_LOGIN_CHANNEL || cmd == HEADER_CA_LOGIN_TOKEN);
 
-				if((cmd == 0x0064 && packet_len < 55)
-					||  (cmd == 0x0277 && packet_len < 84)
-					||  (cmd == 0x02b0 && packet_len < 85)
-					||  (cmd == 0x01dd && packet_len < 47)
-					||  (cmd == 0x01fa && packet_len < 48)
-					||  (cmd == 0x027c && packet_len < 60) 
-					||  (cmd == 0x0825 && (packet_len < 4 || packet_len < RFIFOW(cl, 2)))
+				if((cmd == HEADER_CA_LOGIN && packet_len < 55)
+					||  (cmd == HEADER_CA_LOGIN_PCBANG && packet_len < 84)
+					||  (cmd == HEADER_CA_LOGIN_CHANNEL && packet_len < 85)
+					||  (cmd == HEADER_CA_LOGIN2 && packet_len < 47)
+					||  (cmd == HEADER_CA_LOGIN3 && packet_len < 48)
+					||  (cmd == HEADER_CA_LOGIN4 && packet_len < 60) 
+					||  (cmd == HEADER_CA_LOGIN_TOKEN && (packet_len < 4 || packet_len < RFIFOW(cl, 2)))
 					)
 					return 0;
 
 				// Token-based authentication model by Shinryo
-				if(cmd == 0x0825)
+				if(cmd == HEADER_CA_LOGIN_TOKEN)
 				{	
 					char *accname = (char *)RFIFOP(cl, 9);
 					char *token = (char *)RFIFOP(cl, 0x5C);
@@ -292,7 +293,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 			}
 			break;
 		default:
-			ShowWarning("Unknown packet 0x%x sent from %s, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
+			ShowWarning("Unknown packet 0x%04x sent from %s, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
 			cl->set_eof();
 			return 0;
 		}
@@ -305,19 +306,7 @@ int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 
-	ShowMessage(""CL_WTBL"          (=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=)"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BT_YELLOW"       Equipe Cronus de Desenvolvimento Apresenta        "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BOLD"      _________                                          "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BOLD"      \\_   ___ \\_______  ____   ____  __ __  ______      "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BOLD"      /    \\  \\/\\_  __ \\/  _ \\ /    \\|  |  \\/  ___/      "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BOLD"      \\     \\____|  | \\(  <_> )   |  \\  |  /\\___ \\       "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BOLD"       \\______  /|__|   \\____/|___|  /____//____  >      "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BOLD"              \\/                   \\/           \\/       "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BOLD"                                                         "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BT_RED"                         Cronus++                        "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BOLD"                  www.cronus-emulator.com                "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_XXBL"          ("CL_BOLD"                                                         "CL_XXBL")"CL_CLL""CL_NORMAL"\n");
-	ShowMessage(""CL_WTBL"          (=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=)"CL_CLL""CL_NORMAL"\n\n");
+	core_display_title();
 
 	AuthServer::run();
 

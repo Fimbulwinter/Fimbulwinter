@@ -653,22 +653,22 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 			strcat(prefix,CL_MAGENTA"[SQL]"CL_RESET":");
 			break;
 		case MSG_INFORMATION: // Bright White (Variable information)
-			strcat(prefix,CL_WHITE"[Info]"CL_RESET":");
+			strcat(prefix,CL_WHITE"[Information]"CL_RESET":");
 			break;
 		case MSG_NOTICE: // Bright White (Less than a warning)
-			strcat(prefix,CL_WHITE"[Aviso]"CL_RESET":");
+			strcat(prefix,CL_WHITE"[Notice]"CL_RESET":");
 			break;
 		case MSG_WARNING: // Bright Yellow
-			strcat(prefix,CL_YELLOW"[Alerta]"CL_RESET":");
+			strcat(prefix,CL_YELLOW"[Warning]"CL_RESET":");
 			break;
 		case MSG_DEBUG: // Bright Cyan, important stuff!
 			strcat(prefix,CL_CYAN"[Debug]"CL_RESET":");
 			break;
 		case MSG_ERROR: // Bright Red  (Regular errors)
-			strcat(prefix,CL_RED"[Erro]"CL_RESET":");
+			strcat(prefix,CL_RED"[Error]"CL_RESET":");
 			break;
 		case MSG_FATALERROR: // Bright Red (Fatal errors, abort(); if possible)
-			strcat(prefix,CL_RED"[Erro Fatal]"CL_RESET":");
+			strcat(prefix,CL_RED"[Fatal Error]"CL_RESET":");
 			break;
 		default:
 			ShowError("In function _vShowMessage() -> Invalid flag passed.\n");

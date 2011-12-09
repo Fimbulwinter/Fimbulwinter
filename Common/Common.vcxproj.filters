@@ -5,6 +5,7 @@
     <ClCompile Include="tcp_connection.cpp" />
     <ClCompile Include="show_message.cpp" />
     <ClCompile Include="timers.cpp" />
+    <ClCompile Include="core.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tcp_server.hpp" />
@@ -14,5 +15,6 @@
     <ClInclude Include="database_helper.h" />
     <ClInclude Include="ragnarok.hpp" />
     <ClInclude Include="timers.hpp" />
+    <ClInclude Include="core.hpp" />
   </ItemGroup>
 </Project>
