@@ -90,7 +90,7 @@ public:
 	
 	// Auth
 	static void auth_ok(tcp_connection::pointer cl, CharSessionData *csd);
-	static void set_charsel(int account_id);
+	static void set_charsel(int account_id, tcp_connection::pointer cl);
 	static void set_char_offline(int account_id, char char_id);
 
 	static void disconnect_char(int timer, int accid);

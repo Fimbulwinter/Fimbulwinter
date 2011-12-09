@@ -253,7 +253,7 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 					else
 					{
 						WFIFOHEAD(client_fd,3);
-						WFIFOW(client_fd,0) = 0x6c;
+						WFIFOW(client_fd,0) = HEADER_HC_REFUSE_ENTER;
 						WFIFOB(client_fd,2) = 0;
 						client_fd->send_buffer(3);
 					}
@@ -264,6 +264,27 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 			{
 				int aid = RFIFOL(cl, 2);
 				cl->skip(6);
+
+				if (online_chars.count(aid))
+				{
+					if (online_chars[aid].server > -1)
+					{
+						// TODO: Kick from ZoneServer
+					}
+					else
+					{
+						if (!online_chars[aid].cl->flags.eof)
+						{
+							WFIFOHEAD(online_chars[aid].cl,3);
+							WFIFOW(online_chars[aid].cl,0) = HEADER_SC_NOTIFY_BAN;
+							WFIFOB(online_chars[aid].cl,2) = 2;
+							online_chars[aid].cl->send_buffer(3);
+							online_chars[aid].cl->set_eof();
+						}
+						else
+							set_char_offline(aid, -1);
+					}
+				}
 			}
 			break;
 		case INTER_AC_LOGIN_REPLY:
@@ -433,7 +454,7 @@ void CharServer::auth_ok(tcp_connection::pointer cl, CharSessionData *csd)
 		auth_conn->send_buffer(10);
 	}
 
-	set_charsel(csd->account_id);
+	set_charsel(csd->account_id, cl);
 }
 
 void CharServer::disconnect_char(int timer, int accid)
@@ -441,12 +462,13 @@ void CharServer::disconnect_char(int timer, int accid)
 	set_char_offline(accid, -1);
 }
 
-void CharServer::set_charsel(int account_id)
+void CharServer::set_charsel(int account_id, tcp_connection::pointer cl)
 {
 	// TODO: Decrement ZoneServer user on
 
 	online_chars[account_id].char_id = -1;
 	online_chars[account_id].server = -1;
+	online_chars[account_id].cl = cl;
 
 	if (online_chars[account_id].disconnect_timer) 
 		TimerManager::FreeTimer(online_chars[account_id].disconnect_timer);
@@ -501,7 +523,7 @@ void CharServer::send_chars(int account_id, tcp_connection::pointer cl)
 
 	j = 24 + offset; // offset
 	WFIFOHEAD(cl,j + found_num*MAX_CHAR_BUF);
-	WFIFOW(cl,0) = 0x6b;
+	WFIFOW(cl,0) = HEADER_HC_ACCEPT_ENTER;
 #if PACKETVER >= 20100413
 	WFIFOB(cl,4) = MAX_CHARS_SLOTS;
 	WFIFOB(cl,5) = MAX_CHARS;
