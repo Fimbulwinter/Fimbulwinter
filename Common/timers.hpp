@@ -22,6 +22,7 @@ class TimerManager
 public:
 	static void Initialize(boost::asio::io_service *i)
 	{
+		timer_nid = 1;
 		ios = i;
 	}
 	

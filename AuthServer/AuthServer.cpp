@@ -6,8 +6,11 @@
 #include <core.hpp>
 #include <timers.hpp>
 #include <iostream>
+
 #include <md5.hpp>;
 #include <strfuncs.hpp>;
+#include <boost/foreach.hpp>
+
 
 // Config
 config_file *AuthServer::auth_config;
@@ -23,7 +26,7 @@ soci::session *AuthServer::database;
 AccountDB *AuthServer::accounts;
 
 // Interconnection
-std::map<int, struct CharServerConnection> AuthServer::servers;
+AuthServer::char_server_db AuthServer::servers;
 
 void AuthServer::run()
 {
@@ -94,22 +97,61 @@ void AuthServer::run()
 	io_service.run();
 }
 
+void AuthServer::char_sendallwos(int cs, unsigned char *buf, size_t len)
+{			
+	BOOST_FOREACH(char_server_db::value_type &pair, servers)
+	{
+		if (pair.second.account_id != cs)
+		{
+			WFIFOHEAD(pair.second.cl, len);
+			memcpy(WFIFOP(pair.second.cl, 0), buf, len);
+			pair.second.cl->send_buffer(len);
+		}
+	}
+}
+
 int AuthServer::parse_from_char(tcp_connection::pointer cl)
 {
 	AuthSessionData *asd = ((AuthSessionData *)cl->get_data());
 
 	if (cl->flags.eof)
 	{
-		ShowInfo("Closed connection from CharServer '"CL_WHITE"%s"CL_RESET"'.\n", servers[asd->account_id].name);
+		if (asd)
+		{
+			ShowInfo("Closed connection from CharServer '"CL_WHITE"%s"CL_RESET"'.\n", servers[asd->account_id].name);
+
+			servers.erase(asd->account_id);
+			
+			BOOST_FOREACH(online_account_db::value_type &pair, online_accounts)
+			{
+				if (pair.second.charserver == asd->account_id)
+				{
+					if (pair.second.disconnect_timer)
+						TimerManager::FreeTimer(pair.second.disconnect_timer);
+
+					pair.second.disconnect_timer = TimerManager::CreateStartTimer(500, false, boost::bind(&AuthServer::disconnect_user, _1, pair.first));
+				}
+			}
+
+			free(asd);
+		}
+
 		cl->do_close();
-
-		servers.erase(asd->account_id);
-		// TODO: Set Players Offline
-
 		return 0;
 	}
 
+	while(RFIFOREST(cl) >= 2)
+	{
+		unsigned short cmd = RFIFOW(cl, 0);
 
+		switch (cmd)
+		{
+		default:
+			ShowWarning("Unknown packet 0x%x sent from CharServer '%s', closing connection.\n", cmd, servers[asd->account_id].name);
+			cl->set_eof();
+			return 0;
+		}
+	}
 
 	return 0;
 }
@@ -120,6 +162,9 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 
 	if (cl->flags.eof)
 	{
+		if (asd)
+			free(asd);
+
 		ShowInfo("Closed connection from '"CL_WHITE"%s"CL_RESET"'.\n", cl->socket().remote_endpoint().address().to_string().c_str());
 		cl->do_close();
 		return 0;
@@ -296,7 +341,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 					cl->set_parser(&AuthServer::parse_from_char);
 
 					WFIFOHEAD(cl,3);
-					WFIFOW(cl,0) = 0x3000;
+					WFIFOW(cl,0) = INTER_AC_LOGIN_REPLY;
 					WFIFOB(cl,2) = 0;
 					cl->send_buffer(3);
 				}
@@ -305,7 +350,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 					ShowNotice("Connection of the char-server '%s' REFUSED.\n", server_name);
 					
 					WFIFOHEAD(cl,3);
-					WFIFOW(cl,0) = 0x3000;
+					WFIFOW(cl,0) = INTER_AC_LOGIN_REPLY;
 					WFIFOB(cl,2) = 3;
 					cl->send_buffer(3);
 				}

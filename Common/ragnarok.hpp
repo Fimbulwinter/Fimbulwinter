@@ -8,6 +8,13 @@ enum {
 	SEX_SERVER
 };
 
+enum
+{
+	INTER_CA_LOGIN = 0x3000,
+	INTER_AC_LOGIN_REPLY,
+	INTER_AC_KICK,
+};
+
 enum 
 {
 	HEADER_CA_LOGIN =  0x64,

@@ -158,7 +158,7 @@ void CharServer::connect_to_auth()
 		auth_conn->start();
 
 		WFIFOHEAD(auth_conn, 76);
-		WFIFOW(auth_conn, 0) = 0x3000;
+		WFIFOW(auth_conn, 0) = INTER_CA_LOGIN;
 		strncpy((char*)WFIFOP(auth_conn, 2), config.inter_login_user.c_str(), NAME_LENGTH);
 		strncpy((char*)WFIFOP(auth_conn, 26), config.inter_login_pass.c_str(), NAME_LENGTH);
 		strncpy((char*)WFIFOP(auth_conn, 50), config.server_name.c_str(), 20);
@@ -188,11 +188,9 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 
 	while(RFIFOREST(cl) >= 2)
 	{
-		unsigned short cmd = RFIFOW(cl, 0);
-
-		switch(cmd)
+		SWITCH_PACKET()
 		{
-		case 0x3000:
+		case INTER_AC_LOGIN_REPLY:
 			{
 				unsigned char result = RFIFOB(cl, 2);
 
@@ -216,6 +214,8 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 			return 0;
 		}
 	}
+
+	return 0;
 }
 
 int CharServer::parse_from_client(tcp_connection::pointer cl)

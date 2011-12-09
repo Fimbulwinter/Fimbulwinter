@@ -5,8 +5,11 @@
 #include <ragnarok.hpp>
 #include <timers.hpp>
 #include <md5.hpp>;
-
+#include <boost/foreach.hpp>
 #include <iostream>
+
+AuthServer::auth_node_db AuthServer::auth_nodes;
+AuthServer::online_account_db AuthServer::online_accounts;
 
 const char *timestamp2string(char *str, size_t size, time_t timestamp, const char *format)
 {
@@ -107,6 +110,37 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 	int server_num = servers.size();
 	int n = 0;
 
+	BOOST_FOREACH(online_account_db::value_type &pair, online_accounts)
+	{
+		if (pair.first == asd->account_id)
+		{
+			if (pair.second.charserver > -1)
+			{
+				unsigned char buf[6];
+
+				WBUFW(buf,0) = INTER_AC_KICK;
+				WBUFL(buf,2) = asd->account_id;
+				char_sendallwos(-1, buf, 6);
+
+				if (pair.second.disconnect_timer)
+					TimerManager::FreeTimer(pair.second.disconnect_timer);
+
+				set_acc_offline(asd->account_id);
+
+				WFIFOHEAD(asd->cl,3);
+				WFIFOW(asd->cl,0) = 0x81;
+				WFIFOB(asd->cl,2) = 8;
+				asd->cl->send_buffer(3);
+			}
+			else if (pair.second.charserver == -1)
+			{
+				set_acc_offline(asd->account_id);
+			}
+
+			break;
+		}
+	}
+
 	if (server_num == 0)
 	{
 		WFIFOHEAD(asd->cl,3);
@@ -143,6 +177,20 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 		n++;
 	}
 	cl->send_buffer(47+32*server_num);
+
+	auth_nodes[asd->account_id].clienttype = asd->clienttype;
+	auth_nodes[asd->account_id].version = asd->version;
+	auth_nodes[asd->account_id].login_id1 = asd->login_id1;
+	auth_nodes[asd->account_id].login_id2 = asd->login_id2;
+	auth_nodes[asd->account_id].sex = asd->sex;
+
+	online_accounts[asd->account_id].charserver = -1;
+	online_accounts[asd->account_id].disconnect_timer = TimerManager::CreateStartTimer(AUTH_TIMEOUT, false, boost::bind(&AuthServer::disconnect_user, _1, asd->account_id));
+}
+
+void AuthServer::disconnect_user(int timer, int accid)
+{
+	set_acc_offline(accid);
 }
 
 bool md5check(const char* str1, const char* str2, const char* passwd)
@@ -172,4 +220,15 @@ bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char 
 	}
 
 	return false;
+}
+
+void AuthServer::set_acc_offline(int accid)
+{
+	if (online_accounts.count(accid))
+	{
+		online_accounts.erase(accid);
+
+		if (auth_nodes.count(accid))
+			auth_nodes.erase(accid);
+	}
 }
