@@ -40,6 +40,8 @@ struct AuthSessionData
 	unsigned char clienttype;
 	unsigned int version;
 
+	bool gameguardChallenged;
+
 	tcp_connection::pointer cl;
 };
 

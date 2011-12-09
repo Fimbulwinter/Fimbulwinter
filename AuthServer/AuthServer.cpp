@@ -290,21 +290,34 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 			break;
         
 		// Md5 Login
-		case 0x1db:
+		case HEADER_CA_REQ_HASH:
 			cl->send_buffer(2);
-		{
+			{
 
-			memset(asd->md5key, '\0', sizeof(asd->md5key));
-			asd->md5keylen = (boost::uint16_t)(12 + rand() % 4);
-			MD5_Salt(asd->md5keylen, asd->md5key);
+				memset(asd->md5key, '\0', sizeof(asd->md5key));
+				asd->md5keylen = (boost::uint16_t)(12 + rand() % 4);
+				MD5_Salt(asd->md5keylen, asd->md5key);
 
-			WFIFOHEAD(cl, 4 + asd->md5keylen);
-			WFIFOW(cl,0) = 0x01dc;
-			WFIFOW(cl,2) = 4 + asd->md5keylen;
-			memcpy(WFIFOP(cl,4), asd->md5key, asd->md5keylen);
-			cl->skip(WFIFOW(cl,2));
-		}
-		break;
+				WFIFOHEAD(cl, 4 + asd->md5keylen);
+				WFIFOW(cl,0) = HEADER_AC_ACK_HASH;
+				WFIFOW(cl,2) = 4 + asd->md5keylen;
+				memcpy(WFIFOP(cl,4), asd->md5key, asd->md5keylen);
+				cl->skip(WFIFOW(cl,2));
+			}
+			break;
+		
+		//nProtect GameGuard Challenge
+		case HEADER_CA_REQ_GAME_GUARD_CHECK:
+			{
+				WFIFOHEAD(cl,3);
+				WFIFOW(cl,0) = HEADER_AC_ACK_GAMEGUARD;
+				if (asd->gameguardChallenged = true)
+					WFIFOB(cl,2) = 2;
+				else
+					WFIFOB(cl,2) = 1;
+				cl->send_buffer(3);
+				cl->skip(2);
+			}
 			
 		// CharServer login
 		case 0x3000: // S 3000 <login>.24B <password>.24B <display name>.20B
