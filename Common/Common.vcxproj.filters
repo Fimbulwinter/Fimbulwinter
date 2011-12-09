@@ -7,6 +7,7 @@
     <ClCompile Include="timers.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="strfuncs.cpp" />
+    <ClCompile Include="md5.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tcp_server.hpp" />
@@ -18,5 +19,6 @@
     <ClInclude Include="timers.hpp" />
     <ClInclude Include="core.hpp" />
     <ClInclude Include="strfuncs.hpp" />
+    <ClInclude Include="md5.hpp" />
   </ItemGroup>
 </Project>

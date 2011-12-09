@@ -7,8 +7,8 @@
 #include <timers.hpp>
 #include <iostream>
 
-#include <md5.hpp>;
-#include <strfuncs.hpp>;
+#include <md5.hpp>
+#include <strfuncs.hpp>
 #include <boost/foreach.hpp>
 
 
@@ -39,7 +39,7 @@ void AuthServer::run()
 		{
 			config.network_bindip = auth_config->read<string>("network.bindip", "0.0.0.0");
 			config.network_bindport = auth_config->read<unsigned short>("network.bindport", 6900);
-			config.useMD5 = auth_config->read<int>("useMD5",0);
+			config.auth_use_md5 = auth_config->read<bool>("auth.usemd5", false);
 		}
 		ShowStatus("Finished reading authserver.conf.\n");
 
@@ -146,6 +146,52 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
+		case INTER_CA_AUTH:
+			if(RFIFOREST(cl) < 23)
+				return 0;
+			{
+				int account_id = RFIFOL(cl,2);
+				unsigned int login_id1 = RFIFOL(cl,6);
+				unsigned int login_id2 = RFIFOL(cl,10);
+				unsigned char sex = RFIFOB(cl,14);
+				int request_id = RFIFOL(cl,19);
+				cl->skip(23);
+
+				if (auth_nodes.count(account_id) &&
+					auth_nodes[account_id].login_id1  == login_id1 &&
+					auth_nodes[account_id].login_id2  == login_id2 &&
+					auth_nodes[account_id].sex        == sex_num2str(sex))
+				{
+					WFIFOHEAD(cl,25);
+					WFIFOW(cl,0) = INTER_AC_AUTH_REPLY;
+					WFIFOL(cl,2) = account_id;
+					WFIFOL(cl,6) = login_id1;
+					WFIFOL(cl,10) = login_id2;
+					WFIFOB(cl,14) = sex;
+					WFIFOB(cl,15) = 0;
+					WFIFOL(cl,16) = request_id;
+					WFIFOL(cl,20) = auth_nodes[account_id].version;
+					WFIFOB(cl,24) = auth_nodes[account_id].clienttype;
+					cl->send_buffer(25);
+
+					auth_nodes.erase(account_id);
+				}
+				else
+				{
+					WFIFOHEAD(cl,25);
+					WFIFOW(cl,0) = INTER_AC_AUTH_REPLY;
+					WFIFOL(cl,2) = account_id;
+					WFIFOL(cl,6) = login_id1;
+					WFIFOL(cl,10) = login_id2;
+					WFIFOB(cl,14) = sex;
+					WFIFOB(cl,15) = 1;
+					WFIFOL(cl,16) = request_id;
+					WFIFOL(cl,20) = 0;
+					WFIFOB(cl,24) = 0;
+					cl->send_buffer(25);
+				}
+			}
+			break;
 		default:
 			ShowWarning("Unknown packet 0x%x sent from CharServer '%s', closing connection.\n", cmd, servers[asd->account_id].name);
 			cl->set_eof();
@@ -258,7 +304,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				strncpy(asd->username, username, NAME_LENGTH);
 
 				ShowStatus("Request for connection of %s from %s.\n", asd->username, cl->socket().remote_endpoint().address().to_string().c_str());
-				if (cmd == 0x0825)
+				if (cmd == HEADER_CA_LOGIN_TOKEN)
 				{
 					// TODO: Add support to token-based login
 
@@ -268,7 +314,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				{
 					strncpy(asd->password, password, NAME_LENGTH);
 
-					if(login_config.useMD5)
+					if(config.auth_use_md5)
 						md5(asd->password);
 
 					asd->type = auth_raw;

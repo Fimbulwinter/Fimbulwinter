@@ -7,6 +7,7 @@
 #include <core.hpp>
 #include <timers.hpp>
 #include <iostream>
+#include <boost/foreach.hpp>
 
 // Login InterConn
 tcp_connection::pointer CharServer::auth_conn;
@@ -23,6 +24,10 @@ tcp_server *CharServer::server;
 
 // Database
 soci::session *CharServer::database;
+
+// Auth
+CharServer::auth_node_db CharServer::auth_nodes;
+bool CharServer::auth_conn_ok;
 
 void CharServer::run()
 {
@@ -118,6 +123,8 @@ void CharServer::run()
 
 void CharServer::connect_to_auth()
 {
+	auth_conn_ok = false;
+
 	for (;;)
 	{
 		ShowInfo("Connecting to AuthServer on %s:%d...\n", config.inter_login_ip.c_str(), config.inter_login_port);
@@ -177,6 +184,8 @@ int CharServer::parse_from_zone(tcp_connection::pointer cl)
 
 int CharServer::parse_from_login(tcp_connection::pointer cl)
 {
+	CharSessionData *csd;
+
 	if (cl->flags.eof)
 	{
 		cl->do_close();
@@ -192,6 +201,49 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
+		case INTER_AC_AUTH_REPLY:
+			if (RFIFOREST(cl) < 25)
+				return 0;
+			{
+				int account_id = RFIFOL(cl,2);
+				unsigned int login_id1 = RFIFOL(cl,6);
+				unsigned int login_id2 = RFIFOL(cl,10);
+				unsigned char sex = RFIFOB(cl,14);
+				unsigned char result = RFIFOB(cl,15);
+				int request_id = RFIFOL(cl,16);
+				unsigned int version = RFIFOL(cl,20);
+				unsigned char clienttype = RFIFOB(cl,24);
+				cl->skip(25);
+
+				if (tcp_connection::session_exists(request_id) && 
+					(csd = (CharSessionData *)tcp_connection::get_session_by_tag(request_id)->get_data()) &&
+					!csd->auth && csd->account_id == account_id && csd->login_id1 == login_id1 &&
+					csd->login_id2 == login_id2 && csd->sex == sex)
+				{
+					tcp_connection::pointer client_fd = csd->cl;
+					csd->version = version;
+					csd->clienttype = clienttype;
+					
+					if (result == 0)
+					{
+						auth_ok(client_fd, csd);
+					}
+					else
+					{
+						WFIFOHEAD(client_fd,3);
+						WFIFOW(client_fd,0) = 0x6c;
+						WFIFOB(client_fd,2) = 0;
+						client_fd->send_buffer(3);
+					}
+				}
+			}
+			break;
+		case INTER_AC_KICK:
+			{
+				int aid = RFIFOL(cl, 2);
+				cl->skip(6);
+			}
+			break;
 		case INTER_AC_LOGIN_REPLY:
 			{
 				unsigned char result = RFIFOB(cl, 2);
@@ -200,6 +252,8 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 
 				if (result == 0)
 				{
+					auth_conn_ok = true;
+
 					ShowStatus("Connected to AuthServer.\n");
 				}
 				else
@@ -222,24 +276,17 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 
 int CharServer::parse_from_client(tcp_connection::pointer cl)
 {
-	//AuthSessionData *asd = ((AuthSessionData *)cl->get_data());
+	CharSessionData *csd = ((CharSessionData *)cl->get_data());
 
 	if (cl->flags.eof)
 	{
+		if (csd)
+			free(csd);
+
 		ShowInfo("Closed connection from '"CL_WHITE"%s"CL_RESET"'.\n", cl->socket().remote_endpoint().address().to_string().c_str());
 		cl->do_close();
 		return 0;
 	}
-
-	/*if (asd == NULL)
-	{
-		asd = new AuthSessionData();
-		memset(asd, 0, sizeof(asd));
-
-		asd->cl = cl;
-
-		cl->set_data((char*)asd);
-	}*/
 
 	while(RFIFOREST(cl) >= 2)
 	{
@@ -247,6 +294,65 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
+		case HEADER_CH_ENTER:
+			if(RFIFOREST(cl) < 17)
+				return 0;
+			{
+				int account_id = RFIFOL(cl,2);
+				unsigned int login_id1 = RFIFOL(cl,6);
+				unsigned int login_id2 = RFIFOL(cl,10);
+				char sex = RFIFOB(cl,16);
+				cl->skip(17);
+
+				if (csd)
+				{
+					break;
+				}
+
+				csd = new CharSessionData();
+				csd->account_id = account_id;
+				csd->login_id1 = login_id1;
+				csd->login_id2 = login_id2;
+				csd->sex = sex;
+				csd->auth = false;
+				csd->cl = cl;
+				cl->set_data((char*)csd);
+
+				WFIFOHEAD(cl, 4);
+				WFIFOL(cl,0) = account_id;
+				cl->send_buffer(4);
+
+				if (auth_nodes.count(account_id) && 
+					auth_nodes[account_id].login_id1  == login_id1 &&
+					auth_nodes[account_id].login_id2  == login_id2)
+				{
+					auth_nodes.erase(account_id);
+					auth_ok(cl, csd);
+				}
+				else
+				{
+					if (auth_conn_ok)
+					{
+						WFIFOHEAD(auth_conn,23);
+						WFIFOW(auth_conn,0) = INTER_CA_AUTH;
+						WFIFOL(auth_conn,2) = csd->account_id;
+						WFIFOL(auth_conn,6) = csd->login_id1;
+						WFIFOL(auth_conn,10) = csd->login_id2;
+						WFIFOB(auth_conn,14) = csd->sex;
+						WFIFOL(auth_conn,15) = htonl(cl->socket().remote_endpoint().address().to_v4().to_ulong());
+						WFIFOL(auth_conn,19) = cl->tag();
+						auth_conn->send_buffer(23);
+					}
+					else
+					{
+						WFIFOHEAD(cl,3);
+						WFIFOW(cl,0) = HEADER_HC_REFUSE_ENTER;
+						WFIFOB(cl,2) = 0;
+						cl->send_buffer(3);
+					}
+				}
+			}
+			break;
 		default:
 			ShowWarning("Unknown packet 0x%04x sent from %s, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
 			cl->set_eof();
@@ -255,6 +361,11 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 	}
 
 	return 0;
+}
+
+void CharServer::auth_ok(tcp_connection::pointer cl, CharSessionData *csd)
+{
+	
 }
 
 int main(int argc, char *argv[])

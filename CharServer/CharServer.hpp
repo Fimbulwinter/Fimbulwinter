@@ -17,9 +17,39 @@ enum auth_type
 	auth_token,
 };
 
+struct CharSessionData
+{
+	bool auth;
+	int account_id, login_id1, login_id2, sex;
+
+	char email[40];
+	time_t expiration_time;
+	int gmlevel;
+
+	unsigned int version;
+	unsigned char clienttype;
+
+	char birthdate[10+1];
+
+	tcp_connection::pointer cl;
+};
+
+struct AuthNode
+{
+	int login_id1;
+	int login_id2;
+
+	char sex;
+
+	unsigned char clienttype;
+	unsigned int version;
+};
+
 class CharServer
 {
 public:
+	typedef std::map<int, struct AuthNode> auth_node_db;
+
 	struct login_config
 	{
 		// CharServer
@@ -44,8 +74,12 @@ public:
 	static int parse_from_zone(tcp_connection::pointer cl);
 	static int parse_from_login(tcp_connection::pointer cl);
 	
-	// Login InterConn
+	// Auth InterConn
 	static void connect_to_auth();
+	
+	// Auth
+	static void auth_ok(tcp_connection::pointer cl, CharSessionData *csd);
+	static bool auth_conn_ok;
 	static tcp_connection::pointer auth_conn;
 
 	// Config
@@ -60,5 +94,8 @@ public:
 
 	// Database
 	static soci::session *database;
+
+	// Auth
+	static auth_node_db auth_nodes;
 private:
 };

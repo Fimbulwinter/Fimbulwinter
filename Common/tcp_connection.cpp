@@ -1,6 +1,9 @@
 #include <tcp_connection.hpp>
 #include <show_message.hpp>
 
+int tcp_connection::tag_counter_;
+std::map<int, tcp_connection::pointer> tcp_connection::sessions_;
+
 int tcp_connection::realloc_fifo(unsigned int rfifo_size, unsigned int wfifo_size)
 {
 	if(max_rdata != rfifo_size && rdata_size < rfifo_size) 
@@ -65,6 +68,9 @@ void tcp_connection::start()
 {
 	boost::asio::ip::tcp::no_delay nodelay(true);
 	socket_.set_option(nodelay);
+
+	tag_ = ++tag_counter_;
+	sessions_[tag_] = this->shared_from_this();
 
 	start_read();
 }

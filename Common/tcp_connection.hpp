@@ -7,6 +7,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <malloc.h>
 #include <stdint.h>
+#include <map>
 
 using namespace boost::asio::ip;
 
@@ -81,6 +82,8 @@ public:
 		try
 		{
 			socket_.close();
+
+			sessions_.erase(tag_);
 		}
 		catch (void *)
 		{
@@ -139,6 +142,21 @@ public:
 		free(wdata);
 	}
 
+	int tag()
+	{
+		return tag_;
+	}
+
+	static pointer get_session_by_tag(int t)
+	{
+		return sessions_[t];
+	}
+
+	static bool session_exists(int t)
+	{
+		return sessions_.count(t) == 1;
+	}
+
 private:
 	tcp_connection(boost::asio::io_service &io_service)
 		: socket_(io_service)
@@ -166,4 +184,8 @@ private:
 	tcp::socket socket_;
 	void *data_;
 	parse parse_;
+	int tag_;
+
+	static int tag_counter_;
+	static std::map<int, pointer> sessions_;
 };

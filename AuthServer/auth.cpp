@@ -228,7 +228,7 @@ bool md5check(const char* str1, const char* str2, const char* passwd)
 {
 	char md5str[64+1];
 
-	snprintf(md5str, sizeof(md5), "%s%s", str1, str2);
+	snprintf(md5str, sizeof(md5str), "%s%s", str1, str2);
 	md5(md5str);
 
 	return (0==strcmp(passwd, md5str));
