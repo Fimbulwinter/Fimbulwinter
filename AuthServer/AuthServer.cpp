@@ -291,7 +291,6 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
         
 		// Md5 Login
 		case HEADER_CA_REQ_HASH:
-			cl->send_buffer(2);
 			{
 
 				memset(asd->md5key, '\0', sizeof(asd->md5key));
@@ -302,7 +301,9 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				WFIFOW(cl,0) = HEADER_AC_ACK_HASH;
 				WFIFOW(cl,2) = 4 + asd->md5keylen;
 				memcpy(WFIFOP(cl,4), asd->md5key, asd->md5keylen);
-				cl->skip(WFIFOW(cl,2));
+				cl->send_buffer(WFIFOW(cl,2));
+				cl->skip(2);
+				
 			}
 			break;
 		
@@ -310,11 +311,9 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 		case HEADER_CA_REQ_GAME_GUARD_CHECK:
 			{
 				WFIFOHEAD(cl,3);
-				WFIFOW(cl,0) = HEADER_AC_ACK_GAMEGUARD;
-				if (asd->gameguardChallenged = true)
-					WFIFOB(cl,2) = 2;
-				else
-					WFIFOB(cl,2) = 1;
+				WFIFOW(cl,0) = HEADER_AC_ACK_GAME_GUARD;
+				WFIFOB(cl,2) = ((asd->gameguardChallenged)?(2):(1));
+				asd->gameguardChallenged = true;
 				cl->send_buffer(3);
 				cl->skip(2);
 			}
