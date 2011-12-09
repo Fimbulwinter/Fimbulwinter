@@ -6,6 +6,8 @@
 #include <core.hpp>
 #include <timers.hpp>
 #include <iostream>
+#include <md5.hpp>;
+#include <strfuncs.hpp>;
 
 // Config
 config_file *AuthServer::auth_config;
@@ -34,6 +36,7 @@ void AuthServer::run()
 		{
 			config.network_bindip = auth_config->read<string>("network.bindip", "0.0.0.0");
 			config.network_bindport = auth_config->read<unsigned short>("network.bindport", 6900);
+			config.useMD5 = auth_config->read<int>("useMD5",0);
 		}
 		ShowStatus("Finished reading authserver.conf.\n");
 
@@ -220,17 +223,15 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				{
 					strncpy(asd->password, password, NAME_LENGTH);
 
-					// TODO: Add support to MD5 encoded passwords
-					/*if(login_config.use_md5_passwds)
-						MD5_String(sd->passwd, sd->passwd);*/
+					if(login_config.useMD5)
+						md5(asd->password);
 
 					asd->type = auth_raw;
 				}
 				else
 				{
-					// TODO: Add support to MD5 encoded passwords
-					//bin2hex(sd->passwd, passhash, 16); // raw binary data here!
-
+					
+					bin2hex(asd->password, passhash, 16); // raw binary data here!
 					asd->type = auth_md5;
 				}
 
@@ -242,7 +243,25 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 					send_auth_ok(asd);
 			}
 			break;
-			// CharServer login
+        
+		// Md5 Login
+		case 0x1db:
+			cl->send_buffer(2);
+		{
+
+			memset(asd->md5key, '\0', sizeof(asd->md5key));
+			asd->md5keylen = (boost::uint16_t)(12 + rand() % 4);
+			MD5_Salt(asd->md5keylen, asd->md5key);
+
+			WFIFOHEAD(cl, 4 + asd->md5keylen);
+			WFIFOW(cl,0) = 0x01dc;
+			WFIFOW(cl,2) = 4 + asd->md5keylen;
+			memcpy(WFIFOP(cl,4), asd->md5key, asd->md5keylen);
+			cl->skip(WFIFOW(cl,2));
+		}
+		break;
+			
+		// CharServer login
 		case 0x3000: // S 3000 <login>.24B <password>.24B <display name>.20B
 			if (RFIFOREST(cl) < 76)
 				return 0;

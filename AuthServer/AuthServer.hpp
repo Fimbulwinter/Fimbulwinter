@@ -60,7 +60,11 @@ public:
 		// Network
 		string			network_bindip;
 		unsigned short	network_bindport;
-	}; 
+
+		// Password Types
+		static int useMD5; 
+		//int OTP; [TODO]
+	};
 
 	static void run();
 	static int parse_from_client(tcp_connection::pointer cl);
