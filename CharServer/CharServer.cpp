@@ -654,16 +654,14 @@ void CharServer::set_char_offline(int account_id, char char_id)
 		auth_conn->send_buffer(6);
 	}
 }
-
-void CharServer::send_chars(int account_id, tcp_connection::pointer cl)
-
 /*==============================================================*
 * Function:	Send Characters										*                                                     
 * Author: GreenBox												*
 * Date: 08/05/11												*
 * Description: Send to the client character infos		        *
 **==============================================================*/
-void CharServer::send_chars(tcp_connection::pointer cl, CharSessionData *csd){
+void CharServer::send_chars(tcp_connection::pointer cl, CharSessionData *csd)
+{
 	int j, offset = 0;
 #if PACKETVER >= 20100413
 	offset += 3;
