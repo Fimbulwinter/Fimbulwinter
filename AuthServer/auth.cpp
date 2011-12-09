@@ -8,6 +8,12 @@
 
 #include <iostream>
 
+/*==============================================================*
+* Function:	TimeStamp to String function						*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Save a timestamp in string format                *
+**==============================================================*/
 const char *timestamp2string(char *str, size_t size, time_t timestamp, const char *format)
 {
 	size_t len = strftime(str, size, format, localtime(&timestamp));
@@ -15,6 +21,12 @@ const char *timestamp2string(char *str, size_t size, time_t timestamp, const cha
 	return str;
 }
 
+/*==============================================================*
+* Function:	AuthServer Autentication							*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Authenticate a user on the AuthServer            *
+**==============================================================*/
 int AuthServer::authenticate(AuthSessionData *asd)
 {
 	Account acc;
@@ -78,6 +90,13 @@ int AuthServer::authenticate(AuthSessionData *asd)
 	return -1;
 }
 
+/*==============================================================*
+* Function:	Authentication Error Function						*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Send to the client an anthentication 			*
+* error message          										*
+**==============================================================*/
 void AuthServer::send_auth_err(AuthSessionData *asd, int result)
 {
 	tcp_connection::pointer cl = asd->cl;
@@ -101,6 +120,12 @@ void AuthServer::send_auth_err(AuthSessionData *asd, int result)
 	cl->send_buffer(23);
 }
 
+/*==============================================================*
+* Function:	AuthServer Autentication Success					*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Connect the user into the auth server            *
+**==============================================================*/
 void AuthServer::send_auth_ok(AuthSessionData *asd)
 {
 	tcp_connection::pointer cl = asd->cl;
@@ -145,6 +170,12 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 	cl->send_buffer(47+32*server_num);
 }
 
+/*==============================================================*
+* Function:	MD5 Password Check									*                                                     
+* Author: Minos	                                                *
+* Date: 09/12/11 												*
+* Description: Check a md5 password					            *
+**==============================================================*/
 bool md5check(const char* str1, const char* str2, const char* passwd)
 {
 	char md5str[64+1];
@@ -155,6 +186,12 @@ bool md5check(const char* str1, const char* str2, const char* passwd)
 	return (0==strcmp(passwd, md5str));
 }
 
+/*==============================================================*
+* Function:	Authentication Type									*                                                     
+* Author: GreenBox/Minos                                        *
+* Date: 09/12/11 												*
+* Description:Check the authentication type(PlainText/MD5/Token)*
+**==============================================================*/
 bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char *passwd, const char *refpass)
 {
 	if (type == auth_raw)
