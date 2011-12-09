@@ -120,7 +120,7 @@ public:
 	int skip(size_t len);
 
 	int realloc_writefifo(size_t addition);
-	int realloc_fifo(int fd, unsigned int rfifo_size, unsigned int wfifo_size);
+	int realloc_fifo(unsigned int rfifo_size, unsigned int wfifo_size);
 
 	unsigned char *rdata, *wdata;
 	size_t max_rdata, max_wdata;

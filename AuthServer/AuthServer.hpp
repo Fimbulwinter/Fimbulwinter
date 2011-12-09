@@ -8,6 +8,7 @@
 
 #include <ragnarok.hpp>
 #include "AccountDB.h"
+#include <map>
 
 using namespace std;
 
@@ -40,6 +41,17 @@ struct AuthSessionData
 	tcp_connection::pointer cl;
 };
 
+struct CharServerConnection
+{
+	int account_id;
+
+	boost::asio::ip::address_v4 addr;
+	unsigned short port;
+
+	char name[20];
+	tcp_connection::pointer cl;
+};
+
 class AuthServer
 {
 public:
@@ -52,6 +64,7 @@ public:
 
 	static void run();
 	static int parse_from_client(tcp_connection::pointer cl);
+	static int parse_from_char(tcp_connection::pointer cl);
 
 	// Auth
 	static int authenticate(AuthSessionData *asd);
@@ -71,5 +84,8 @@ public:
 	// Database
 	static soci::session *database;
 	static AccountDB *accounts;
+
+	// Interconnection
+	static std::map<int, struct CharServerConnection> servers;
 private:
 };

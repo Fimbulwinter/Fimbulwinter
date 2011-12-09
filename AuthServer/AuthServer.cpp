@@ -19,6 +19,9 @@ tcp_server *AuthServer::server;
 soci::session *AuthServer::database;
 AccountDB *AuthServer::accounts;
 
+// Interconnection
+std::map<int, struct CharServerConnection> AuthServer::servers;
+
 void AuthServer::run()
 {
 	boost::asio::io_service io_service;
@@ -76,6 +79,26 @@ void AuthServer::run()
 
 	// Run IO service service and start pooling events
 	io_service.run();
+}
+
+int AuthServer::parse_from_char(tcp_connection::pointer cl)
+{
+	AuthSessionData *asd = ((AuthSessionData *)cl->get_data());
+
+	if (cl->flags.eof)
+	{
+		ShowInfo("Closed connection from CharServer '"CL_WHITE"%s"CL_RESET"'.\n", servers[asd->account_id].name);
+		cl->do_close();
+
+		servers.erase(asd->account_id);
+		// TODO: Set Players Offline
+
+		return 0;
+	}
+
+
+
+	return 0;
 }
 
 int AuthServer::parse_from_client(tcp_connection::pointer cl)
@@ -207,6 +230,56 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 					send_auth_err(asd, result);
 				else
 					send_auth_ok(asd);
+			}
+			break;
+			// CharServer login
+		case 0x3000: // S 3000 <login>.24B <password>.24B <display name>.20B
+			if (RFIFOREST(cl) < 76)
+				return 0;
+			{
+				char server_name[20];
+				address_v4 addr;
+				unsigned short port;
+
+				strncpy(asd->username, (char*)RFIFOP(cl, 2), NAME_LENGTH);
+				strncpy(asd->password, (char*)RFIFOP(cl, 26), NAME_LENGTH);
+				strncpy(server_name, (char*)RFIFOP(cl, 50), 20);
+				
+				addr = address_v4(ntohl(RFIFOL(cl, 70)));
+				port = ntohs(RFIFOW(cl, 74));
+
+				cl->skip(76);
+
+				asd->type = auth_raw;
+				
+				int result = authenticate(asd);
+				if (result == -1 && asd->sex == 'S' && !servers.count(asd->account_id))
+				{
+					servers[asd->account_id].addr = addr;
+					servers[asd->account_id].port = port;
+					servers[asd->account_id].account_id = asd->account_id;
+					servers[asd->account_id].cl = cl;
+
+					strncpy(servers[asd->account_id].name, server_name, 20);
+
+					cl->flags.server = 1;
+					cl->realloc_fifo(FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
+					cl->set_parser(&AuthServer::parse_from_char);
+
+					WFIFOHEAD(cl,3);
+					WFIFOW(cl,0) = 0x3000;
+					WFIFOB(cl,2) = 0;
+					cl->send_buffer(3);
+				}
+				else
+				{
+					ShowNotice("Connection of the char-server '%s' REFUSED.\n", server_name);
+					
+					WFIFOHEAD(cl,3);
+					WFIFOW(cl,0) = 0x3000;
+					WFIFOB(cl,2) = 3;
+					cl->send_buffer(3);
+				}
 			}
 			break;
 		default:

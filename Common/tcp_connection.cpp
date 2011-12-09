@@ -1,7 +1,7 @@
 #include <tcp_connection.hpp>
 #include <show_message.hpp>
 
-int tcp_connection::realloc_fifo(int fd, unsigned int rfifo_size, unsigned int wfifo_size)
+int tcp_connection::realloc_fifo(unsigned int rfifo_size, unsigned int wfifo_size)
 {
 	if(max_rdata != rfifo_size && rdata_size < rfifo_size) 
 	{

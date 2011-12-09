@@ -102,10 +102,46 @@ void AuthServer::send_auth_err(AuthSessionData *asd, int result)
 
 void AuthServer::send_auth_ok(AuthSessionData *asd)
 {
-	WFIFOHEAD(asd->cl,3);
-	WFIFOW(asd->cl,0) = 0x81;
-	WFIFOB(asd->cl,2) = 1; // 01 = Server closed
-	asd->cl->send_buffer(3);
+	tcp_connection::pointer cl = asd->cl;
+	int server_num = servers.size();
+	int n = 0;
+
+	if (server_num == 0)
+	{
+		WFIFOHEAD(asd->cl,3);
+		WFIFOW(asd->cl,0) = 0x81;
+		WFIFOB(asd->cl,2) = 1; // 01 = Server closed
+		asd->cl->send_buffer(3);
+	}
+
+	if(asd->level > 0)
+		ShowStatus("Connection of the GM (level:%d) account '%s' accepted.\n", asd->level, asd->username);
+	else
+		ShowStatus("Connection of the account '%s' accepted.\n", asd->username);
+
+	WFIFOHEAD(cl,47+32*server_num);
+	WFIFOW(cl,0) = 0x69;
+	WFIFOW(cl,2) = 47+32*server_num;
+	WFIFOL(cl,4) = asd->login_id1;
+	WFIFOL(cl,8) = asd->account_id;
+	WFIFOL(cl,12) = asd->login_id2;
+	WFIFOL(cl,16) = 0;
+	memset(WFIFOP(cl,20), 0, 24);
+	WFIFOW(cl,44) = 0; // unknown
+	WFIFOB(cl,46) = sex_str2num(asd->sex);
+
+	map<int, CharServerConnection>::iterator it;
+	for(it = servers.begin(); it != servers.end(); it++)
+	{
+		WFIFOL(cl,47+n*32) = htonl(it->second.addr.to_ulong());
+		WFIFOW(cl,47+n*32+4) = ntohs(htons(it->second.port));
+		memcpy(WFIFOP(cl,47+n*32+6), it->second.name, 20);
+		WFIFOW(cl,47+n*32+26) = 0;//server[i].users;
+		WFIFOW(cl,47+n*32+28) = 0;//server[i].type;
+		WFIFOW(cl,47+n*32+30) = 0;//server[i].new_;
+		n++;
+	}
+	cl->send_buffer(47+32*server_num);
 }
 
 bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char *passwd, const char *refpass)
