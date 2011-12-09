@@ -1,3 +1,18 @@
+/*============ Cronus++ developer team presents: ==========*
+*	______ _           _           _           _		   *
+*	|  ___(_)         | |         | |         | |		   *
+*	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
+*	|  _| | | '_ ` _ \| '_ \| | | | \ \ / / _ \ __| '__|   *
+*	| |   | | | | | | | |_) | |_| | |\ V /  __/ |_| |      *
+*	\_|   |_|_| |_| |_|_.__/ \__,_|_| \_/ \___|\__|_|      *
+* -------------------------------------------------------- *
+*               An Ragnarok Online Emulator                *
+* -------------------------------------------------------- *
+*                Licenced under GNU GPL v3                 *
+* -------------------------------------------------------- *
+*					Sockets Macros					       *
+* ======================================================== */
+
 #pragma once
 
 #include <boost/bind.hpp>
@@ -12,6 +27,14 @@
 using namespace boost::asio::ip;
 
 #define FIFOSIZE_SERVERLINK (256 * 1024)
+
+/*==============================================================*
+* Function:	Socket Manipulation Macros							*
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Read "packet_guide.txt" in documentation         *
+* for more information.								            *
+**==============================================================*/
 
 #define RFIFOHEAD(cl)
 #define WFIFOHEAD(cl, size) if(cl->wdata_size + (size) > cl->max_wdata) cl->realloc_writefifo(size);

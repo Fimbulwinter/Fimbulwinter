@@ -1,3 +1,18 @@
+/*============ Cronus++ developer team presents: ==========*
+*	______ _           _           _           _		   *
+*	|  ___(_)         | |         | |         | |		   *
+*	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
+*	|  _| | | '_ ` _ \| '_ \| | | | \ \ / / _ \ __| '__|   *
+*	| |   | | | | | | | |_) | |_| | |\ V /  __/ |_| |      *
+*	\_|   |_|_| |_| |_|_.__/ \__,_|_| \_/ \___|\__|_|      *
+* -------------------------------------------------------- *
+*               An Ragnarok Online Emulator                *
+* -------------------------------------------------------- *
+*                Licenced under GNU GPL v3                 *
+* -------------------------------------------------------- *
+*         Authentication Server Structures and classes	   *
+* ======================================================== */
+
 #pragma once
 
 #include <config_file.hpp>
@@ -21,6 +36,13 @@ enum auth_type
 	auth_token,
 };
 
+/*==============================================================*
+* Structure: Authorization Server Data							*
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Structure responsible for basic account          * 
+* informations.                                                 *
+**==============================================================*/
 struct AuthSessionData
 {
 	int account_id;
@@ -45,6 +67,14 @@ struct AuthSessionData
 	tcp_connection::pointer cl;
 };
 
+
+/*==============================================================*
+* Structure: Character server connection data					*
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Structure responsible for char-server	        * 
+* connection.                                                   *
+**==============================================================*/
 struct CharServerConnection
 {
 	int account_id;
@@ -56,6 +86,12 @@ struct CharServerConnection
 	tcp_connection::pointer cl;
 };
 
+/*==============================================================*
+* Structure: Authorization Node									*
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description:											        * 
+**==============================================================*/
 struct AuthNode
 {
 	int login_id1;
@@ -73,6 +109,13 @@ struct OnlineAccount
 	int disconnect_timer;
 };
 
+/*==============================================================*
+* Structure: Authorization Server Data							*
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Structure responsible for general Auth-Server    * 
+* informations.                                                 *
+**==============================================================*/
 class AuthServer
 {
 public:
@@ -87,7 +130,7 @@ public:
 		unsigned short	network_bindport;
 
 		// Password Types
-		bool auth_use_md5; 
+		bool auth_use_md5;
 		//int OTP; [TODO]
 	};
 

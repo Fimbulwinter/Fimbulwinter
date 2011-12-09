@@ -1,3 +1,18 @@
+/*============ Cronus++ developer team presents: ==========*
+*	______ _           _           _           _		   *
+*	|  ___(_)         | |         | |         | |		   *
+*	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
+*	|  _| | | '_ ` _ \| '_ \| | | | \ \ / / _ \ __| '__|   *
+*	| |   | | | | | | | |_) | |_| | |\ V /  __/ |_| |      *
+*	\_|   |_|_| |_| |_|_.__/ \__,_|_| \_/ \___|\__|_|      *
+* -------------------------------------------------------- *
+*               An Ragnarok Online Emulator                *
+* -------------------------------------------------------- *
+*                Licenced under GNU GPL v3                 *
+* -------------------------------------------------------- *
+*                  Authentication Server				   *
+* ======================================================== */
+
 #include "AuthServer.hpp"
 
 #include <show_message.hpp>
@@ -28,6 +43,12 @@ AccountDB *AuthServer::accounts;
 // Interconnection
 AuthServer::char_server_db AuthServer::servers;
 
+/*==============================================================*
+* Function:	Auth::Run											*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Start Auth-Server and load configurations        *
+**==============================================================*/
 void AuthServer::run()
 {
 	boost::asio::io_service io_service;
@@ -97,6 +118,12 @@ void AuthServer::run()
 	io_service.run();
 }
 
+/*==============================================================*
+* Function:	Send all WoS										*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description:									                *
+**==============================================================*/
 void AuthServer::char_sendallwos(int cs, unsigned char *buf, size_t len)
 {			
 	BOOST_FOREACH(char_server_db::value_type &pair, servers)
@@ -110,6 +137,12 @@ void AuthServer::char_sendallwos(int cs, unsigned char *buf, size_t len)
 	}
 }
 
+/*==============================================================*
+* Function:	Parse from Char										*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Parse informations from char-server              *
+**==============================================================*/
 int AuthServer::parse_from_char(tcp_connection::pointer cl)
 {
 	AuthSessionData *asd = ((AuthSessionData *)cl->get_data());
@@ -178,18 +211,22 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 				WFIFOL(cl,62) = rid;
 				cl->send_buffer(66);
 			}
+			break;
+
 		case INTER_CA_SET_ACC_ON:
 			if(RFIFOREST(cl) < 6)
 				return 0;
 			add_online_user(asd->account_id, RFIFOL(cl,2));
 			cl->skip(6);
 			break;
+
 		case INTER_CA_SET_ACC_OFF:
 			if(RFIFOREST(cl) < 6)
 				return 0;
 			set_acc_offline(RFIFOL(cl,2));
 			cl->skip(6);
 			break;
+
 		case INTER_CA_AUTH:
 			if(RFIFOREST(cl) < 23)
 				return 0;
@@ -236,8 +273,9 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 				}
 			}
 			break;
+
 		default:
-			ShowWarning("Unknown packet 0x%x sent from CharServer '%s', closing connection.\n", cmd, servers[asd->account_id].name);
+			ShowWarning("Unknown packet 0x%04x sent from CharServer '%s', closing connection.\n", cmd, servers[asd->account_id].name);
 			cl->set_eof();
 			return 0;
 		}
@@ -246,6 +284,12 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 	return 0;
 }
 
+/*==============================================================*
+* Function:	Parse from Client ( Auth )							*                                                     
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Parse informations from the client               *
+**==============================================================*/
 int AuthServer::parse_from_client(tcp_connection::pointer cl)
 {
 	AuthSessionData *asd = ((AuthSessionData *)cl->get_data());
@@ -405,6 +449,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				cl->send_buffer(3);
 				cl->skip(2);
 			}
+			break;
 			
 		// CharServer login
 		case INTER_CA_LOGIN: // S 3000 <login>.24B <password>.24B <display name>.20B
@@ -456,6 +501,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				}
 			}
 			break;
+
 		default:
 			ShowWarning("Unknown packet 0x%04x sent from %s, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
 			cl->set_eof();
@@ -466,6 +512,13 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 	return 0;
 }
 
+
+/*==============================================================*
+* Function:	Add user Online										*
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Set a user into the online list	                *
+**==============================================================*/
 void AuthServer::add_online_user(int id, int accid)
 {
 	online_accounts[accid].charserver = id;
