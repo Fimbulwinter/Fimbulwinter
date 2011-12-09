@@ -14,6 +14,7 @@
     <ClCompile Include="CharServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CharDB.hpp" />
     <ClInclude Include="CharServer.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

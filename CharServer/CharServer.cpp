@@ -8,6 +8,9 @@
 #include <timers.hpp>
 #include <iostream>
 #include <boost/foreach.hpp>
+#include <strfuncs.hpp>
+
+#define MAX_CHAR_BUF 140
 
 // Login InterConn
 tcp_connection::pointer CharServer::auth_conn;
@@ -24,6 +27,7 @@ tcp_server *CharServer::server;
 
 // Database
 soci::session *CharServer::database;
+CharDB *CharServer::chars;
 
 // Auth
 CharServer::auth_node_db CharServer::auth_nodes;
@@ -94,7 +98,17 @@ void CharServer::run()
 	{
 		ShowInfo("Opening connection to database...\n");
 
-		database = database_helper::get_session(database_config);
+		try
+		{
+			database = database_helper::get_session(database_config);
+		}
+		catch (soci::soci_error err)
+		{
+			ShowFatalError("Error opening database connection: %s\n", err.what());
+			return;
+		}
+
+		chars = new CharDB(database);
 
 		ShowSQL("Successfully opened database connection.\n");
 	}
@@ -218,7 +232,8 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 
 					// TODO: Check max users and min level to bypass
 
-					send_chars(csd->account_id, csd->cl);
+					csd->auth = true;
+					send_chars(csd->cl, csd);
 				}
 			}
 			cl->skip(66);
@@ -335,8 +350,68 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 	{
 		unsigned short cmd = RFIFOW(cl, 0);
 
+		#define FIFOSD_CHECK(rest) { if(RFIFOREST(cl) < rest) return 0; if (csd==NULL || !csd->auth) { cl->skip(rest); return 0; } }
+
 		switch (cmd)
 		{
+		case HEADER_CH_MAKE_CHAR:
+			FIFOSD_CHECK(37);
+			{
+				// TODO: Check create char disabled
+				int i = create_char(csd, (char*)RFIFOP(cl,2),RFIFOB(cl,26),RFIFOB(cl,27),RFIFOB(cl,28),RFIFOB(cl,29),RFIFOB(cl,30),RFIFOB(cl,31),RFIFOB(cl,32),RFIFOW(cl,33),RFIFOW(cl,35));
+
+				//'Charname already exists' (-1), 'Char creation denied' (-2) and 'You are underaged' (-3)
+				if (i < 0)
+				{
+					WFIFOHEAD(cl,3);
+					WFIFOW(cl,0) = HEADER_HC_REFUSE_MAKECHAR;
+					switch (i) {
+					case -1: WFIFOB(cl,2) = 0x00; break;
+					case -2: WFIFOB(cl,2) = 0xFF; break;
+					case -3: WFIFOB(cl,2) = 0x01; break;
+					}
+					cl->send_buffer(3);
+				}
+				else
+				{
+					int len;
+
+					// retrieve data
+					CharData char_dat;
+					chars->load_char(i, char_dat, false); //Only the short data is needed.
+
+					// send to player
+					WFIFOHEAD(cl,2+MAX_CHAR_BUF);
+					WFIFOW(cl,0) = HEADER_HC_ACCEPT_MAKECHAR;
+					len = 2 + char_to_buf(WFIFOP(cl,2), &char_dat);
+					cl->send_buffer(len);
+
+					// add new entry to the chars list
+					for (int n = 0; n < MAX_CHARS; n++)
+					{
+						if(csd->found_char[n] == -1)
+							csd->found_char[n] = i; // the char_id of the new char
+					}
+				}
+				cl->skip(37);
+			}
+			break;
+		case HDADER_CH_ENTER_CHECKBOT:
+			WFIFOHEAD(cl,5);
+			WFIFOW(cl,0) = 0x7e9;
+			WFIFOW(cl,2) = 5;
+			WFIFOB(cl,4) = 1;
+			cl->send_buffer(5);
+			cl->skip(8);
+			break;
+		case HEADER_CH_CHECKBOT:
+			WFIFOHEAD(cl,5);
+			WFIFOW(cl,0) = 0x7e9;
+			WFIFOW(cl,2) = 5;
+			WFIFOB(cl,4) = 1;
+			cl->send_buffer(5);
+			cl->skip(32);
+			break;
 		case HEADER_CH_ENTER:
 			if(RFIFOREST(cl) < 17)
 				return 0;
@@ -510,19 +585,15 @@ void CharServer::set_char_offline(int account_id, char char_id)
 	}
 }
 
-#define MAX_CHAR_BUF 140
-
-void CharServer::send_chars(int account_id, tcp_connection::pointer cl)
+void CharServer::send_chars(tcp_connection::pointer cl, CharSessionData *csd)
 {
-	int i, j, found_num, offset = 0;
+	int j, offset = 0;
 #if PACKETVER >= 20100413
 	offset += 3;
 #endif
 
-	found_num = 0;//char_find_characters(sd);
-
 	j = 24 + offset; // offset
-	WFIFOHEAD(cl,j + found_num*MAX_CHAR_BUF);
+	WFIFOHEAD(cl,j + MAX_CHARS*MAX_CHAR_BUF);
 	WFIFOW(cl,0) = HEADER_HC_ACCEPT_ENTER;
 #if PACKETVER >= 20100413
 	WFIFOB(cl,4) = MAX_CHARS_SLOTS;
@@ -530,12 +601,155 @@ void CharServer::send_chars(int account_id, tcp_connection::pointer cl)
 	WFIFOB(cl,6) = MAX_CHARS;
 #endif
 	memset(WFIFOP(cl,4 + offset), 0, 20);
-	//for(i = 0; i < found_num; i++)
-	//	j += mmo_char_tobuf(WFIFOP(cl,j), &char_dat[sd->found_char[i]].status);
+	j += chars->load_chars_to_buf(csd->account_id, (char*)WFIFOP(cl,j), csd);
 	WFIFOW(cl,2) = j;
 	cl->send_buffer(j);
 
 	return;
+}
+
+int CharServer::char_to_buf(unsigned char *buffer, CharData *p)
+{
+	unsigned short offset = 0;
+	unsigned char *buf;
+
+	if( buffer == NULL || p == NULL )
+		return 0;
+
+	buf = WBUFP(buffer,0);
+	WBUFL(buf,0) = p->char_id;
+	WBUFL(buf,4) = min<unsigned int>(p->base_exp, INT32_MAX);
+	WBUFL(buf,8) = p->zeny;
+	WBUFL(buf,12) = min<unsigned int>(p->job_exp, INT32_MAX);
+	WBUFL(buf,16) = p->job_level;
+	WBUFL(buf,20) = 0; // probably opt1
+	WBUFL(buf,24) = 0; // probably opt2
+	WBUFL(buf,28) = p->option;
+	WBUFL(buf,32) = p->karma;
+	WBUFL(buf,36) = p->manner;
+	WBUFW(buf,40) = min<unsigned short>(p->status_point, INT16_MAX);
+#if PACKETVER > 20081217
+	WBUFL(buf,42) = p->hp;
+	WBUFL(buf,46) = p->max_hp;
+	offset+=4;
+	buf = WBUFP(buffer,offset);
+#else
+	WBUFW(buf,42) = min<unsigned short>(p->hp, INT16_MAX);
+	WBUFW(buf,44) = min<unsigned short>(p->max_hp, INT16_MAX);
+#endif
+	WBUFW(buf,46) = min<unsigned short>(p->sp, INT16_MAX);
+	WBUFW(buf,48) = min<unsigned short>(p->max_sp, INT16_MAX);
+	WBUFW(buf,50) = DEFAULT_WALK_SPEED; // p->speed;
+	WBUFW(buf,52) = p->class_;
+	WBUFW(buf,54) = p->hair;
+	WBUFW(buf,56) = p->option&0x7E80020 ? 0 : p->weapon; //When the weapon is sent and your option is riding, the client crashes on login!?
+	WBUFW(buf,58) = p->base_level;
+	WBUFW(buf,60) = min<unsigned short>(p->skill_point, INT16_MAX);
+	WBUFW(buf,62) = p->head_bottom;
+	WBUFW(buf,64) = p->shield;
+	WBUFW(buf,66) = p->head_top;
+	WBUFW(buf,68) = p->head_mid;
+	WBUFW(buf,70) = p->hair_color;
+	WBUFW(buf,72) = p->clothes_color;
+	memcpy(WBUFP(buf,74), p->name.c_str(), NAME_LENGTH);
+	WBUFB(buf,98) = min<unsigned char>(p->str, UINT8_MAX);
+	WBUFB(buf,99) = min<unsigned char>(p->agi, UINT8_MAX);
+	WBUFB(buf,100) = min<unsigned char>(p->vit, UINT8_MAX);
+	WBUFB(buf,101) = min<unsigned char>(p->int_, UINT8_MAX);
+	WBUFB(buf,102) = min<unsigned char>(p->dex, UINT8_MAX);
+	WBUFB(buf,103) = min<unsigned char>(p->luk, UINT8_MAX);
+	WBUFW(buf,104) = p->slot;
+#if PACKETVER >= 20061023
+	WBUFW(buf,106) = ( p->rename > 0 ) ? 0 : 1;
+	offset += 2;
+#endif
+#if (PACKETVER >= 20100720 && PACKETVER <= 20100727) || PACKETVER >= 20100803
+	//mapindex_getmapname_ext(mapindex_id2name(p->last_point.map), (char*)WBUFP(buf,108));
+	strncpy((char*)WBUFP(buf,108), "prontera.gat", MAP_NAME_LENGTH_EXT);
+	offset += MAP_NAME_LENGTH_EXT;
+#endif
+#if PACKETVER >= 20100803
+	WBUFL(buf,124) = TOL(p->delete_date);
+	offset += 4;
+#endif
+#if PACKETVER >= 20110111
+	WBUFL(buf,128) = p->robe;
+	offset += 4;
+#endif
+#if PACKETVER >= 20110928
+	WBUFL(buf,132) = 0;  // change slot feature (0 = disabled, otherwise enabled)
+	offset += 4;
+#endif
+	return 106+offset;
+}
+
+int CharServer::create_char(CharSessionData *csd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)
+{
+	char name[NAME_LENGTH];
+	int char_id, flag;
+
+	flag = check_char_name(name);
+	if( flag < 0 )
+		return flag;
+
+	if((slot >= MAX_CHARS) // slots
+		|| (str + agi + vit + int_ + dex + luk != 6*5 ) // stats
+		|| (str < 1 || str > 9 || agi < 1 || agi > 9 || vit < 1 || vit > 9 || int_ < 1 || int_ > 9 || dex < 1 || dex > 9 || luk < 1 || luk > 9) // individual stat values
+		|| (str + int_ != 10 || agi + luk != 10 || vit + dex != 10) ) // pairs
+		return -2; // invalid input
+
+	// TODO: Check max chars per account
+
+	{
+		statement s = (database->prepare << "SELECT 1 FROM `char` WHERE `account_id`=:acc AND `char_num`=:slot", use(csd->account_id), use(slot));
+		
+		s.execute(false);
+
+		if (s.get_affected_rows())
+			return -2;
+	}
+
+	CharData c;
+	memset(&c, 0, sizeof(CharData));
+	c.account_id = csd->account_id;
+	c.str = str;
+	c.agi = agi;
+	c.vit = vit;
+	c.int_ = int_;
+	c.dex = dex;
+	c.luk = luk;
+	c.name = string(name_);
+	c.slot = slot;
+	c.hair_color = hair_color;
+	c.hair = hair_style;
+	char_id = chars->save(c, true);
+
+	// TODO: Add initial items
+
+	return char_id;
+}
+
+int CharServer::check_char_name(char *name)
+{
+	int i;
+
+	// check length of character name
+	if( name[0] == '\0' )
+		return -2; // empty character name
+
+	// TODO: Check for reserved names/characters
+
+	// check name (already in use?)
+	{
+		statement s = (database->prepare << "SELECT 1 FROM `char` WHERE `name`=:n", use(string(name)));
+	
+		s.execute(false);
+
+		if (s.get_affected_rows())
+			return -1;
+	}
+
+	return 0;
 }
 
 int main(int argc, char *argv[])

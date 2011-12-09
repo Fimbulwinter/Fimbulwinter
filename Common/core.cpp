@@ -1,6 +1,9 @@
 #include "core.hpp"
 
 #include <show_message.hpp>
+#include <database_helper.h>
+
+std::string database_helper::driver_;
 
 void core_display_title()
 {

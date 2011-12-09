@@ -4,9 +4,11 @@
 #include <show_message.hpp>
 #include <soci/soci.h>
 
-
 class database_helper
 {
+private:
+	static std::string driver_;
+
 public:
 	static soci::session *get_session(config_file *conf)
 	{
@@ -39,8 +41,24 @@ public:
 				
 				return NULL;
 			}
+
+			driver_ = driver;
 		}
 
 		return new soci::session((std::string)connection_string);
+	}
+
+	static int get_last_insert_id(soci::session *s)
+	{
+		int result = 0;
+
+		if (driver_ == "mysql")
+			*s << "SELECT LAST_INSERT_ID()", soci::into(result);
+		else if (driver_ == "sqlite3")
+		{
+			// TODO: Implement
+		}
+
+		return result;
 	}
 };
