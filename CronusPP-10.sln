@@ -1,6 +1,10 @@
-﻿Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AuthServer", "AuthServer\AuthServer.vcxproj", "{F926FEAA-D0F3-442D-9CD0-A524E1CA0224}"
+	ProjectSection(ProjectDependencies) = postProject
+		{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3} = {090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}"
 EndProject
@@ -21,8 +25,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{CE3DD4A7-75DC-49A0-AE47-8B4473A7DC00} = {975CE490-75E5-4B82-BDB6-2489D97E8C9B}
 	EndGlobalSection
 EndGlobal

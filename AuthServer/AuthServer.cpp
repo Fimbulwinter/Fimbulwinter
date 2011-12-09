@@ -3,7 +3,7 @@
 #include <show_message.hpp>
 #include <database_helper.h>
 #include <ragnarok.hpp>
-
+#include <timers.hpp>
 #include <iostream>
 
 // Config
@@ -44,6 +44,8 @@ void AuthServer::run()
 		ShowFatalError("Config file not found: %s.\n", fnf->filename);
 		return;
 	}
+
+	TimerManager::Initialize(&io_service);
 
 	// Initialize Database System
 	{
