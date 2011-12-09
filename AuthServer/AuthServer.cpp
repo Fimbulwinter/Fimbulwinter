@@ -54,7 +54,16 @@ void AuthServer::run()
 	{
 		ShowInfo("Opening connection to database...\n");
 
-		database = database_helper::get_session(database_config);
+		try
+		{
+			database = database_helper::get_session(database_config);
+		}
+		catch (soci::soci_error err)
+		{
+			ShowFatalError("Error opening database connection: %s\n", err.what());
+			return;
+		}
+
 		accounts = new AccountDB(database);
 
 		ShowSQL("Successfully opened database connection.\n");
