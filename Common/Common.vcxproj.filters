@@ -6,6 +6,7 @@
     <ClCompile Include="show_message.cpp" />
     <ClCompile Include="timers.cpp" />
     <ClCompile Include="core.cpp" />
+    <ClCompile Include="strfuncs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tcp_server.hpp" />
@@ -16,5 +17,6 @@
     <ClInclude Include="ragnarok.hpp" />
     <ClInclude Include="timers.hpp" />
     <ClInclude Include="core.hpp" />
+    <ClInclude Include="strfuncs.hpp" />
   </ItemGroup>
 </Project>

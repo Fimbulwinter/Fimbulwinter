@@ -188,7 +188,9 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 
 	while(RFIFOREST(cl) >= 2)
 	{
-		SWITCH_PACKET()
+		unsigned short cmd = RFIFOW(cl, 0);
+
+		switch (cmd)
 		{
 		case INTER_AC_LOGIN_REPLY:
 			{

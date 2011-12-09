@@ -320,7 +320,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 			}
 			
 		// CharServer login
-		case 0x3000: // S 3000 <login>.24B <password>.24B <display name>.20B
+		case INTER_CA_LOGIN: // S 3000 <login>.24B <password>.24B <display name>.20B
 			if (RFIFOREST(cl) < 76)
 				return 0;
 			{
