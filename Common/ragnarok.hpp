@@ -1,6 +1,13 @@
 #pragma once
 
+#define PACKETVER 20110111
+
 #define NAME_LENGTH (23 + 1)
+
+#define MAX_CHARS_SLOTS 9
+
+#define MAX_CHARS MAX_CHARS_SLOTS
+
 
 enum {
 	SEX_FEMALE = 0,
@@ -16,6 +23,9 @@ enum
 	INTER_CA_AUTH,
 	INTER_AC_AUTH_REPLY,
 	INTER_CA_REQ_ACC_DATA,
+	INTER_AC_REQ_ACC_DATA_REPLY,
+	INTER_CA_SET_ACC_OFF,
+	INTER_CA_SET_ACC_ON,
 };
 
 enum 

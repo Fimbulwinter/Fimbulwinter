@@ -27,6 +27,7 @@ soci::session *CharServer::database;
 
 // Auth
 CharServer::auth_node_db CharServer::auth_nodes;
+CharServer::online_account_db CharServer::online_chars;
 bool CharServer::auth_conn_ok;
 
 void CharServer::run()
@@ -201,6 +202,27 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
+		case INTER_AC_REQ_ACC_DATA_REPLY:
+			if (RFIFOREST(cl) < 66)
+				return 0;
+			{
+				int tag = RFIFOL(cl, 62);
+
+				if (tcp_connection::session_exists(tag) && 
+					(csd = (CharSessionData *)tcp_connection::get_session_by_tag(tag)->get_data()))
+				{
+					memcpy(csd->email, RFIFOP(cl,6), 40);
+					csd->expiration_time = (time_t)RFIFOL(cl,46);
+					csd->gmlevel = RFIFOB(cl,50);
+					strncpy(csd->birthdate, (const char*)RFIFOP(cl,51), sizeof(csd->birthdate));
+
+					// TODO: Check max users and min level to bypass
+
+					send_chars(csd->account_id, csd->cl);
+				}
+			}
+			cl->skip(66);
+			break;
 		case INTER_AC_AUTH_REPLY:
 			if (RFIFOREST(cl) < 25)
 				return 0;
@@ -281,7 +303,7 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 	if (cl->flags.eof)
 	{
 		if (csd)
-			free(csd);
+			delete csd;
 
 		ShowInfo("Closed connection from '"CL_WHITE"%s"CL_RESET"'.\n", cl->socket().remote_endpoint().address().to_string().c_str());
 		cl->do_close();
@@ -353,6 +375,11 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 				}
 			}
 			break;
+		case HEADER_PING:
+			if (RFIFOREST(cl) < 6)
+				return 0;
+			cl->skip(6);
+			break;
 		default:
 			ShowWarning("Unknown packet 0x%04x sent from %s, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
 			cl->set_eof();
@@ -365,7 +392,128 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 
 void CharServer::auth_ok(tcp_connection::pointer cl, CharSessionData *csd)
 {
-	
+	if (online_chars.count(csd->account_id))
+	{
+		if (online_chars[csd->account_id].server > -1)
+		{
+			// TODO: Kick form ZoneServer
+
+			if (online_chars[csd->account_id].disconnect_timer)
+				TimerManager::FreeTimer(online_chars[csd->account_id].disconnect_timer);
+
+			set_char_offline(csd->account_id, -1);
+
+			WFIFOHEAD(cl,3);	
+			WFIFOW(cl,0) = HEADER_SC_NOTIFY_BAN;
+			WFIFOB(cl,2) = 8;
+			cl->send_buffer(3);
+
+			return;
+		}
+		
+		if (online_chars[csd->account_id].cl->tag() != cl->tag())
+		{
+			WFIFOHEAD(cl,3);	
+			WFIFOW(cl,0) = HEADER_SC_NOTIFY_BAN;
+			WFIFOB(cl,2) = 8;
+			cl->send_buffer(3);
+
+			return;
+		}
+
+		online_chars[csd->account_id].cl = cl;
+	}
+
+	if (auth_conn_ok)
+	{
+		WFIFOHEAD(auth_conn,10);
+		WFIFOW(auth_conn,0) = INTER_CA_REQ_ACC_DATA;
+		WFIFOL(auth_conn,2) = csd->account_id;
+		WFIFOL(auth_conn,6) = cl->tag();
+		auth_conn->send_buffer(10);
+	}
+
+	set_charsel(csd->account_id);
+}
+
+void CharServer::disconnect_char(int timer, int accid)
+{
+	set_char_offline(accid, -1);
+}
+
+void CharServer::set_charsel(int account_id)
+{
+	// TODO: Decrement ZoneServer user on
+
+	online_chars[account_id].char_id = -1;
+	online_chars[account_id].server = -1;
+
+	if (online_chars[account_id].disconnect_timer) 
+		TimerManager::FreeTimer(online_chars[account_id].disconnect_timer);
+
+	if (auth_conn_ok)
+	{
+		WFIFOHEAD(auth_conn,6);
+		WFIFOW(auth_conn,0) = INTER_CA_SET_ACC_ON;
+		WFIFOL(auth_conn,2) = account_id;
+		auth_conn->send_buffer(6);
+	}
+}
+
+void CharServer::set_char_offline(int account_id, char char_id)
+{
+	if (online_chars.count(account_id))
+	{
+		if (online_chars[account_id].server > -1)
+		{
+			// TODO: Decrement ZoneServer users online
+		}
+
+		if (online_chars[account_id].disconnect_timer)
+			TimerManager::FreeTimer(online_chars[account_id].disconnect_timer);
+
+		if (online_chars[account_id].char_id == char_id)
+		{
+			online_chars[account_id].char_id = -1;
+			online_chars[account_id].server = -1;
+		}
+	}
+
+	if (auth_conn_ok && (char_id == -1 || !online_chars.count(account_id) || online_chars[account_id].cl->flags.eof))
+	{
+		WFIFOHEAD(auth_conn,6);
+		WFIFOW(auth_conn,0) = INTER_CA_SET_ACC_OFF;
+		WFIFOL(auth_conn,2) = account_id;
+		auth_conn->send_buffer(6);
+	}
+}
+
+#define MAX_CHAR_BUF 140
+
+void CharServer::send_chars(int account_id, tcp_connection::pointer cl)
+{
+	int i, j, found_num, offset = 0;
+#if PACKETVER >= 20100413
+	offset += 3;
+#endif
+
+	found_num = 0;//char_find_characters(sd);
+
+	j = 24 + offset; // offset
+	WFIFOHEAD(cl,j + found_num*MAX_CHAR_BUF);
+	WFIFOW(cl,0) = 0x6b;
+#if PACKETVER >= 20100413
+	WFIFOB(cl,4) = MAX_CHARS_SLOTS;
+	WFIFOB(cl,5) = MAX_CHARS;
+	WFIFOB(cl,6) = MAX_CHARS;
+#endif
+	memset(WFIFOP(cl,4 + offset), 0, 20);
+	//for(i = 0; i < found_num; i++)
+	//	j += mmo_char_tobuf(WFIFOP(cl,j), &char_dat[sd->found_char[i]].status);
+	WFIFOW(cl,2) = j;
+	cl->send_buffer(j);
+
+	return;
 }
 
 int main(int argc, char *argv[])

@@ -104,7 +104,7 @@ public:
 	static void disconnect_user(int timer, int accid);
 
 	static void char_sendallwos(int cs, unsigned char *buf, size_t len);
-
+	static void add_online_user(int id, int accid);
 	// Config
 	static config_file *auth_config;
 	static config_file *database_config;

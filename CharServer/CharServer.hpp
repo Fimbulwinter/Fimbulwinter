@@ -45,10 +45,21 @@ struct AuthNode
 	unsigned int version;
 };
 
+struct OnlineChar 
+{
+	int account_id;
+	int char_id;
+
+	tcp_connection::pointer cl;
+	int disconnect_timer;
+	int server;
+};
+
 class CharServer
 {
 public:
 	typedef std::map<int, struct AuthNode> auth_node_db;
+	typedef std::map<int, struct OnlineChar> online_account_db;
 
 	struct login_config
 	{
@@ -79,6 +90,11 @@ public:
 	
 	// Auth
 	static void auth_ok(tcp_connection::pointer cl, CharSessionData *csd);
+	static void set_charsel(int account_id);
+	static void set_char_offline(int account_id, char char_id);
+
+	static void disconnect_char(int timer, int accid);
+	static void send_chars( int account_id, tcp_connection::pointer cl );
 	static bool auth_conn_ok;
 	static tcp_connection::pointer auth_conn;
 
@@ -97,5 +113,6 @@ public:
 
 	// Auth
 	static auth_node_db auth_nodes;
+	static online_account_db online_chars;
 private:
 };

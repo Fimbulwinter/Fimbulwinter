@@ -133,7 +133,7 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 				}
 			}
 
-			free(asd);
+			delete asd;
 		}
 
 		cl->do_close();
@@ -146,6 +146,50 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
+		case INTER_CA_REQ_ACC_DATA:
+			if(RFIFOREST(cl) < 10)
+				return 0;
+			{
+				Account acc;
+				time_t expiration_time = 0;
+				char email[40] = "";
+				int gmlevel = 0;
+				char birthdate[11] = "";
+				int rid = RFIFOL(cl,6);
+
+				int account_id = RFIFOL(cl,2);
+				cl->skip(10);
+
+				if (!accounts->load_account(account_id, acc))
+				{
+					expiration_time = acc.expiration_time;
+					strncpy(email, acc.email.c_str(), 40);
+					gmlevel = acc.level;
+					strncpy(birthdate, acc.birthdate.c_str(), 11);
+				}
+
+				WFIFOHEAD(cl,66);
+				WFIFOW(cl,0) = INTER_AC_REQ_ACC_DATA_REPLY;
+				WFIFOL(cl,2) = account_id;
+				strncpy((char*)WFIFOP(cl,6), email, 40);
+				WFIFOL(cl,46) = (unsigned int)expiration_time;
+				WFIFOB(cl,50) = gmlevel;
+				strncpy((char*)WFIFOP(cl,51), birthdate, 10+1);
+				WFIFOL(cl,62) = rid;
+				cl->send_buffer(66);
+			}
+		case INTER_CA_SET_ACC_ON:
+			if(RFIFOREST(cl) < 6)
+				return 0;
+			add_online_user(asd->account_id, RFIFOL(cl,2));
+			cl->skip(6);
+			break;
+		case INTER_CA_SET_ACC_OFF:
+			if(RFIFOREST(cl) < 6)
+				return 0;
+			set_acc_offline(RFIFOL(cl,2));
+			cl->skip(6);
+			break;
 		case INTER_CA_AUTH:
 			if(RFIFOREST(cl) < 23)
 				return 0;
@@ -209,7 +253,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 	if (cl->flags.eof)
 	{
 		if (asd)
-			free(asd);
+			delete asd;
 
 		ShowInfo("Closed connection from '"CL_WHITE"%s"CL_RESET"'.\n", cl->socket().remote_endpoint().address().to_string().c_str());
 		cl->do_close();
@@ -321,7 +365,6 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				}
 				else
 				{
-					
 					bin2hex(asd->password, passhash, 16); // raw binary data here!
 					asd->type = auth_md5;
 				}
@@ -338,7 +381,6 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 		// Md5 Login
 		case HEADER_CA_REQ_HASH:
 			{
-
 				memset(asd->md5key, '\0', sizeof(asd->md5key));
 				asd->md5keylen = (boost::uint16_t)(12 + rand() % 4);
 				MD5_Salt(asd->md5keylen, asd->md5key);
@@ -422,6 +464,14 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 	}
 
 	return 0;
+}
+
+void AuthServer::add_online_user(int id, int accid)
+{
+	online_accounts[accid].charserver = id;
+
+	if (online_accounts[accid].disconnect_timer)
+		TimerManager::FreeTimer(online_accounts[accid].disconnect_timer);
 }
 
 int main(int argc, char *argv[])

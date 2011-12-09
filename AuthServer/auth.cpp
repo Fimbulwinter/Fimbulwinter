@@ -135,41 +135,36 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 	int server_num = servers.size();
 	int n = 0;
 
-	BOOST_FOREACH(online_account_db::value_type &pair, online_accounts)
+	if (online_accounts.count(asd->account_id))
 	{
-		if (pair.first == asd->account_id)
+		if (online_accounts[asd->account_id].charserver > -1)
 		{
-			if (pair.second.charserver > -1)
-			{
-				unsigned char buf[6];
+			unsigned char buf[6];
 
-				WBUFW(buf,0) = INTER_AC_KICK;
-				WBUFL(buf,2) = asd->account_id;
-				char_sendallwos(-1, buf, 6);
+			WBUFW(buf,0) = INTER_AC_KICK;
+			WBUFL(buf,2) = asd->account_id;
+			char_sendallwos(-1, buf, 6);
 
-				if (pair.second.disconnect_timer)
-					TimerManager::FreeTimer(pair.second.disconnect_timer);
+			if (online_accounts[asd->account_id].disconnect_timer)
+				TimerManager::FreeTimer(online_accounts[asd->account_id].disconnect_timer);
 
-				set_acc_offline(asd->account_id);
+			set_acc_offline(asd->account_id);
 
-				WFIFOHEAD(asd->cl,3);
-				WFIFOW(asd->cl,0) = 0x81;
-				WFIFOB(asd->cl,2) = 8;
-				asd->cl->send_buffer(3);
-			}
-			else if (pair.second.charserver == -1)
-			{
-				set_acc_offline(asd->account_id);
-			}
-
-			break;
+			WFIFOHEAD(asd->cl,3);
+			WFIFOW(asd->cl,0) = HEADER_SC_NOTIFY_BAN;
+			WFIFOB(asd->cl,2) = 8;
+			asd->cl->send_buffer(3);
+		}
+		else if (online_accounts[asd->account_id].charserver == -1)
+		{
+			set_acc_offline(asd->account_id);
 		}
 	}
 
 	if (server_num == 0)
 	{
 		WFIFOHEAD(asd->cl,3);
-		WFIFOW(asd->cl,0) = 0x81;
+		WFIFOW(asd->cl,0) = HEADER_SC_NOTIFY_BAN;
 		WFIFOB(asd->cl,2) = 1; // 01 = Server closed
 		asd->cl->send_buffer(3);
 	}
