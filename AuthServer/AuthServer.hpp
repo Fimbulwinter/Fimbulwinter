@@ -87,7 +87,7 @@ public:
 		unsigned short	network_bindport;
 
 		// Password Types
-		bool auth_use_md5; 
+		bool auth_use_md5;
 		//int OTP; [TODO]
 	};
 

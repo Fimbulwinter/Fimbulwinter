@@ -178,18 +178,22 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 				WFIFOL(cl,62) = rid;
 				cl->send_buffer(66);
 			}
+			break;
+
 		case INTER_CA_SET_ACC_ON:
 			if(RFIFOREST(cl) < 6)
 				return 0;
 			add_online_user(asd->account_id, RFIFOL(cl,2));
 			cl->skip(6);
 			break;
+
 		case INTER_CA_SET_ACC_OFF:
 			if(RFIFOREST(cl) < 6)
 				return 0;
 			set_acc_offline(RFIFOL(cl,2));
 			cl->skip(6);
 			break;
+
 		case INTER_CA_AUTH:
 			if(RFIFOREST(cl) < 23)
 				return 0;
@@ -236,8 +240,9 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 				}
 			}
 			break;
+
 		default:
-			ShowWarning("Unknown packet 0x%x sent from CharServer '%s', closing connection.\n", cmd, servers[asd->account_id].name);
+			ShowWarning("Unknown packet 0x%04x sent from CharServer '%s', closing connection.\n", cmd, servers[asd->account_id].name);
 			cl->set_eof();
 			return 0;
 		}
@@ -405,6 +410,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				cl->send_buffer(3);
 				cl->skip(2);
 			}
+			break;
 			
 		// CharServer login
 		case INTER_CA_LOGIN: // S 3000 <login>.24B <password>.24B <display name>.20B
@@ -456,6 +462,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				}
 			}
 			break;
+
 		default:
 			ShowWarning("Unknown packet 0x%04x sent from %s, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
 			cl->set_eof();

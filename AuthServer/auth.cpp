@@ -4,7 +4,7 @@
 #include <database_helper.h>
 #include <ragnarok.hpp>
 #include <timers.hpp>
-#include <md5.hpp>;
+#include <md5.hpp>
 #include <boost/foreach.hpp>
 #include <iostream>
 
