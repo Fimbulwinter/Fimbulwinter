@@ -265,11 +265,9 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 		case HEADER_CA_REQ_GAME_GUARD_CHECK:
 			{
 				WFIFOHEAD(cl,3);
-				WFIFOW(cl,0) = HEADER_AC_ACK_GAMEGUARD;
-				if (asd->gameguardChallenged = true)
-					WFIFOB(cl,2) = 2;
-				else
-					WFIFOB(cl,2) = 1;
+				WFIFOW(cl,0) = HEADER_AC_ACK_GAME_GUARD;
+				WFIFOB(cl,2) = ((asd->gameguardChallenged)?(2):(1));
+				asd->gameguardChallenged = true;
 				cl->send_buffer(3);
 				cl->skip(2);
 			}
