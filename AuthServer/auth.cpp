@@ -4,6 +4,7 @@
 #include <database_helper.h>
 #include <ragnarok.hpp>
 #include <timers.hpp>
+#include <md5.hpp>;
 
 #include <iostream>
 
@@ -144,6 +145,16 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 	cl->send_buffer(47+32*server_num);
 }
 
+bool md5check(const char* str1, const char* str2, const char* passwd)
+{
+	char md5str[64+1];
+
+	snprintf(md5str, sizeof(md5), "%s%s", str1, str2);
+	md5(md5str);
+
+	return (0==strcmp(passwd, md5str));
+}
+
 bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char *passwd, const char *refpass)
 {
 	if (type == auth_raw)
@@ -152,7 +163,8 @@ bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char 
 	}
 	else if (type == auth_md5)
 	{
-		// TODO: Add support to MD5 hashed passwords
+		return ((auth_md5&0x01) && md5check(md5key, refpass, passwd)) ||
+		       ((auth_md5&0x02) && md5check(refpass, md5key, passwd));
 	}
 	else if (type == auth_token)
 	{
