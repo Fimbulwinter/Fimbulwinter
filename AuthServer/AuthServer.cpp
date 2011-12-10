@@ -193,7 +193,7 @@ int AuthServer::parse_from_char(tcp_connection::pointer cl)
 				int account_id = RFIFOL(cl,2);
 				cl->skip(10);
 
-				if (!accounts->load_account(account_id, acc))
+				if (accounts->load_account(account_id, acc))
 				{
 					expiration_time = acc.expiration_time;
 					strncpy(email, acc.email.c_str(), 40);

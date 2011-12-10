@@ -296,20 +296,20 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 					!csd->auth && csd->account_id == account_id && csd->login_id1 == login_id1 &&
 					csd->login_id2 == login_id2 && csd->sex == sex)
 				{
-					tcp_connection::pointer client_fd = csd->cl;
+					tcp_connection::pointer client_cl = csd->cl;
 					csd->version = version;
 					csd->clienttype = clienttype;
 					
 					if (result == 0)
 					{
-						auth_ok(client_fd, csd);
+						auth_ok(client_cl, csd);
 					}
 					else
 					{
-						WFIFOHEAD(client_fd,3);
-						WFIFOW(client_fd,0) = HEADER_HC_REFUSE_ENTER;
-						WFIFOB(client_fd,2) = 0;
-						client_fd->send_buffer(3);
+						WFIFOHEAD(client_cl,3);
+						WFIFOW(client_cl,0) = HEADER_HC_REFUSE_ENTER;
+						WFIFOB(client_cl,2) = 0;
+						client_cl->send_buffer(3);
 					}
 				}
 			}
@@ -399,6 +399,85 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
+		case HEADER_CH_REQUEST_DEL_TIMER:
+			FIFOSD_CHECK(6);
+			delete2_req(cl, csd);
+			cl->skip(6);
+			break;
+
+		case HEADER_CH_ACCEPT_DEL_REQ:
+			FIFOSD_CHECK(12);
+			delete2_accept(cl, csd);
+			cl->skip(6);
+			break;
+
+		case HEADER_CH_CANCEL_DEL_REQ:
+			FIFOSD_CHECK(6);
+			delete2_cancel(cl, csd);
+			cl->skip(6);
+			break;
+		case HEADER_CH_DELETE_CHAR:
+		case HEADER_CH_DELETE_CHAR2:
+			if (cmd == 0x68) FIFOSD_CHECK(46);
+			if (cmd == 0x1fb) FIFOSD_CHECK(56);
+			FIFOSD_CHECK(37);
+			{
+				int cid = RFIFOL(cl,2);
+				char email[40];
+				memcpy(email, RFIFOP(cl,6), 40);
+
+				cl->skip((cmd == 0x68) ? 46 : 56);
+
+				if (strcmpi(email, csd->email) != 0 && (strcmp("a@a.com", csd->email) || (strcmp("a@a.com", email) && strcmp("", email))))
+				{
+					WFIFOHEAD(cl,3);
+					WFIFOW(cl,0) = HEADER_HC_REFUSE_DELETECHAR;
+					WFIFOB(cl,2) = 0;
+					cl->send_buffer(3);
+					break;
+				}
+
+				bool found = false;
+				int i, ch;
+				for (i = 0; i < MAX_CHARS; i++)
+				{
+					if (csd->found_char[i] == cid)
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					WFIFOHEAD(cl,3);
+					WFIFOW(cl,0) = HEADER_HC_REFUSE_DELETECHAR;
+					WFIFOB(cl,2) = 0;
+					cl->send_buffer(3);
+					break;
+				}
+				else
+				{
+					for(ch = i; ch < MAX_CHARS - 1; ch++)
+						csd->found_char[ch] = csd->found_char[ch+1];
+
+					csd->found_char[MAX_CHARS - 1] = -1;
+
+					if (!chars->delete_char(cid))
+					{
+						WFIFOHEAD(cl,3);
+						WFIFOW(cl,0) = HEADER_HC_REFUSE_DELETECHAR;
+						WFIFOB(cl,2) = 0;
+						cl->send_buffer(3);
+						break;
+					}
+
+					WFIFOHEAD(cl,2);
+					WFIFOW(cl,0) = HEADER_HC_ACCEPT_DELETECHAR;
+					cl->send_buffer(2);
+				}
+			}
+			break;
 		case HEADER_CH_MAKE_CHAR:
 			FIFOSD_CHECK(37);
 			{
@@ -758,9 +837,8 @@ int CharServer::char_to_buf(unsigned char *buffer, CharData *p)
 	return 106+offset;
 }
 
-int CharServer::create_char(CharSessionData *csd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)
+int CharServer::create_char(CharSessionData *csd, char* name, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)
 {
-	char name[NAME_LENGTH];
 	int char_id, flag;
 
 	flag = check_char_name(name);
@@ -793,7 +871,7 @@ int CharServer::create_char(CharSessionData *csd, char* name_, int str, int agi,
 	c.int_ = int_;
 	c.dex = dex;
 	c.luk = luk;
-	c.name = string(name_);
+	c.name = string(name);
 	c.slot = slot;
 	c.hair_color = hair_color;
 	c.hair = hair_style;
@@ -816,7 +894,7 @@ int CharServer::check_char_name(char *name)
 
 	// check name (already in use?)
 	{
-		statement s = (database->prepare << "SELECT 1 FROM `char` WHERE `name`=:n", use(string(name)));
+		statement s = (database->prepare << "SELECT `char_id` FROM `char` WHERE `name`=:n", use(string(name)));
 	
 		s.execute(false);
 
@@ -825,6 +903,198 @@ int CharServer::check_char_name(char *name)
 	}
 
 	return 0;
+}
+
+bool CharServer::check_email(char *email)
+{
+	char ch;
+	char* last_arobas;
+	size_t len = strlen(email);
+
+	// Server Limits
+	if (len < 3 || len > 39)
+		return 0;
+
+	// Part of RFC limits (official reference of e-mail description)
+	if (strchr(email, '@') == NULL || email[len-1] == '@')
+		return 0;
+
+	if (email[len-1] == '.')
+		return 0;
+
+	last_arobas = strrchr(email, '@');
+
+	if (strstr(last_arobas, "@.") != NULL || strstr(last_arobas, "..") != NULL)
+		return 0;
+
+	for(ch = 1; ch < 32; ch++)
+		if (strchr(last_arobas, ch) != NULL)
+			return 0;
+
+	if (strchr(last_arobas, ' ') != NULL || strchr(last_arobas, ';') != NULL)
+		return 0;
+
+	// All Correct
+	return 1;
+}
+
+void CharServer::delete2_req(tcp_connection::pointer cl, CharSessionData *csd)
+{
+	int char_id, i;
+	time_t delete_date;
+
+	char_id = RFIFOL(cl, 2);
+
+	bool found = false;
+	int ch;
+	for (i = 0; i < MAX_CHARS; i++)
+	{
+		if (csd->found_char[i] == char_id)
+		{
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+	{
+		delete2_ack(cl, char_id, 3, 0);
+		return;
+	}
+	else
+	{
+		// TODO: Implement char deletion delay
+		delete_date = time(NULL) + 60;
+
+		*database << "UPDATE `char` SET `delete_date`=:t WHERE `char_id`=:c", use(delete_date), use(char_id);
+
+		delete2_ack(cl, char_id, 1, delete_date);
+	}
+}
+
+void CharServer::delete2_accept( tcp_connection::pointer cl, CharSessionData * csd )
+{
+	char birthdate[8+1];
+	int char_id, i, k;
+	unsigned int base_level;
+	char* data;
+	time_t delete_date;
+
+	char_id = RFIFOL(cl,2);
+
+	ShowInfo(CL_RED"Request Char Deletion: "CL_GREEN"%d (%d)"CL_RESET"\n", csd->account_id, char_id);
+
+	// construct "YY-MM-DD"
+	birthdate[0] = RFIFOB(cl,6);
+	birthdate[1] = RFIFOB(cl,7);
+	birthdate[2] = '-';
+	birthdate[3] = RFIFOB(cl,8);
+	birthdate[4] = RFIFOB(cl,9);
+	birthdate[5] = '-';
+	birthdate[6] = RFIFOB(cl,10);
+	birthdate[7] = RFIFOB(cl,11);
+	birthdate[8] = 0;
+
+	bool found = false;
+	for (i = 0; i < MAX_CHARS; i++)
+	{
+		if (csd->found_char[i] == char_id)
+		{
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+	{
+		delete2_accept_ack(cl, char_id, 3);
+		return;
+	}
+
+	*database << "SELECT `delete_date` FROM `char` WHERE `char_id` = :c", use(char_id), into(delete_date);
+
+	if( !delete_date || delete_date>time(NULL) )
+	{// not queued or delay not yet passed
+		delete2_accept_ack(cl, char_id, 4);
+		return;
+	}
+
+	if(strcmp(csd->birthdate + 2, birthdate))  // +2 to cut off the century
+	{
+		delete2_accept_ack(cl, char_id, 5);
+		return;
+	}
+
+	if(!chars->delete_char(char_id))
+	{
+		delete2_accept_ack(cl, char_id, 3);
+		return;
+	}
+
+	for(k = i; k < MAX_CHARS - 1; k++)
+		csd->found_char[k] = csd->found_char[k+1];
+
+	csd->found_char[MAX_CHARS - 1] = -1;
+
+	delete2_accept_ack(cl, char_id, 1);
+}
+
+void CharServer::delete2_cancel( tcp_connection::pointer cl, CharSessionData * csd )
+{
+	int char_id, i;
+
+	char_id = RFIFOL(cl,2);
+
+	bool found = false;
+	for (i = 0; i < MAX_CHARS; i++)
+	{
+		if (csd->found_char[i] == char_id)
+		{
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+	{
+		delete2_accept_ack(cl, char_id, 3);
+		return;
+	}
+
+	// there is no need to check, whether or not the character was
+	// queued for deletion, as the client prints an error message by
+	// itself, if it was not the case (@see char_delete2_cancel_ack)
+	*database << "UPDATE `char` SET `delete_date` = 0 WHERE `char_id`=:c", use(char_id);
+
+	delete2_cancel_ack(cl, char_id, 1);
+}
+
+void CharServer::delete2_ack( tcp_connection::pointer cl, int char_id, int result, time_t deltime )
+{
+	WFIFOHEAD(cl,14);
+	WFIFOW(cl,0) = HEADER_HC_DEL_REQUEST_ACK;
+	WFIFOL(cl,2) = char_id;
+	WFIFOL(cl,6) = result;
+	WFIFOL(cl,10) = TOL(deltime);
+	cl->send_buffer(14);
+}
+
+void CharServer::delete2_accept_ack( tcp_connection::pointer cl, int char_id, int result )
+{
+	WFIFOHEAD(cl,10);
+	WFIFOW(cl,0) = HEADER_HC_DEL_ACCEPT_ACK;
+	WFIFOL(cl,2) = char_id;
+	WFIFOL(cl,6) = result;
+	cl->send_buffer(10);
+}
+
+void CharServer::delete2_cancel_ack( tcp_connection::pointer cl, int char_id, int result )
+{
+	WFIFOHEAD(cl,10);
+	WFIFOW(cl,0) = HEADER_HC_DEL_CANCEL_ACK;
+	WFIFOL(cl,2) = char_id;
+	WFIFOL(cl,6) = result;
+	cl->send_buffer(10);
 }
 
 int main(int argc, char *argv[])

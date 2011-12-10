@@ -140,13 +140,17 @@ void tcp_connection::send_buffer(size_t len)
 
 	newreserve = flags.server ? FIFOSIZE_SERVERLINK / 4 : WFIFO_SIZE;
 
-	realloc_writefifo(newreserve);
+	//realloc_writefifo(newreserve);
 
-	boost::asio::async_write(socket_,
+	/*boost::asio::async_write(socket_,
 		boost::asio::buffer(wdata,
 		wdata_size),
 		boost::bind(&tcp_connection::handle_write, shared_from_this(),
-		boost::asio::placeholders::error));
+		boost::asio::placeholders::error));*/
+	boost::asio::write(socket_,
+		boost::asio::buffer(wdata,
+		wdata_size));
+	wdata_size = 0;
 }
 
 void tcp_connection::handle_write(const boost::system::error_code &error)

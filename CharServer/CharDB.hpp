@@ -166,6 +166,15 @@ public:
 		}
 	}
 
+	bool delete_char(int cid) 
+	{
+		// TODO: Divorce, De-addopt, leave party, delete pets, delete homunculus, mercenary data, friend list, saved hotkeys, invetory, memo areas, char registry, skills, sc's and leave or break guild
+		
+		statement s = (db_->prepare << "DELETE FROM `char` WHERE `char_id`=:d", use(cid));
+		s.execute(false);
+
+		return true;
+	}
 
 private:
 	soci::session *db_;

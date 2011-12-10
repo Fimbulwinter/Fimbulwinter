@@ -114,7 +114,13 @@ public:
 	static int char_to_buf(unsigned char *buf, CharData *ch);
 	static int create_char(CharSessionData *csd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style);
 	static int check_char_name(char *name);
-
+	static bool check_email(char *email);
+	static void delete2_req( tcp_connection::pointer cl, CharSessionData *csd );
+	static void delete2_accept( tcp_connection::pointer cl, CharSessionData * csd );
+	static void delete2_cancel( tcp_connection::pointer cl, CharSessionData * csd );
+	static void delete2_ack( tcp_connection::pointer cl, int char_id, int result, time_t deltime );
+	static void delete2_accept_ack( tcp_connection::pointer cl, int char_id, int param3 );
+	static void delete2_cancel_ack( tcp_connection::pointer cl, int char_id, int result );
 	static bool auth_conn_ok;
 	static tcp_connection::pointer auth_conn;
 
