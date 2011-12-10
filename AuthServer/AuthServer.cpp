@@ -529,7 +529,7 @@ void AuthServer::add_online_user(int id, int accid)
 
 int main(int argc, char *argv[])
 {
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	core_display_title();
 

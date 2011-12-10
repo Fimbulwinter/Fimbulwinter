@@ -428,7 +428,7 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 
 				cl->skip((cmd == 0x68) ? 46 : 56);
 
-				if (strcmpi(email, csd->email) != 0 && (strcmp("a@a.com", csd->email) || (strcmp("a@a.com", email) && strcmp("", email))))
+				if (_strcmpi(email, csd->email) != 0 && (strcmp("a@a.com", csd->email) || (strcmp("a@a.com", email) && strcmp("", email))))
 				{
 					WFIFOHEAD(cl,3);
 					WFIFOW(cl,0) = HEADER_HC_REFUSE_DELETECHAR;
@@ -806,12 +806,12 @@ int CharServer::char_to_buf(unsigned char *buffer, CharData *p)
 	WBUFW(buf,70) = p->hair_color;
 	WBUFW(buf,72) = p->clothes_color;
 	memcpy(WBUFP(buf,74), p->name.c_str(), NAME_LENGTH);
-	WBUFB(buf,98) = min<unsigned char>(p->str, UINT8_MAX);
-	WBUFB(buf,99) = min<unsigned char>(p->agi, UINT8_MAX);
-	WBUFB(buf,100) = min<unsigned char>(p->vit, UINT8_MAX);
-	WBUFB(buf,101) = min<unsigned char>(p->int_, UINT8_MAX);
-	WBUFB(buf,102) = min<unsigned char>(p->dex, UINT8_MAX);
-	WBUFB(buf,103) = min<unsigned char>(p->luk, UINT8_MAX);
+	WBUFB(buf,98) = (unsigned char)min<unsigned short>(p->str, UINT8_MAX);
+	WBUFB(buf,99) = (unsigned char)min<unsigned short>(p->agi, UINT8_MAX);
+	WBUFB(buf,100) = (unsigned char)min<unsigned short>(p->vit, UINT8_MAX);
+	WBUFB(buf,101) = (unsigned char)min<unsigned short>(p->int_, UINT8_MAX);
+	WBUFB(buf,102) = (unsigned char)min<unsigned short>(p->dex, UINT8_MAX);
+	WBUFB(buf,103) = (unsigned char)min<unsigned short>(p->luk, UINT8_MAX);
 	WBUFW(buf,104) = p->slot;
 #if PACKETVER >= 20061023
 	WBUFW(buf,106) = ( p->rename > 0 ) ? 0 : 1;
@@ -884,7 +884,7 @@ int CharServer::create_char(CharSessionData *csd, char* name, int str, int agi, 
 
 int CharServer::check_char_name(char *name)
 {
-	int i;
+	//int i;
 
 	// check length of character name
 	if( name[0] == '\0' )
@@ -946,7 +946,7 @@ void CharServer::delete2_req(tcp_connection::pointer cl, CharSessionData *csd)
 	char_id = RFIFOL(cl, 2);
 
 	bool found = false;
-	int ch;
+	//int ch;
 	for (i = 0; i < MAX_CHARS; i++)
 	{
 		if (csd->found_char[i] == char_id)
@@ -976,8 +976,8 @@ void CharServer::delete2_accept( tcp_connection::pointer cl, CharSessionData * c
 {
 	char birthdate[8+1];
 	int char_id, i, k;
-	unsigned int base_level;
-	char* data;
+	//unsigned int base_level;
+	//char* data;
 	time_t delete_date;
 
 	char_id = RFIFOL(cl,2);
@@ -1099,7 +1099,7 @@ void CharServer::delete2_cancel_ack( tcp_connection::pointer cl, int char_id, in
 
 int main(int argc, char *argv[])
 {
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	core_display_title();
 
