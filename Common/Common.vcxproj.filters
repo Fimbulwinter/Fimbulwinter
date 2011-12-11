@@ -20,5 +20,6 @@
     <ClInclude Include="core.hpp" />
     <ClInclude Include="strfuncs.hpp" />
     <ClInclude Include="md5.hpp" />
+    <ClInclude Include="packets.hpp" />
   </ItemGroup>
 </Project>

@@ -18,6 +18,7 @@
 #include <show_message.hpp>
 #include <database_helper.h>
 #include <ragnarok.hpp>
+#include <packets.hpp>
 #include <core.hpp>
 #include <timers.hpp>
 #include <iostream>

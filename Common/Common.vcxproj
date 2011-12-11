@@ -24,6 +24,7 @@
     <ClInclude Include="core.hpp" />
     <ClInclude Include="database_helper.h" />
     <ClInclude Include="md5.hpp" />
+    <ClInclude Include="packets.hpp" />
     <ClInclude Include="ragnarok.hpp" />
     <ClInclude Include="show_message.hpp" />
     <ClInclude Include="strfuncs.hpp" />
