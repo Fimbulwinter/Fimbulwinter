@@ -10,7 +10,7 @@
 * -------------------------------------------------------- *
 *                Licenced under GNU GPL v3                 *
 * -------------------------------------------------------- *
-*                  Authentication Server				   *
+*                  Client to Auth Modules				   *
 * ======================================================== */
 
 #include "AuthServer.hpp"
@@ -31,7 +31,7 @@
 * Function:	Parse from Client (Auth)							*                                                     
 * Author: GreenBox                                              *
 * Date: 08/12/11 												*
-* Description: Parse packets from the client					*
+* Description: Parse informations from the client				*
 **==============================================================*/
 int AuthServer::parse_from_client(tcp_connection::pointer cl)
 {
@@ -74,7 +74,6 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 			// token-based login
 		case HEADER_CA_LOGIN_TOKEN:		// S 0825 <packetsize>.W <version>.L <clienttype>.B <userid>.24B <password>.27B <mac>.17B <ip>.15B <token>.(packetsize - 0x5C)B
 			{
-				// TODO: Implement token based login
 				size_t packet_len = RFIFOREST(cl);
 				unsigned int version;
 				char username[NAME_LENGTH];
@@ -165,7 +164,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 			}
 			break;
 
-			// MD5 Login
+		// MD5 Login
 		case HEADER_CA_REQ_HASH:
 			{
 				memset(asd->md5key, '\0', sizeof(asd->md5key));
@@ -182,7 +181,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 			}
 			break;
 
-			// nProtect GameGuard Challenge
+		// nProtect GameGuard Challenge
 		case HEADER_CA_REQ_GAME_GUARD_CHECK:
 			{
 				WFIFOHEAD(cl,3);
@@ -194,7 +193,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 			}
 			break;
 
-			// CharServer login
+		// Inter Server to Char Server login
 		case INTER_CA_LOGIN: // S 3000 <login>.24B <password>.24B <display name>.20B
 			if (RFIFOREST(cl) < 76)
 				return 0;

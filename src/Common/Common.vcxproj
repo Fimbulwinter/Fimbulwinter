@@ -11,28 +11,40 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CharServer.cpp" />
-    <ClCompile Include="client.cpp" />
-    <ClCompile Include="inter_auth.cpp" />
-    <ClCompile Include="inter_zone.cpp" />
+    <ClCompile Include="config_file.cpp" />
+    <ClCompile Include="core.cpp" />
+    <ClCompile Include="md5.cpp" />
+    <ClCompile Include="show_message.cpp" />
+    <ClCompile Include="strfuncs.cpp" />
+    <ClCompile Include="tcp_connection.cpp" />
+    <ClCompile Include="timers.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CharDB.hpp" />
-    <ClInclude Include="CharServer.hpp" />
+    <ClInclude Include="config_file.hpp" />
+    <ClInclude Include="core.hpp" />
+    <ClInclude Include="database_helper.h" />
+    <ClInclude Include="md5.hpp" />
+    <ClInclude Include="packets.hpp" />
+    <ClInclude Include="ragnarok.hpp" />
+    <ClInclude Include="show_message.hpp" />
+    <ClInclude Include="strfuncs.hpp" />
+    <ClInclude Include="tcp_connection.hpp" />
+    <ClInclude Include="tcp_server.hpp" />
+    <ClInclude Include="timers.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{52B7A61D-8E91-4736-97D5-E8FF8532987D}</ProjectGuid>
+    <ProjectGuid>{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>CharServer</RootNamespace>
+    <RootNamespace>Common</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
@@ -48,11 +60,6 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -61,21 +68,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>;$(SolutionDir)\3rdparty\soci\include;$(SolutionDir)\Common\;$(SolutionDir)\3rdparty\mysql\include;$(SolutionDir)\3rdparty\boost;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>;$(SolutionDir)\3rdparty\soci\include;$(SolutionDir)src\Common\;$(SolutionDir)\3rdparty\mysql\include;$(SolutionDir)\3rdparty\boost;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir);$(SolutionDir)\3rdparty\soci\lib\;$(SolutionDir)\3rdparty\mysql\lib\;$(SolutionDir)\3rdparty\boost\stage\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>common.lib;soci_mysql_3_1.lib;soci_core_3_1.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -85,20 +86,15 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>;$(SolutionDir)\3rdparty\soci\include;$(SolutionDir)\Common\;$(SolutionDir)\3rdparty\mysql\include;$(SolutionDir)\3rdparty\boost;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>;$(SolutionDir)\3rdparty\soci\include;$(SolutionDir)src\Common\;$(SolutionDir)\3rdparty\mysql\include;$(SolutionDir)\3rdparty\boost;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir);$(SolutionDir)\3rdparty\soci\lib\;$(SolutionDir)\3rdparty\mysql\lib\;$(SolutionDir)\3rdparty\boost\stage\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>common.lib;soci_core_3_1.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

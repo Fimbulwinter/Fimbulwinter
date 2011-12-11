@@ -1,3 +1,17 @@
+/*============ Cronus++ developer team presents: ==========*
+*	______ _           _           _           _		   *
+*	|  ___(_)         | |         | |         | |		   *
+*	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
+*	|  _| | | '_ ` _ \| '_ \| | | | \ \ / / _ \ __| '__|   *
+*	| |   | | | | | | | |_) | |_| | |\ V /  __/ |_| |      *
+*	\_|   |_|_| |_| |_|_.__/ \__,_|_| \_/ \___|\__|_|      *
+* -------------------------------------------------------- *
+*               An Ragnarok Online Emulator                *
+* -------------------------------------------------------- *
+*                Licenced under GNU GPL v3                 *
+* -------------------------------------------------------- *
+*               CharServer Database Modules 			   *
+* ======================================================== */
 #pragma once
 
 #include <ragnarok.hpp>
@@ -7,6 +21,13 @@
 using namespace soci;
 
 struct CharSessionData;
+
+/*==============================================================*
+* Class: CharDB      											*                                                     
+* Author: GreenBox                                              *
+* Date: 10/12/11 												*
+* Description: Constructor and Char-Server Manipulation Modules *
+**==============================================================*/
 class CharDB
 {
 public:
@@ -15,7 +36,7 @@ public:
 		db_ = db;
 	}
 
-	int get_char_count(int accid) 
+	int get_char_count(int accid) // Get the number of chars in a account. 
 	{
 		soci::statement s =	(db_->prepare << "SELECT `char_id` FROM `char` WHERE `account_id`=:id", use(accid));
 	
@@ -24,7 +45,7 @@ public:
 		return (int)s.get_affected_rows();
 	}
 
-	int load_chars_to_buf(int account_id, char* buf, CharSessionData *csd) 
+	int load_chars_to_buf(int account_id, char* buf, CharSessionData *csd) // Load the characters into a Buffer
 	{
 		CharData c;
 		string lastmap;
@@ -90,7 +111,7 @@ public:
 		return j;
 	}
 
-	void load_char(int id, CharData &c, bool full) 
+	void load_char(int id, CharData &c, bool full) // Load the character
 	{
 		string lastmap;
 
@@ -149,7 +170,7 @@ public:
 		}
 	}
 
-	int save(CharData &c, bool nw) 
+	int save(CharData &c, bool nw) // Save the character into the database.
 	{
 		if (nw)
 		{
@@ -168,7 +189,7 @@ public:
 		}
 	}
 
-	bool delete_char(int cid) 
+	bool delete_char(int cid) // Delete a Character.
 	{
 		// TODO: Divorce, De-addopt, leave party, delete pets, delete homunculus, mercenary data, friend list, saved hotkeys, invetory, memo areas, char registry, skills, sc's and leave or break guild
 		

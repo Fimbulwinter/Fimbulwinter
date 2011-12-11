@@ -9,31 +9,22 @@
 *               An Ragnarok Online Emulator                *
 * -------------------------------------------------------- *
 *                Licenced under GNU GPL v3                 *
-* -------------------------------------------------------- *
-*            Authentication Server Configuration		   *
 * ======================================================== */
 
-#########################
-# Network Module Config #
-#########################
+----- Active Team Members -----
 
-# Bind IP Configuration
-# Notes:
-# - When network.bindip = 0.0.0.0 the server will listen on all interfaces
-#
-network.bindip = 0.0.0.0
-network.bindport = 6900
+	* GreenBox						- Johnatan
+	* Vianna						- Gabriel
+	* Minos/Castor					- Ygor
+	
+----- Former Team Members -----
+   
+	*********************************
+	
+----- Special Thanks -----
 
-#################################
-# Authentication Modules Config #
-#################################
-
-
-# Module: MD5 Password
-# Type: boolean
-# Supported Values: true or false
-# Description: Activate or not the MD5 Password encryptation.
-# Notes:
-# - Don't forget to use <passwordencrypt></passwordencrypt> in your client.
-#
-auth.usemd5 = false
+	* Mara and Dojo
+	- For the aegis decompiled files.
+	
+	* Athena Dev Team
+	- For some codes

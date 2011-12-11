@@ -1,3 +1,18 @@
+/*============ Cronus++ developer team presents: ==========*
+*	______ _           _           _           _		   *
+*	|  ___(_)         | |         | |         | |		   *
+*	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
+*	|  _| | | '_ ` _ \| '_ \| | | | \ \ / / _ \ __| '__|   *
+*	| |   | | | | | | | |_) | |_| | |\ V /  __/ |_| |      *
+*	\_|   |_|_| |_| |_|_.__/ \__,_|_| \_/ \___|\__|_|      *
+* -------------------------------------------------------- *
+*               An Ragnarok Online Emulator                *
+* -------------------------------------------------------- *
+*                Licenced under GNU GPL v3                 *
+* -------------------------------------------------------- *
+*                 Account Database Modules				   *
+* ======================================================== */
+
 #pragma once
 
 #include <soci/soci.h>
@@ -5,6 +20,13 @@
 
 using namespace soci;
 
+
+/*==============================================================*
+* Class: Account												*                                                     
+* Author: GreenBox                                              *
+* Date: 10/12/11 												*
+* Description: Account General Informations						*
+**==============================================================*/
 class Account
 {
 public:
@@ -23,15 +45,22 @@ public:
 	string birthdate;   // assigned birth date (format: YYYY-MM-DD, default: 0000-00-00)
 };
 
+/*==============================================================*
+* Class: AccountDB												*                                                     
+* Author: GreenBox                                              *
+* Date: 10/12/11 												*
+* Description: Account DB constructor and manipulation			*
+* modules.                                                      *
+**==============================================================*/
 class AccountDB
 {
 public:
-	AccountDB(soci::session *db)
+	AccountDB(soci::session *db) // AccountDB Constructor
 	{
 		db_ = db;
 	}
 
-	bool load_account(int accid, Account &acc)
+	bool load_account(int accid, Account &acc) // Load Account Module ( By ID )
 	{
 		soci::statement s =	(db_->prepare << "SELECT `account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, \
 			`state`, `unban_time`, `expiration_time`, `logincount`, `lastlogin`, \
@@ -55,7 +84,7 @@ public:
 		return s.get_affected_rows() == 1;
 	}
 
-	bool load_account(string name, Account &acc)
+	bool load_account(string name, Account &acc) // Load Account Module ( By Name )
 	{
 		soci::statement s =	(db_->prepare << "SELECT `account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, \
 							`state`, `unban_time`, `expiration_time`, `logincount`, `lastlogin`, \
@@ -79,7 +108,7 @@ public:
 		return s.get_affected_rows() == 1;
 	}
 
-	void save_account(Account &acc, bool nw = false)
+	void save_account(Account &acc, bool nw = false) // Save the Account into the database.
 	{
 		if (nw)
 		{

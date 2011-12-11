@@ -287,7 +287,7 @@ void AuthServer::select_charserver_timeout(int timer, int accid)
 * Author: GreenBox		                                        *
 * Date: 10/12/11 												*
 * Description: Remove and account from online list and			*
-* remove it authentication node									*
+* remove it from the authentication node						*
 **==============================================================*/
 void AuthServer::shutdown_account(int accid)
 {
