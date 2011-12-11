@@ -523,7 +523,7 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 			}
 			break;
 
-		case HDADER_CH_ENTER_CHECKBOT:
+		case HEADER_CH_ENTER_CHECKBOT:
 			WFIFOHEAD(cl,5);
 			WFIFOW(cl,0) = HEADER_HC_CHECKBOT_RESULT;
 			WFIFOW(cl,2) = 5;
