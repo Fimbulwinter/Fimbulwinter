@@ -83,15 +83,14 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 			break;
 		case HEADER_CH_DELETE_CHAR:
 		case HEADER_CH_DELETE_CHAR2:
-			if (cmd == 0x68) FIFOSD_CHECK(46);
-			if (cmd == 0x1fb) FIFOSD_CHECK(56);
-			FIFOSD_CHECK(37);
+			if (cmd == HEADER_CH_DELETE_CHAR) FIFOSD_CHECK(46);
+			if (cmd == HEADER_CH_DELETE_CHAR2) FIFOSD_CHECK(56);
 			{
 				int cid = RFIFOL(cl,2);
 				char email[40];
 				memcpy(email, RFIFOP(cl,6), 40);
 
-				cl->skip((cmd == 0x68) ? 46 : 56);
+				cl->skip((cmd == HEADER_CH_DELETE_CHAR) ? 46 : 56);
 
 				if (strcmpi(email, csd->email) != 0 && (strcmp("a@a.com", csd->email) || (strcmp("a@a.com", email) && strcmp("", email))))
 				{
@@ -186,9 +185,9 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 				cl->skip(37);
 			}
 			break;
-		case HDADER_CH_ENTER_CHECKBOT:
+		case HEADER_CH_ENTER_CHECKBOT:
 			WFIFOHEAD(cl,5);
-			WFIFOW(cl,0) = 0x7e9;
+			WFIFOW(cl,0) = HEADER_HC_CHECKBOT_RESULT;
 			WFIFOW(cl,2) = 5;
 			WFIFOB(cl,4) = 1;
 			cl->send_buffer(5);
@@ -196,7 +195,7 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 			break;
 		case HEADER_CH_CHECKBOT:
 			WFIFOHEAD(cl,5);
-			WFIFOW(cl,0) = 0x7e9;
+			WFIFOW(cl,0) = HEADER_HC_CHECKBOT_RESULT;
 			WFIFOW(cl,2) = 5;
 			WFIFOB(cl,4) = 1;
 			cl->send_buffer(5);

@@ -19,6 +19,7 @@
 #include <database_helper.h>
 #include <boost/thread.hpp>
 #include <ragnarok.hpp>
+#include <packets.hpp>
 #include <core.hpp>
 #include <timers.hpp>
 #include <iostream>
@@ -157,7 +158,7 @@ void CharServer::run()
 
 int main(int argc, char *argv[])
 {
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	core_display_title();
 
@@ -199,7 +200,4 @@ void CharServer::set_char_offline(int account_id, char char_id)
 		WFIFOL(auth_conn,2) = account_id;
 		auth_conn->send_buffer(6);
 	}
-
-	if (online_chars.count(account_id))
-		online_chars.erase(account_id);
 }
