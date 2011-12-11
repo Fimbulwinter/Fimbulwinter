@@ -100,8 +100,8 @@ public:
 			"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 			"`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
 			"`robe`"
-			" FROM `char` WHERE `account_id`=:ch",
-			use(id), use(MAX_CHARS),
+			" FROM `char` WHERE `char_id`=:ch",
+			use(id),
 			into(c.char_id),
 			into(c.slot),
 			into(c.name),
@@ -140,6 +140,8 @@ public:
 			into(c.robe));
 
 		// TODO: Translate lastmap with map index
+		s.execute(true);
+		s.fetch();
 
 		if (full)
 		{

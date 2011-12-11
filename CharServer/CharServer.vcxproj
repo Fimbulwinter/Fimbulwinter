@@ -12,6 +12,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CharServer.cpp" />
+    <ClCompile Include="client.cpp" />
+    <ClCompile Include="inter_auth.cpp" />
+    <ClCompile Include="inter_zone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CharDB.hpp" />

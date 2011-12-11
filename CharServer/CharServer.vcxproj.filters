@@ -2,6 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="CharServer.cpp" />
+    <ClCompile Include="client.cpp" />
+    <ClCompile Include="inter_auth.cpp" />
+    <ClCompile Include="inter_zone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CharServer.hpp" />

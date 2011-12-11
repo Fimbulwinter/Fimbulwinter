@@ -23,12 +23,7 @@
 
 using namespace std;
 
-enum auth_type
-{
-	auth_raw,
-	auth_md5,
-	auth_token,
-};
+#define MAX_CHAR_BUF 140
 
 struct CharSessionData
 {
@@ -41,10 +36,7 @@ struct CharSessionData
 
 	int found_char[MAX_CHARS];
 
-	unsigned int version;
-	unsigned char clienttype;
-
-	char birthdate[10+1];
+	char birthdate[11];
 
 	tcp_connection::pointer cl;
 };
@@ -55,9 +47,6 @@ struct AuthNode
 	int login_id2;
 
 	char sex;
-
-	unsigned char clienttype;
-	unsigned int version;
 };
 
 struct OnlineChar 
@@ -103,24 +92,26 @@ public:
 	
 	// Auth InterConn
 	static void connect_to_auth();
-	
-	// Auth
 	static void auth_ok(tcp_connection::pointer cl, CharSessionData *csd);
 	static void set_charsel(int account_id, tcp_connection::pointer cl);
-	static void set_char_offline(int account_id, char char_id);
 
-	static void disconnect_char(int timer, int accid);
+	// Client
+	static void set_char_offline(int account_id, char char_id);
+	static void disconnect_timeout(int timer, int accid);
+
 	static void send_chars(tcp_connection::pointer cl, CharSessionData *csd);
 	static int char_to_buf(unsigned char *buf, CharData *ch);
 	static int create_char(CharSessionData *csd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style);
 	static int check_char_name(char *name);
 	static bool check_email(char *email);
+
 	static void delete2_req( tcp_connection::pointer cl, CharSessionData *csd );
 	static void delete2_accept( tcp_connection::pointer cl, CharSessionData * csd );
 	static void delete2_cancel( tcp_connection::pointer cl, CharSessionData * csd );
 	static void delete2_ack( tcp_connection::pointer cl, int char_id, int result, time_t deltime );
 	static void delete2_accept_ack( tcp_connection::pointer cl, int char_id, int param3 );
 	static void delete2_cancel_ack( tcp_connection::pointer cl, int char_id, int result );
+	
 	static bool auth_conn_ok;
 	static tcp_connection::pointer auth_conn;
 

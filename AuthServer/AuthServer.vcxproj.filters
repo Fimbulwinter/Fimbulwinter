@@ -3,6 +3,8 @@
   <ItemGroup>
     <ClCompile Include="AuthServer.cpp" />
     <ClCompile Include="auth.cpp" />
+    <ClCompile Include="inter.cpp" />
+    <ClCompile Include="client.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AuthServer.hpp" />

@@ -96,24 +96,26 @@ struct AuthNode
 {
 	int login_id1;
 	int login_id2;
-	
 	char sex;
-
-	unsigned char clienttype;
-	unsigned int version;
-};
-
-struct OnlineAccount
-{
-	int charserver;
-	int disconnect_timer;
 };
 
 /*==============================================================*
-* Structure: Authorization Server Data							*
+* Structure: Online Account Info								*
 * Author: GreenBox                                              *
 * Date: 08/12/11 												*
-* Description: Structure responsible for general Auth-Server    * 
+* Description:											        * 
+**==============================================================*/
+struct OnlineAccount
+{
+	int char_server;
+	int enter_charserver_timeout;
+};
+
+/*==============================================================*
+* Class: Authorization Server Data								*
+* Author: GreenBox                                              *
+* Date: 08/12/11 												*
+* Description: Class responsible for general Auth-Server		* 
 * informations.                                                 *
 **==============================================================*/
 class AuthServer
@@ -140,14 +142,17 @@ public:
 
 	// Auth
 	static int authenticate(AuthSessionData *asd);
-	static bool check_auth(const char *md5key, enum auth_type type, const char *passwd, const char *refpass);
 	static void send_auth_err(AuthSessionData *asd, int result);
 	static void send_auth_ok(AuthSessionData *asd);
-	static void set_acc_offline(int accid);
-	static void disconnect_user(int timer, int accid);
 
+	static bool check_auth(const char *md5key, enum auth_type type, const char *passwd, const char *refpass);
+
+	static void select_charserver_timeout(int timer, int accid);
+	static void shutdown_account(int account_id);
+
+	// Inter
 	static void char_sendallwos(int cs, unsigned char *buf, size_t len);
-	static void add_online_user(int id, int accid);
+
 	// Config
 	static config_file *auth_config;
 	static config_file *database_config;

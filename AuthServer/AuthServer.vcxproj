@@ -93,6 +93,8 @@
   <ItemGroup>
     <ClCompile Include="auth.cpp" />
     <ClCompile Include="AuthServer.cpp" />
+    <ClCompile Include="client.cpp" />
+    <ClCompile Include="inter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AccountDB.h" />

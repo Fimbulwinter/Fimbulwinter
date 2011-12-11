@@ -123,7 +123,7 @@ void AuthServer::send_auth_err(AuthSessionData *asd, int result)
 	WFIFOHEAD(cl,23);
 	WFIFOW(cl,0) = HEADER_AC_REFUSE_LOGIN;
 	WFIFOB(cl,2) = (unsigned char)result;
-	if( result != 6 )
+	if(result != 6)
 	{
 		memset(WFIFOP(cl,3), '\0', 20);
 	}
@@ -152,7 +152,7 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 
 	if (online_accounts.count(asd->account_id))
 	{
-		if (online_accounts[asd->account_id].charserver > -1)
+		if (online_accounts[asd->account_id].char_server > -1)
 		{
 			unsigned char buf[6];
 
@@ -160,19 +160,19 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 			WBUFL(buf,2) = asd->account_id;
 			char_sendallwos(-1, buf, 6);
 
-			if (online_accounts[asd->account_id].disconnect_timer)
-				TimerManager::FreeTimer(online_accounts[asd->account_id].disconnect_timer);
+			if (online_accounts[asd->account_id].enter_charserver_timeout)
+				TimerManager::FreeTimer(online_accounts[asd->account_id].enter_charserver_timeout);
 
-			set_acc_offline(asd->account_id);
+			shutdown_account(asd->account_id);
 
 			WFIFOHEAD(asd->cl,3);
 			WFIFOW(asd->cl,0) = HEADER_SC_NOTIFY_BAN;
 			WFIFOB(asd->cl,2) = 8;
 			asd->cl->send_buffer(3);
 		}
-		else if (online_accounts[asd->account_id].charserver == -1)
+		else if (online_accounts[asd->account_id].char_server == -1)
 		{
-			set_acc_offline(asd->account_id);
+			shutdown_account(asd->account_id);
 		}
 	}
 
@@ -185,7 +185,7 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 	}
 
 	if(asd->level > 0)
-		ShowStatus("Connection of the GM (level:%d) account '%s' accepted.\n", asd->level, asd->username);
+		ShowStatus("Connection of the GM (level: %d) account '%s' accepted.\n", asd->level, asd->username);
 	else
 		ShowStatus("Connection of the account '%s' accepted.\n", asd->username);
 
@@ -197,7 +197,7 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 	WFIFOL(cl,12) = asd->login_id2;
 	WFIFOL(cl,16) = 0;
 	memset(WFIFOP(cl,20), 0, 24);
-	WFIFOW(cl,44) = 0; // unknown
+	WFIFOW(cl,44) = 0; // Unknown
 	WFIFOB(cl,46) = sex_str2num(asd->sex);
 
 	map<int, CharServerConnection>::iterator it;
@@ -206,26 +206,25 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 		WFIFOL(cl,47+n*32) = htonl(it->second.addr.to_ulong());
 		WFIFOW(cl,47+n*32+4) = ntohs(htons(it->second.port));
 		memcpy(WFIFOP(cl,47+n*32+6), it->second.name, 20);
-		WFIFOW(cl,47+n*32+26) = 0;//server[i].users;
-		WFIFOW(cl,47+n*32+28) = 0;//server[i].type;
-		WFIFOW(cl,47+n*32+30) = 0;//server[i].new_;
+		WFIFOW(cl,47+n*32+26) = 0; // Users online
+		WFIFOW(cl,47+n*32+28) = 0; // Server Type
+		WFIFOW(cl,47+n*32+30) = 0; // Mark as new server?
 		n++;
 	}
 	cl->send_buffer(47+32*server_num);
 
-	auth_nodes[asd->account_id].clienttype = asd->clienttype;
-	auth_nodes[asd->account_id].version = asd->version;
+	// Creates an temporary authentication node
 	auth_nodes[asd->account_id].login_id1 = asd->login_id1;
 	auth_nodes[asd->account_id].login_id2 = asd->login_id2;
 	auth_nodes[asd->account_id].sex = asd->sex;
 
-	online_accounts[asd->account_id].charserver = -1;
-	online_accounts[asd->account_id].disconnect_timer = TimerManager::CreateStartTimer(AUTH_TIMEOUT, false, boost::bind(&AuthServer::disconnect_user, _1, asd->account_id));
-}
+	// None CharServer selected yet
+	online_accounts[asd->account_id].char_server = -1;
 
-void AuthServer::disconnect_user(int timer, int accid)
-{
-	set_acc_offline(accid);
+	// Adds an timeout to user select an CharServer
+	online_accounts[asd->account_id].enter_charserver_timeout = TimerManager::CreateStartTimer(AUTH_TIMEOUT, 
+		false, boost::bind(&AuthServer::select_charserver_timeout, 
+		_1, asd->account_id));
 }
 
 /*==============================================================*
@@ -243,14 +242,13 @@ bool md5check(const char* str1, const char* str2, const char* passwd)
 	md5(md5str);
 
 	return !(strcmp(passwd,md5str));
-
 }
 
 /*==============================================================*
-* Function:	Authentication Type									*                                                     
+* Function:	Authentication Check								*                                                     
 * Author: GreenBox/Minos                                        *
 * Date: 09/12/11 												*
-* Description:Check the authentication type(PlainText/MD5/Token)*
+* Description: Check the auth type(PlainText/MD5/Token)			*
 **==============================================================*/
 bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char *passwd, const char *refpass)
 {
@@ -271,13 +269,30 @@ bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char 
 	return false;
 }
 
-void AuthServer::set_acc_offline(int accid)
+/*==============================================================*
+* Function:	Select CharServer Timeout							*                                                     
+* Author: GreenBox		                                        *
+* Date: 10/12/11 												*
+* Description: Occurs when the client don't select a CharServer *
+* in given time.												*
+**==============================================================*/
+void AuthServer::select_charserver_timeout(int timer, int accid)
+{
+	shutdown_account(accid);
+}
+
+/*==============================================================*
+* Function:	Shutdown Account									*                                                     
+* Author: GreenBox		                                        *
+* Date: 10/12/11 												*
+* Description: Remove and account from online list and			*
+* remove it authentication node									*
+**==============================================================*/
+void AuthServer::shutdown_account(int accid)
 {
 	if (online_accounts.count(accid))
-	{
 		online_accounts.erase(accid);
 
-		if (auth_nodes.count(accid))
-			auth_nodes.erase(accid);
-	}
+	if (auth_nodes.count(accid))
+		auth_nodes.erase(accid);
 }
