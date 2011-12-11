@@ -21,7 +21,7 @@ public:
 	
 		s.execute(false);
 
-		return s.get_affected_rows();
+		return (int)s.get_affected_rows();
 	}
 
 	int load_chars_to_buf(int account_id, char* buf, CharSessionData *csd) 
