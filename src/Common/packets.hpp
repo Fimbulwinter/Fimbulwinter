@@ -10,11 +10,17 @@
 * -------------------------------------------------------- *
 *                Licenced under GNU GPL v3                 *
 * -------------------------------------------------------- *
-*						Packet List					       *
-* PS: Read the "packet_guide.txt" in documentation for tips*
+*      Packet Headers and Structures (from AEGIS 13.3)     *
+*                                                          * 
+* All the packets introduced after 2010-04-16 clients were *
+* guessed according to their functionality may present un- *
+* known fields and messed-up names. Informations regarding *
+* packets can be found at /doc/packet_doc.txt.             *
 * ======================================================== */
 
 #pragma once
+
+#include "ragnarok.hpp"
 
 //Packet Headers
 
@@ -98,7 +104,7 @@ enum {
 	HEADER_ZC_REQ_ITEM_EXPLANATION_ACK = 0xae,
 	HEADER_ZC_ITEM_THROW_ACK = 0xaf,
 	HEADER_ZC_PAR_CHANGE = 0xb0,
-	HEADER_ZC_LONGPAR_CHANGE = 0xb1,
+	HEADER_ZC_intPAR_CHANGE = 0xb1,
 	HEADER_CZ_RESTART = 0xb2,
 	HEADER_ZC_RESTART_ACK = 0xb3,
 	HEADER_ZC_SAY_DIALOG = 0xb4,
@@ -1106,16 +1112,9 @@ enum {
 	HEADER_CA_OTP_AUTH_REQ = 0x822,
 	HEADER_AC_OTP_AUTH_ACK = 0x823,
 	HEADER_ZC_FAILED_TRADE_BUYING_STORE_TO_SELLER = 0x824,
-
-	// Names below this line are not the official ones.
-	// Replace them when a new header list get leaked.
-	// This is also valid to structures which headers are defined below this line.
-	
+	//End of Official Information.
 	HEADER_CA_LOGIN_TOKEN = 0x825,
-	
 	//HEADER_0826 = 0x826,
-
-	// Renewal Timer Deletion
 	HEADER_CH_REQUEST_DEL_TIMER = 0x827,
 	HEADER_HC_DEL_REQUEST_ACK = 0x828,
 	HEADER_CH_ACCEPT_DEL_REQ = 0x829,
@@ -1134,77 +1133,269 @@ enum {
 #pragma warning(disable : 4200)
 //#endif
 
+struct CHARACTER_INFO {
+	unsigned long char_id;
+	unsigned int base_exp;
+	int zeny;
+	unsigned int job_exp;
+	unsigned int job_level;
+	unsigned int bodystate;
+	unsigned int healthstate;
+	unsigned int effectstate;
+	int virtue; //Manner
+	int honor; //Karma
+	unsigned short status_points;
+#if PACKETVER > 20081217
+	unsigned int hp;
+	unsigned int max_hp;
+#else
+	unsigned short hp;
+	unsigned short max_hp;
+#endif
+	unsigned short sp;
+	unsigned short max_sp;
+	unsigned short speed;
+	unsigned short class_;
+	unsigned short head_style;
+	unsigned short weapon;
+	unsigned short base_level;
+	unsigned short skill_points;
+	unsigned short head_bottom;
+	unsigned short shield;
+	unsigned short head_top;
+	unsigned short head_mid;
+	unsigned short head_color;
+	unsigned short body_color;
+	char name[24];
+	unsigned char str;
+	unsigned char agi;
+	unsigned char vit;
+	unsigned char int_;
+	unsigned char dex;
+	unsigned char luk;
+	unsigned char char_slot;
+	unsigned char hair_color; //Again?
+#if PACKETVER >= 20061023
+	unsigned short can_rename;
+#endif
+#if (PACKETVER >= 20100720 && PACKETVER <= 20100727) || PACKETVER >= 20100803
+	char map_name[MAP_NAME_LENGTH_EXT];
+#endif
+#if PACKETVER >= 20100803
+	unsigned int delete_date;
+#endif
+#if PACKETVER >= 20110111
+	//Non-standard (and probably wrong), since all equipment slots are 2-byte shorts.
+	unsigned int robe;
+#endif
+#if PACKETVER >= 20110928
+	//Non-standard (and probably wrong), since can_rename is a 2-byte boolean.
+	unsigned int can_changeslot;
+#endif
+};
+
 struct PACKET_CA_LOGIN {
-	unsigned short PacketType;
-	unsigned long Version;
-	unsigned char ID[24];
-	unsigned char Passwd[24];
-	unsigned char clienttype;
+	unsigned short header;
+	unsigned int version;
+	char username[24];
+	char password[24];
+	unsigned char client_type;
 };
 
-struct PACKET_CA_LOGIN2 {
-	unsigned short PacketType;
-	unsigned long Version;
-	unsigned char ID[24];
-	unsigned char PasswdMD5[16];
-	unsigned char clienttype;
+struct PACKET_CH_ENTER {
+	unsigned short header;
+	unsigned int account_id;
+	int auth_code;
+	unsigned int user_level;
+	unsigned short client_type;
+	unsigned char Sex;
 };
 
-struct PACKET_CA_LOGIN3 {
-	unsigned short PacketType;
-	unsigned long Version;
-	unsigned char ID[24];
-	unsigned char PasswdMD5[16];
-	unsigned char clienttype;
-	unsigned char ClientInfo;
+struct PACKET_CH_MAKE_CHAR {
+  unsigned short header;
+  unsigned char name[24];
+  unsigned char str;
+  unsigned char agi;
+  unsigned char vit;
+  unsigned char int_;
+  unsigned char dex;
+  unsigned char luk;
+  unsigned char char_slot;
+  unsigned short hair_color;
+  unsigned short hair_style;
 };
 
-struct PACKET_CA_LOGIN4 {
-	unsigned short PacketType;
-	unsigned long Version;
-	unsigned char ID[24];
-	unsigned char PasswdMD5[16];
-	unsigned char clienttype;
-	char macData[13];
+struct PACKET_CH_DELETE_CHAR {
+	unsigned short header;
+	unsigned int char_id;
+	char email[40];
 };
 
-struct PACKET_CA_LOGIN_PCBANG {
-	unsigned short PacketType;
-	unsigned long Version;
-	unsigned char ID[24];
-	unsigned char Passwd[24];
-	unsigned char clienttype;
-	char IP[16];
-	unsigned char MacAdress[13];
-};
-
-struct PACKET_CA_LOGIN_CHANNEL {
-	unsigned short PacketType;
-	unsigned long Version;
-	unsigned char ID[24];
-	unsigned char Passwd[24];
-	unsigned char clienttype;
-	char m_szIP[16];
-	unsigned char m_szMacAddr[13];
-	unsigned char Channeling_Corp;
-};
-
-struct PACKET_CA_LOGIN_TOKEN {
-	unsigned short PacketType;
-	unsigned short PacketLength;
-	unsigned long Version;
-	unsigned char clienttype;
-	unsigned char ID[24];
-	unsigned char Passwd[27];
-	unsigned char MacAdress[17];
-	char IP[15];
-	unsigned char Token[];
+struct PACKET_AC_ACCEPT_LOGIN {
+	unsigned short header;
+	unsigned short packet_len;
+	int auth_code;
+	unsigned int account_id;
+	unsigned int user_level;
+	unsigned int lastlogin_ip;
+	char lastlogin_time[26];
+	unsigned char sex;
+	struct {
+		unsigned int ip_address;
+		unsigned short port;
+		char name[20];
+		unsigned short user_count;
+		unsigned short state;
+		unsigned short property_;
+	} server_info[0];
 };
 
 struct PACKET_AC_REFUSE_LOGIN {
-	short PacketType;
-	unsigned char ErrorCode;
-	char blockDate[20];
+	unsigned short header;
+	unsigned char error_code;
+	char block_date[20];
+};
+
+struct PACKET_HC_REFUSE_ENTER {
+	unsigned short header;
+	unsigned char error_code;
+};
+
+struct PACKET_HC_ACCEPT_MAKECHAR {
+	unsigned short PacketType;
+	struct CHARACTER_INFO charinfo;
+};
+
+struct PACKET_HC_REFUSE_MAKECHAR {
+	unsigned short header;
+	unsigned char error_code;
+};
+
+struct PACKET_HC_ACCEPT_DELETECHAR {
+	unsigned short header;
+};
+
+struct PACKET_HC_REFUSE_DELETECHAR {
+	unsigned short header;
+	unsigned char error_code;
+};
+
+struct PACKET_SC_NOTIFY_BAN {
+	unsigned short header;
+	unsigned char error_code;
+};
+
+struct PACKET_CA_REQ_HASH {
+	unsigned short header;
+};
+
+struct PACKET_AC_ACK_HASH {
+	unsigned short header;
+	unsigned short packet_len;
+	unsigned char salt[0];
+};
+
+struct PACKET_PING {
+	unsigned short header;
+	unsigned int account_id;
+};
+
+struct PACKET_CA_LOGIN2 {
+	unsigned short header;
+	unsigned int version;
+	char username[24];
+	unsigned char password_md5[16];
+	unsigned char client_type;
+};
+
+struct PACKET_CA_LOGIN3 {
+	unsigned short header;
+	unsigned int version;
+	char username[24];
+	unsigned char password_md5[16];
+	unsigned char client_type;
+	unsigned char client_info;
+};
+
+struct PACKET_CH_DELETE_CHAR2 {
+	unsigned short header;
+	unsigned int char_id;
+	char email[50];
+};
+
+struct PACKET_CA_LOGIN_PCBANG {
+	unsigned short header;
+	unsigned int version;
+	char username[24];
+	char password[24];
+	unsigned char clienttype;
+	char ip_address[16];
+	char mac_address[13];
+};
+
+struct PACKET_CA_REQ_GAME_GUARD_CHECK {
+	unsigned short header;
+};
+
+struct PACKET_AC_ACK_GAME_GUARD {
+	unsigned short header;
+	unsigned char answer;
+};
+
+struct PACKET_CA_LOGIN4 {
+	unsigned short header;
+	unsigned int version;
+	char username[24];
+	unsigned char password_md5[16];
+	unsigned char clienttype;
+	char mac_address[13];
+};
+
+struct PACKET_CA_LOGIN_CHANNEL {
+	unsigned short header;
+	unsigned int version;
+	unsigned char username[24];
+	unsigned char password[24];
+	unsigned char clienttype;
+	char ip_address[16];
+	char mac_address[13];
+	unsigned char channeling_corp;
+};
+
+struct PACKET_CA_LOGIN_TOKEN {
+	unsigned short header;
+	unsigned short packet_len;
+	unsigned int version;
+	unsigned char client_type;
+	char username[24];
+	char password[27];
+	char mac_address[17];
+	char ip_address[15];
+	char access_token[0];
+};
+
+struct PACKET_CH_CHECKBOT {
+	unsigned short header;
+	unsigned short packet_len;
+	unsigned int account_id;
+	char szStringInfo[24];
+};
+
+struct PACKET_HC_CHECKBOT {
+	unsigned short header;
+	unsigned short packet_len;
+};
+
+struct PACKET_HC_CHECKBOT_RESULT {
+	unsigned short header;
+	unsigned short packet_len;
+	unsigned char result;
+};
+
+struct PACKET_CH_ENTER_CHECKBOT {
+	unsigned short header;
+	unsigned short packet_len;
+	unsigned int account_id;
 };
 
 //#ifdef _MSCV_VER
