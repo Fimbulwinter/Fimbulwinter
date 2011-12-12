@@ -1,4 +1,4 @@
-/*============ Cronus++ developer team presents: ==========*
+/*=========================================================*
 *	______ _           _           _           _		   *
 *	|  ___(_)         | |         | |         | |		   *
 *	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
@@ -1396,6 +1396,476 @@ struct PACKET_CH_ENTER_CHECKBOT {
 	unsigned short header;
 	unsigned short packet_len;
 	unsigned int account_id;
+};
+
+struct PACKET_ZC_MSG_SKILL {
+	short PacketType;
+	unsigned short SKID;
+	int MSGID;
+};
+
+struct PACKET_CZ_BATTLE_FIELD_LIST {
+	unsigned short PacketType;
+};
+
+struct PACKET_ZC_BATTLE_FIELD_LIST {
+	short PacketType;
+	unsigned short PacketLength;
+	short Count;
+};
+
+struct PACKET_CZ_JOIN_BATTLE_FIELD {
+	short PacketType;
+	unsigned long BFNO;
+	short JoinTeam;
+};
+
+struct PACKET_ZC_JOIN_BATTLE_FIELD {
+	short PacketType;
+	unsigned long BFNO;
+	short JoinTeam;
+	short Result;
+};
+
+struct PACKET_CZ_CANCEL_BATTLE_FIELD {
+	short PacketType;
+	unsigned long BFNO;
+};
+
+struct PACKET_ZC_CANCEL_BATTLE_FIELD {
+	short PacketType;
+	unsigned long BFNO;
+	short Result;
+};
+
+struct PACKET_CZ_REQ_BATTLE_STATE_MONITOR {
+	short PacketType;
+	unsigned long BFNO;
+};
+
+struct PACKET_ZC_ACK_BATTLE_STATE_MONITOR {
+	short PacketType;
+	char BFNO;
+	short PlayCount;
+	short BattleState;
+	short TeamCount_A;
+	short TeamCount_B;
+	short MyCount;
+	short JoinTeam;
+};
+
+struct PACKET_ZC_BATTLE_NOTI_START_STEP {
+	short PacketType;
+	short BFNO;
+	short Result;
+};
+
+struct PACKET_ZC_BATTLE_JOIN_NOTI_DEFER {
+	short PacketType;
+	short BFNO;
+};
+
+struct PACKET_ZC_BATTLE_JOIN_DISABLE_STATE {
+	short PacketType;
+	bool Enable;
+};
+
+struct PACKET_CZ_GM_FULLSTRIP {
+	short PacketType;
+	unsigned long TargetAID;
+};
+
+struct PACKET_ZC_NOTIFY_EXP {
+	short PacketType;
+	unsigned long AID;
+	int amount;
+	unsigned short varID;
+	short expType;
+};
+
+struct PACKET_ZC_NOTIFY_MOVEENTRY7 {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned char objecttype;
+	unsigned long GID;
+	short speed;
+	short bodyState;
+	short healthState;
+	int effectState;
+	short job;
+	short head;
+	int weapon;
+	short accessory;
+	unsigned long moveStartTime;
+	short accessory2;
+	short accessory3;
+	short headpalette;
+	short bodypalette;
+	short headDir;
+	unsigned long GUID;
+	short GEmblemVer;
+	short honor;  // PK Mode?
+	int virtue;
+	bool isPKModeON;
+	unsigned char sex;
+	unsigned char MoveData[6];
+	unsigned char xSize;
+	unsigned char ySize;
+	short clevel;
+	short font;
+};
+
+// Old Packet? Not used btw.
+struct PACKET_ZC_NOTIFY_NEWENTRY5 {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned char objecttype;
+	unsigned long GID;
+	short speed;
+	short bodyState;
+	short healthState;
+	int effectState;
+	short job;
+	short head;
+	int weapon;
+	short accessory;
+	short accessory2;
+	short accessory3;
+	short headpalette;
+	short bodypalette;
+	short headDir;
+	unsigned long GUID;
+	short GEmblemVer;
+	short honor;
+	int virtue;
+	bool isPKModeON;
+	unsigned char sex;
+	unsigned char PosDir[3];
+	unsigned char xSize;
+	unsigned char ySize;
+	short clevel;
+	short font;
+};
+
+// Another one? Y U DO THIS?
+struct PACKET_ZC_NOTIFY_STANDENTRY5 {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned char objecttype;
+	unsigned long GID;
+	short speed;
+	short bodyState;
+	short healthState;
+	int effectState;
+	short job;
+	short head;
+	int weapon;
+	short accessory;
+	short accessory2;
+	short accessory3;
+	short headpalette;
+	short bodypalette;
+	short headDir;
+	unsigned long GUID;
+	short GEmblemVer;
+	short honor;
+	int virtue;
+	bool isPKModeON;
+	unsigned char sex;
+	unsigned char PosDir[3];
+	unsigned char xSize;
+	unsigned char ySize;
+	unsigned char state;
+	short clevel;
+	short font;
+};
+
+struct PACKET_ZC_DELETE_ITEM_FROM_BODY {
+	short PacketType;
+	short DeleteType;
+	unsigned short Index;
+	short Count;
+};
+
+struct PACKET_ZC_USESKILL_ACK2 {
+	short PacketType;
+	unsigned long AID;
+	unsigned long targetID;
+	short xPos;
+	short yPos;
+	unsigned short SKID;
+	unsigned long property;
+	unsigned long delayTime;
+	bool isDisposable;
+};
+
+struct PACKET_ZC_CHANGE_GROUP_MASTER {
+	short PacketType;
+	unsigned long OldMasterAID;
+	unsigned long NewMasterAID;
+};
+
+struct PACKET_ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned char type;
+	unsigned short ItemID;
+};
+
+struct PACKET_ZC_PLAY_NPC_BGM {
+	short PacketType;
+	char Bgm[24];
+};
+
+/* Useless Packet. SKIP ALLLLL THE USELESS PACKETS
+struct PACKET_ZC_DEFINE_CHECK {
+	short PacketType;
+	short PacketLength;
+};*/
+
+struct PACKET_ZC_PC_PURCHASE_ITEMLIST_FROMMC2 {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned long AID;
+	unsigned long UniqueID;
+};
+
+struct PACKET_CZ_PC_PURCHASE_ITEMLIST_FROMMC2 {
+	short PacketType;
+	short PacketLength;
+	unsigned long AID;
+	unsigned long UniqueID;
+};
+
+struct PACKET_CZ_PARTY_BOOKING_REQ_REGISTER {
+	short PacketType;
+	
+		struct PARTY_BOOKING_DETAIL {
+			short Level;
+			short MapID;
+			short Job[6];
+		}RegisterInfo;
+};
+
+struct PACKET_ZC_PARTY_BOOKING_ACK_REGISTER {
+	short PacketType;
+	short Result;
+};
+
+struct PACKET_CZ_PARTY_BOOKING_REQ_SEARCH {
+	short PacketType;
+	short Level;
+	short MapID;
+	short Job;
+	unsigned long LastIndex;
+	short ResultCount;
+};
+
+struct PACKET_ZC_PARTY_BOOKING_ACK_SEARCH {
+	short PacketType;
+	short PacketLength;
+	bool IsExistMoreResult;
+};
+
+struct PACKET_CZ_PARTY_BOOKING_REQ_DELETE {
+	short PacketType;
+};
+
+struct PACKET_ZC_PARTY_BOOKING_ACK_DELETE {
+	short PacketType;
+	short Result;
+};
+
+struct PACKET_CZ_PARTY_BOOKING_REQ_UPDATE {
+	short PacketType;
+	short Job[6];
+};
+
+struct PACKET_ZC_PARTY_BOOKING_NOTIFY_INSERT {
+	short PacketType;
+  
+		struct PARTY_BOOKING_AD_INFO {
+			unsigned long Index;
+			char CharName[24];
+			long ExpireTime;
+				
+				struct PARTY_BOOKING_DETAIL {
+					short Level;
+					short MapID;
+					short Job[6];
+				}detail;
+		}info;
+};
+
+struct PACKET_ZC_PARTY_BOOKING_NOTIFY_UPDATE {
+	short PacketType;
+	unsigned long Index;
+	short Job[6];
+};
+
+struct PACKET_ZC_PARTY_BOOKING_NOTIFY_DELETE {
+	short PacketType;
+	unsigned long Index;
+};
+
+struct PACKET_CZ_SIMPLE_CASH_BTNSHOW {
+	short PacketType;
+};
+
+struct PACKET_ZC_SIMPLE_CASH_BTNSHOW {
+	short PacketType;
+	bool show;
+};
+
+struct PACKET_ZC_NOTIFY_HP_TO_GROUPM_R2 {
+	short PacketType;
+	unsigned long AID;
+	int hp;
+	int maxhp;
+};
+
+struct PACKET_ZC_ADD_EXCHANGE_ITEM2 {
+	short PacketType;
+	unsigned short ITID;
+	unsigned char type;
+	int count;
+	bool IsIdentified;
+	bool IsDamaged;
+	unsigned char refiningLevel;
+ 
+		struct EQUIPSLOTINFO {
+			unsigned short info[4];
+		}slot;
+};
+
+struct PACKET_ZC_OPEN_BUYING_STORE {
+	short PacketType;
+	unsigned char count;
+};
+
+struct PACKET_CZ_REQ_OPEN_BUYING_STORE {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned long LimitZeny;
+	unsigned char result;
+	char storeName[80];
+};
+
+struct PACKET_ZC_FAILED_OPEN_BUYING_STORE_TO_BUYER {
+	short PacketType;
+	short Result;
+	int total_weight;
+};
+
+struct PACKET_ZC_MYITEMLIST_BUYING_STORE {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned long AID;
+	int limitZeny;
+};
+
+struct PACKET_ZC_BUYING_STORE_ENTRY {
+	short PacketType;
+	unsigned long makerAID;
+	char storeName[80];
+};
+
+struct PACKET_CZ_REQ_CLOSE_BUYING_STORE {
+	short PacketType;
+};
+
+struct PACKET_ZC_DISAPPEAR_BUYING_STORE_ENTRY {
+	short PacketType;
+	unsigned long makerAID;
+};
+
+struct PACKET_CZ_REQ_CLICK_TO_BUYING_STORE {
+	short PacketType;
+	unsigned long makerAID;
+};
+
+struct PACKET_ZC_ACK_ITEMLIST_BUYING_STORE {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned long makerAID;
+	unsigned long StoreID;
+	int limitZeny;
+};
+
+struct PACKET_CZ_REQ_TRADE_BUYING_STORE {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned long makerAID;
+	unsigned long StoreID;
+};
+
+struct PACKET_ZC_FAILED_TRADE_BUYING_STORE_TO_BUYER {
+	short PacketType;
+	short Result;
+};
+
+struct PACKET_ZC_UPDATE_ITEM_FROM_BUYING_STORE {
+	short PacketType;
+	unsigned short ITID;
+	short count;
+	int limitZeny;
+};
+
+struct PACKET_ZC_ITEM_DELETE_BUYING_STORE {
+	short PacketType;
+	short index;
+	short count;
+	int zeny;
+};
+
+struct PACKET_ZC_EL_INIT {
+	short PacketType;
+	int AID;
+	int hp;
+	int maxHP;
+	int sp;
+	int maxSP;
+};
+
+struct PACKET_ZC_EL_PAR_CHANGE {
+	short PacketType;
+	unsigned short var;
+	int value;
+};
+
+struct PACKET_ZC_BROADCAST_IN_ZONE {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned char Msgtype;
+	unsigned long ColorRGB;
+};
+
+struct PACKET_ZC_COSTUME_SPRITE_CHANGE {
+	short PacketType;
+	unsigned long GID;
+	unsigned char type;
+	int value;
+};
+
+struct PACKET_AC_OTP_USER {
+	short PacketType;
+};
+
+struct PACKET_CA_OTP_AUTH_REQ {
+	short PacketType;
+	char OTPCode[7];
+};
+
+struct PACKET_AC_OTP_AUTH_ACK {
+	short PacketType;
+	unsigned short PacketLength;
+	unsigned short LoginResult;
+};
+
+struct PACKET_ZC_FAILED_TRADE_BUYING_STORE_TO_SELLER {
+	short PacketType;
+	short Result;
+	unsigned short ITID;
 };
 
 //#ifdef _MSCV_VER

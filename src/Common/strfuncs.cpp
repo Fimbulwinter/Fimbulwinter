@@ -7,7 +7,7 @@
 /// @param output Output string
 /// @param input Binary input buffer
 /// @param count Number of bytes to convert
-bool bin2hex(char* output, unsigned char* input, size_t count)
+bool bin2hex(char* output, unsigned char* input, size_t count) // [eAthena]
 {
 	char toHex[] = "0123456789abcdef";
 	size_t i;
