@@ -23,7 +23,7 @@
     <ClInclude Include="config_file.hpp" />
     <ClInclude Include="core.hpp" />
     <ClInclude Include="database_helper.h" />
-    <ClInclude Include="datastructs.h" />
+    <ClInclude Include="datastructs.cpp" />
     <ClInclude Include="md5.hpp" />
     <ClInclude Include="packets.hpp" />
     <ClInclude Include="ragnarok.hpp" />
