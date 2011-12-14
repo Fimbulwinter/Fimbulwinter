@@ -100,7 +100,7 @@ public:
 	static void disconnect_timeout(int timer, int accid);
 
 	static void send_chars(tcp_connection::pointer cl, CharSessionData *csd);
-	static int char_to_buf(unsigned char *buf, CharData *ch);
+	static void char_to_buf(struct CHARACTER_INFO *charinfo, CharData *p);
 	static int create_char(CharSessionData *csd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style);
 	static int check_char_name(char *name);
 	static bool check_email(char *email);

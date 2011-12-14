@@ -15,6 +15,7 @@
 #pragma once
 
 #include <ragnarok.hpp>
+#include <packets.hpp>
 #include <soci/soci.h>
 #include <database_helper.h>
 
@@ -45,7 +46,7 @@ public:
 		return (int)s.get_affected_rows();
 	}
 
-	int load_chars_to_buf(int account_id, char* buf, CharSessionData *csd) // Load the characters into a Buffer
+	int load_chars_to_buf(int account_id, struct CHARACTER_INFO *charinfo, CharSessionData *csd) // Load the characters into a Buffer
 	{
 		CharData c;
 		string lastmap;
@@ -102,7 +103,8 @@ public:
 			// TODO: Translate lastmap with map index
 
 			csd->found_char[i++] = c.char_id;
-			j += CharServer::char_to_buf(WBUFP(buf, j), &c);
+			CharServer::char_to_buf(charinfo++, &c);
+			j++;
 		}
 
 		for(; i < MAX_CHARS; i++)

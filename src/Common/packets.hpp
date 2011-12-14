@@ -21,8 +21,20 @@
 #pragma once
 
 #include "ragnarok.hpp"
+#include "tcp_connection.hpp"
 
-//Packet Headers
+// Packet Manipulation Macros
+
+#define TYPECAST_PACKET_ONCE(buf,NAME) (PACKET_##NAME *)(buf)
+#define TYPECAST_PACKET(buf,var,NAME) struct PACKET_##NAME *##var = TYPECAST_PACKET_ONCE(buf,##NAME)
+
+#define WFIFOPACKET2(cl,var,NAME,add) \
+	WFIFOHEAD(cl, sizeof(HEADER_##NAME) +  (add)); \
+	TYPECAST_PACKET(WFIFOP(cl,0), ##var, ##NAME); \
+	var->header = HEADER_##NAME
+#define WFIFOPACKET(cl,var,NAME) WFIFOPACKET2(cl,##var,##NAME,0)
+
+// Packet Headers
 
 enum {
 	HEADER_FIRST = 0x64,
@@ -104,7 +116,7 @@ enum {
 	HEADER_ZC_REQ_ITEM_EXPLANATION_ACK = 0xae,
 	HEADER_ZC_ITEM_THROW_ACK = 0xaf,
 	HEADER_ZC_PAR_CHANGE = 0xb0,
-	HEADER_ZC_intPAR_CHANGE = 0xb1,
+	HEADER_ZC_LONGPAR_CHANGE = 0xb1,
 	HEADER_CZ_RESTART = 0xb2,
 	HEADER_ZC_RESTART_ACK = 0xb3,
 	HEADER_ZC_SAY_DIALOG = 0xb4,
@@ -1134,7 +1146,7 @@ enum {
 //#endif
 
 struct CHARACTER_INFO {
-	unsigned long char_id;
+	unsigned int char_id;
 	unsigned int base_exp;
 	int zeny;
 	unsigned int job_exp;
@@ -1142,8 +1154,8 @@ struct CHARACTER_INFO {
 	unsigned int bodystate;
 	unsigned int healthstate;
 	unsigned int effectstate;
-	int virtue; //Manner
-	int honor; //Karma
+	int virtue; //Karma
+	int honor; //Manner
 	unsigned short status_points;
 #if PACKETVER > 20081217
 	unsigned int hp;
@@ -1221,8 +1233,8 @@ struct PACKET_CH_MAKE_CHAR {
   unsigned char dex;
   unsigned char luk;
   unsigned char char_slot;
-  unsigned short hair_color;
-  unsigned short hair_style;
+  unsigned short head_color;
+  unsigned short head_style;
 };
 
 struct PACKET_CH_DELETE_CHAR {
@@ -1240,7 +1252,7 @@ struct PACKET_AC_ACCEPT_LOGIN {
 	unsigned int lastlogin_ip;
 	char lastlogin_time[26];
 	unsigned char sex;
-	struct {
+	struct CHAR_SERVER_INFO {
 		unsigned int ip_address;
 		unsigned short port;
 		char name[20];
@@ -1256,13 +1268,25 @@ struct PACKET_AC_REFUSE_LOGIN {
 	char block_date[20];
 };
 
+struct PACKET_HC_ACCEPT_ENTER {
+	unsigned short header;
+	unsigned short packet_len;
+#if PACKETVER >= 20100413
+	unsigned char total_slots;
+	unsigned char premium_slots_start;
+	unsigned char premium_slots_end;
+#endif
+	unsigned char unknown[20];
+	struct CHARACTER_INFO charinfo[];
+};
+
 struct PACKET_HC_REFUSE_ENTER {
 	unsigned short header;
 	unsigned char error_code;
 };
 
 struct PACKET_HC_ACCEPT_MAKECHAR {
-	unsigned short PacketType;
+	unsigned short header;
 	struct CHARACTER_INFO charinfo;
 };
 
@@ -1292,7 +1316,7 @@ struct PACKET_CA_REQ_HASH {
 struct PACKET_AC_ACK_HASH {
 	unsigned short header;
 	unsigned short packet_len;
-	unsigned char salt[0];
+	unsigned char salt[];
 };
 
 struct PACKET_PING {
@@ -1371,7 +1395,7 @@ struct PACKET_CA_LOGIN_TOKEN {
 	char password[27];
 	char mac_address[17];
 	char ip_address[15];
-	char access_token[0];
+	char access_token[];
 };
 
 struct PACKET_CH_CHECKBOT {

@@ -121,19 +121,18 @@ void AuthServer::send_auth_err(AuthSessionData *asd, int result)
 	tcp_connection::pointer cl = asd->cl;
 	string ip = asd->cl->socket().remote_endpoint().address().to_string();
 
-	WFIFOHEAD(cl,23);
-	WFIFOW(cl,0) = HEADER_AC_REFUSE_LOGIN;
-	WFIFOB(cl,2) = (unsigned char)result;
+	WFIFOPACKET(cl, packet, AC_REFUSE_LOGIN);
+	packet->error_code = result;
 	if(result != 6)
 	{
-		memset(WFIFOP(cl,3), '\0', 20);
+		memset(packet->block_date, '\0', 20);
 	}
 	else
 	{
 		Account acc;
 		time_t unban_time = ( accounts->load_account(asd->username, acc) ) ? acc.unban_time : 0;
 		
-		timestamp2string((char*)WFIFOP(cl,3), 20, unban_time, "%Y-%m-%d %H:%M:%S");
+		timestamp2string((char*)packet->block_date, 20, unban_time, "%Y-%m-%d %H:%M:%S");
 	}
 
 	cl->send_buffer(23);
@@ -166,10 +165,9 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 
 			shutdown_account(asd->account_id);
 
-			WFIFOHEAD(asd->cl,3);
-			WFIFOW(asd->cl,0) = HEADER_SC_NOTIFY_BAN;
-			WFIFOB(asd->cl,2) = 8;
-			asd->cl->send_buffer(3);
+			WFIFOPACKET(asd->cl, packet, SC_NOTIFY_BAN);
+			packet->error_code = 8;
+			asd->cl->send_buffer(sizeof(struct PACKET_SC_NOTIFY_BAN));
 		}
 		else if (online_accounts[asd->account_id].char_server == -1)
 		{
@@ -179,10 +177,9 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 
 	if (server_num == 0)
 	{
-		WFIFOHEAD(asd->cl,3);
-		WFIFOW(asd->cl,0) = HEADER_SC_NOTIFY_BAN;
-		WFIFOB(asd->cl,2) = 1; // 01 = Server closed
-		asd->cl->send_buffer(3);
+		WFIFOPACKET(asd->cl, packet, SC_NOTIFY_BAN);
+		packet->error_code = 1;
+		asd->cl->send_buffer(sizeof(struct PACKET_SC_NOTIFY_BAN));// 01 = Server closed
 	}
 
 	if(asd->level > 0)
@@ -190,29 +187,27 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 	else
 		ShowStatus("Connection of the account '%s' accepted.\n", asd->username);
 
-	WFIFOHEAD(cl,47+32*server_num);
-	WFIFOW(cl,0) = HEADER_AC_ACCEPT_LOGIN;
-	WFIFOW(cl,2) = 47+32*server_num;
-	WFIFOL(cl,4) = asd->login_id1;
-	WFIFOL(cl,8) = asd->account_id;
-	WFIFOL(cl,12) = asd->login_id2;
-	WFIFOL(cl,16) = 0;
-	memset(WFIFOP(cl,20), 0, 24);
-	WFIFOW(cl,44) = 0; // Unknown
-	WFIFOB(cl,46) = sex_str2num(asd->sex);
+	WFIFOPACKET2(asd->cl,packet,AC_ACCEPT_LOGIN,sizeof(struct PACKET_AC_ACCEPT_LOGIN::CHAR_SERVER_INFO)*server_num);
+	packet->packet_len = sizeof(struct PACKET_AC_ACCEPT_LOGIN)+sizeof(struct PACKET_AC_ACCEPT_LOGIN::CHAR_SERVER_INFO)*server_num;
+	packet->auth_code = asd->login_id1;
+	packet->account_id = asd->account_id;
+	packet->user_level = asd->login_id2;
+	packet->lastlogin_ip = 0;
+	memset(packet->lastlogin_time, 0, sizeof(packet->lastlogin_time));
+	packet->sex = sex_str2num(asd->sex);
 
 	map<int, CharServerConnection>::iterator it;
 	for(it = servers.begin(); it != servers.end(); it++)
 	{
-		WFIFOL(cl,47+n*32) = htonl(it->second.addr.to_ulong());
-		WFIFOW(cl,47+n*32+4) = ntohs(htons(it->second.port));
-		memcpy(WFIFOP(cl,47+n*32+6), it->second.name, 20);
-		WFIFOW(cl,47+n*32+26) = 0; // Users online
-		WFIFOW(cl,47+n*32+28) = 0; // Server Type
-		WFIFOW(cl,47+n*32+30) = 0; // Mark as new server?
+		packet->server_info[n].ip_address = htonl(it->second.addr.to_ulong());
+		packet->server_info[n].port = ntohs(htons(it->second.port));
+		memcpy(packet->server_info[n].name, it->second.name, 20);
+		packet->server_info[n].user_count = 0; // Users online
+		packet->server_info[n].state = 0; // Server Type
+		packet->server_info[n].property_ = 0; // Mark as new server?
 		n++;
 	}
-	cl->send_buffer(47+32*server_num);
+	cl->send_buffer(packet->packet_len);
 
 	// Creates an temporary authentication node
 	auth_nodes[asd->account_id].login_id1 = asd->login_id1;
@@ -240,7 +235,8 @@ bool md5check(const char* str1, const char* str2, const char* passwd)
 
 	strcpy(md5str,str1);
 	strcat(md5str,str2);
-	md5(md5str);
+	if (!md5(md5str, md5str))
+		return false;
 
 	return !(strcmp(passwd,md5str));
 }
@@ -259,8 +255,8 @@ bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char 
 	}
 	else if (type == auth_md5)
 	{
-		return ((auth_md5&0x01) && md5check(md5key, refpass, passwd)) ||
-		       ((auth_md5&0x02) && md5check(refpass, md5key, passwd));
+		return (/*(auth_md5&0x01) && */md5check(md5key, refpass, passwd)) ||
+		       (/*(auth_md5&0x02) && */md5check(refpass, md5key, passwd));
 	}
 	else if (type == auth_token)
 	{

@@ -17,7 +17,6 @@
 #pragma once
 
 #include <time.h>
-#include <packets.hpp>
 
 #define PACKETVER 20110111
 

@@ -19,6 +19,7 @@
 #include <database_helper.h>
 #include <boost/thread.hpp>
 #include <ragnarok.hpp>
+#include <packets.hpp>
 #include <core.hpp>
 #include <timers.hpp>
 #include <iostream>
@@ -142,38 +143,40 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 				}
 			}
 			break;
+
 		case HEADER_CH_MAKE_CHAR:
 			FIFOSD_CHECK(37);
 			{
+				TYPECAST_PACKET(RFIFOP(cl,0),rpacket,CH_MAKE_CHAR);
+
 				// TODO: Check create char disabled
-				int i = create_char(csd, (char*)RFIFOP(cl,2),RFIFOB(cl,26),RFIFOB(cl,27),RFIFOB(cl,28),RFIFOB(cl,29),RFIFOB(cl,30),RFIFOB(cl,31),RFIFOB(cl,32),RFIFOW(cl,33),RFIFOW(cl,35));
+				int i = create_char(csd, (char*)rpacket->name,rpacket->str,rpacket->agi,rpacket->vit,rpacket->int_,rpacket->dex,rpacket->luk,rpacket->char_slot,rpacket->head_color,rpacket->head_style);
 
 				//'Charname already exists' (-1), 'Char creation denied' (-2) and 'You are underaged' (-3)
 				if (i < 0)
 				{
-					WFIFOHEAD(cl,3);
-					WFIFOW(cl,0) = HEADER_HC_REFUSE_MAKECHAR;
+					WFIFOPACKET(cl, spacket, HC_REFUSE_MAKECHAR);
+
 					switch (i) {
-					case -1: WFIFOB(cl,2) = 0x00; break;
-					case -2: WFIFOB(cl,2) = 0xFF; break;
-					case -3: WFIFOB(cl,2) = 0x01; break;
+					case -1: spacket->error_code = 0x00; break;
+					case -2: spacket->error_code = 0xFF; break;
+					case -3: spacket->error_code = 0x01; break;
 					}
-					cl->send_buffer(3);
+
+					cl->send_buffer(sizeof(struct PACKET_HC_REFUSE_MAKECHAR));
 				}
 				else
 				{
-					int len;
-
 					// retrieve data
 					CharData char_dat;
 					memset(&char_dat, 0, sizeof(CharData));
 					chars->load_char(i, char_dat, false); //Only the short data is needed.
 
 					// send to player
-					WFIFOHEAD(cl,2+MAX_CHAR_BUF);
-					WFIFOW(cl,0) = HEADER_HC_ACCEPT_MAKECHAR;
-					len = 2 + char_to_buf(WFIFOP(cl,2), &char_dat);
-					cl->send_buffer(len);
+					WFIFOPACKET(cl,spacket,HC_ACCEPT_MAKECHAR);
+
+					char_to_buf(&spacket->charinfo, &char_dat);
+					cl->send_buffer(sizeof(struct PACKET_HC_ACCEPT_MAKECHAR));
 
 					// add new entry to the chars list
 					for (int n = 0; n < MAX_CHARS; n++)
@@ -353,100 +356,85 @@ void CharServer::set_charsel(int account_id, tcp_connection::pointer cl)
 **==============================================================*/
 void CharServer::send_chars(tcp_connection::pointer cl, CharSessionData *csd)
 {
-	int j, offset = 0;
-#if PACKETVER >= 20100413
-	offset += 3;
-#endif
+	int j = 0;
+	WFIFOPACKET2(cl,packet,HC_ACCEPT_ENTER,MAX_CHARS*sizeof(CHARACTER_INFO));
 
-	j = 24 + offset; // offset
-	WFIFOHEAD(cl,j + MAX_CHARS*MAX_CHAR_BUF);
-	WFIFOW(cl,0) = HEADER_HC_ACCEPT_ENTER;
 #if PACKETVER >= 20100413
-	WFIFOB(cl,4) = MAX_CHARS_SLOTS;
-	WFIFOB(cl,5) = MAX_CHARS;
-	WFIFOB(cl,6) = MAX_CHARS;
+	packet->total_slots = MAX_CHARS_SLOTS;
+	packet->premium_slots_start = MAX_CHARS;
+	packet->premium_slots_end = MAX_CHARS;
 #endif
-	memset(WFIFOP(cl,4 + offset), 0, 20);
-	j += chars->load_chars_to_buf(csd->account_id, (char*)WFIFOP(cl,j), csd);
-	WFIFOW(cl,2) = j;
-	cl->send_buffer(j);
+	memset(packet->unknown, 0, sizeof(packet->unknown));
+	packet->packet_len = chars->load_chars_to_buf(csd->account_id, packet->charinfo, csd) * sizeof(CHARACTER_INFO) + sizeof(PACKET_HC_ACCEPT_ENTER);
+	
+	cl->send_buffer(packet->packet_len);
 
 	return;
 }
 
-int CharServer::char_to_buf(unsigned char *buffer, CharData *p)
+void CharServer::char_to_buf(struct CHARACTER_INFO *charinfo, CharData *p)
 {
-	unsigned short offset = 0;
-	unsigned char *buf;
+	if( charinfo == NULL || p == NULL )
+		return;
 
-	if( buffer == NULL || p == NULL )
-		return 0;
-
-	buf = WBUFP(buffer,0);
-	WBUFL(buf,0) = p->char_id;
-	WBUFL(buf,4) = min<unsigned int>(p->base_exp, INT32_MAX);
-	WBUFL(buf,8) = p->zeny;
-	WBUFL(buf,12) = min<unsigned int>(p->job_exp, INT32_MAX);
-	WBUFL(buf,16) = p->job_level;
-	WBUFL(buf,20) = 0; // probably opt1
-	WBUFL(buf,24) = 0; // probably opt2
-	WBUFL(buf,28) = p->option;
-	WBUFL(buf,32) = p->karma;
-	WBUFL(buf,36) = p->manner;
-	WBUFW(buf,40) = min<unsigned short>(p->status_point, INT16_MAX);
+	charinfo->char_id = p->char_id;
+	charinfo->base_exp = min<unsigned int>(p->base_exp, INT32_MAX);
+	charinfo->zeny = p->zeny;
+	charinfo->job_exp = min<unsigned int>(p->job_exp, INT32_MAX);
+	charinfo->job_level = p->job_level;
+	charinfo->bodystate = 0;
+	charinfo->healthstate = 0;
+	charinfo->effectstate = p->option;
+	charinfo->virtue = p->karma;
+	charinfo->honor = p->manner;
+	charinfo->status_points = min<unsigned short>(p->status_point, INT16_MAX);
 #if PACKETVER > 20081217
-	WBUFL(buf,42) = p->hp;
-	WBUFL(buf,46) = p->max_hp;
-	offset+=4;
-	buf = WBUFP(buffer,offset);
+	charinfo->hp = p->hp;
+	charinfo->max_hp = p->max_hp;
 #else
-	WBUFW(buf,42) = min<unsigned short>(p->hp, INT16_MAX);
-	WBUFW(buf,44) = min<unsigned short>(p->max_hp, INT16_MAX);
+	charinfo->hp = min<unsigned short>(p->hp, INT16_MAX);
+	charinfo->max_hp = min<unsigned short>(p->max_hp, INT16_MAX);
 #endif
-	WBUFW(buf,46) = min<unsigned short>(p->sp, INT16_MAX);
-	WBUFW(buf,48) = min<unsigned short>(p->max_sp, INT16_MAX);
-	WBUFW(buf,50) = DEFAULT_WALK_SPEED; // p->speed;
-	WBUFW(buf,52) = p->class_;
-	WBUFW(buf,54) = p->hair;
-	WBUFW(buf,56) = p->option&0x7E80020 ? 0 : p->weapon; //When the weapon is sent and your option is riding, the client crashes on login!?
-	WBUFW(buf,58) = p->base_level;
-	WBUFW(buf,60) = min<unsigned short>(p->skill_point, INT16_MAX);
-	WBUFW(buf,62) = p->head_bottom;
-	WBUFW(buf,64) = p->shield;
-	WBUFW(buf,66) = p->head_top;
-	WBUFW(buf,68) = p->head_mid;
-	WBUFW(buf,70) = p->hair_color;
-	WBUFW(buf,72) = p->clothes_color;
-	memcpy(WBUFP(buf,74), p->name.c_str(), NAME_LENGTH);
-	WBUFB(buf,98) = (unsigned char)min<unsigned short>(p->str, UINT8_MAX);
-	WBUFB(buf,99) = (unsigned char)min<unsigned short>(p->agi, UINT8_MAX);
-	WBUFB(buf,100) = (unsigned char)min<unsigned short>(p->vit, UINT8_MAX);
-	WBUFB(buf,101) = (unsigned char)min<unsigned short>(p->int_, UINT8_MAX);
-	WBUFB(buf,102) = (unsigned char)min<unsigned short>(p->dex, UINT8_MAX);
-	WBUFB(buf,103) = (unsigned char)min<unsigned short>(p->luk, UINT8_MAX);
-	WBUFW(buf,104) = p->slot;
+	charinfo->sp = min<unsigned short>(p->sp, INT16_MAX);
+	charinfo->max_sp = min<unsigned short>(p->max_sp, INT16_MAX);
+	charinfo->speed = DEFAULT_WALK_SPEED; // p->speed;
+	charinfo->class_ = p->class_;
+	charinfo->head_style = p->hair;
+	charinfo->weapon = p->option&0x7E80020 ? 0 : p->weapon; //When the weapon is sent and your option is riding, the client crashes on login!?
+	charinfo->base_level = p->base_level;
+	charinfo->skill_points = min<unsigned short>(p->skill_point, INT16_MAX);
+	charinfo->head_bottom = p->head_bottom;
+	charinfo->shield = p->shield;
+	charinfo->head_top = p->head_top;
+	charinfo->head_mid = p->head_mid;
+	charinfo->head_color = p->hair_color;
+	charinfo->body_color = p->clothes_color;
+	memcpy(charinfo->name, p->name.c_str(), NAME_LENGTH);
+	charinfo->str = (unsigned char)min<unsigned short>(p->str, UINT8_MAX);
+	charinfo->agi = (unsigned char)min<unsigned short>(p->agi, UINT8_MAX);
+	charinfo->vit = (unsigned char)min<unsigned short>(p->vit, UINT8_MAX);
+	charinfo->int_ = (unsigned char)min<unsigned short>(p->int_, UINT8_MAX);
+	charinfo->dex = (unsigned char)min<unsigned short>(p->dex, UINT8_MAX);
+	charinfo->luk = (unsigned char)min<unsigned short>(p->luk, UINT8_MAX);
+	charinfo->char_slot = p->slot;
+	charinfo->hair_color = 0; //Should we send it? It doesn't seem to affect anything.
 #if PACKETVER >= 20061023
-	WBUFW(buf,106) = ( p->rename > 0 ) ? 0 : 1;
-	offset += 2;
+	charinfo->can_rename = ( p->rename > 0 ) ? 0 : 1;
 #endif
 #if (PACKETVER >= 20100720 && PACKETVER <= 20100727) || PACKETVER >= 20100803
 	//mapindex_getmapname_ext(mapindex_id2name(p->last_point.map), (char*)WBUFP(buf,108));
-	strncpy((char*)WBUFP(buf,108), "prontera.gat", MAP_NAME_LENGTH_EXT);
-	offset += MAP_NAME_LENGTH_EXT;
+	strncpy((char*)charinfo->map_name, "prontera.gat", MAP_NAME_LENGTH_EXT);
 #endif
 #if PACKETVER >= 20100803
-	WBUFL(buf,124) = TOL(p->delete_date);
-	offset += 4;
+	charinfo->delete_date = TOL(p->delete_date);
 #endif
 #if PACKETVER >= 20110111
-	WBUFL(buf,128) = p->robe;
-	offset += 4;
+	charinfo->robe = p->robe;
 #endif
 #if PACKETVER >= 20110928
-	WBUFL(buf,132) = 0;  // change slot feature (0 = disabled, otherwise enabled)
-	offset += 4;
+	charinfo->can_changeslot = 0;  // change slot feature (0 = disabled, otherwise enabled)
 #endif
-	return 106+offset;
+	return;
 }
 
 int CharServer::create_char(CharSessionData *csd, char* name, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)

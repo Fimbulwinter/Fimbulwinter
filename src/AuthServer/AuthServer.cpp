@@ -61,11 +61,15 @@ void AuthServer::run()
 		{
 			config.network_bindip = auth_config->read<string>("network.bindip", "0.0.0.0");
 			config.network_bindport = auth_config->read<unsigned short>("network.bindport", 6900);
+			config.auth_database = auth_config->read<bool>("auth.database", false);
 			config.auth_use_md5 = auth_config->read<bool>("auth.usemd5", false);
 		}
 		ShowStatus("Finished reading authserver.conf.\n");
 
-		database_config = new config_file("./Config/database.conf");
+		if (config.auth_database)
+			database_config = auth_config;
+		else
+			database_config = new config_file("./Config/database.conf");
 		{
 			// Validate something?
 		}

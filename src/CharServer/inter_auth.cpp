@@ -19,6 +19,7 @@
 #include <database_helper.h>
 #include <boost/thread.hpp>
 #include <ragnarok.hpp>
+#include <packets.hpp>
 #include <core.hpp>
 #include <timers.hpp>
 #include <iostream>

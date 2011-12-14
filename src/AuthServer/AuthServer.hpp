@@ -131,7 +131,8 @@ public:
 		string			network_bindip;
 		unsigned short	network_bindport;
 
-		// Password Types
+		// Authentication Types/Settings
+		bool auth_database;
 		bool auth_use_md5;
 		//int OTP; [TODO]
 	};

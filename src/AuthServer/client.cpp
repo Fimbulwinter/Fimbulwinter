@@ -18,6 +18,7 @@
 #include <show_message.hpp>
 #include <database_helper.h>
 #include <ragnarok.hpp>
+#include <packets.hpp>
 #include <core.hpp>
 #include <timers.hpp>
 #include <iostream>
@@ -59,9 +60,9 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 
 	while(RFIFOREST(cl) >= 2)
 	{
-		unsigned short cmd = RFIFOW(cl, 0);
+		unsigned short cmd = RFIFOW(cl,0);
 
-		switch (cmd)
+		switch(cmd)
 		{
 			// request client login (raw password)
 		case HEADER_CA_LOGIN:			// S 0064 <version>.L <username>.24B <password>.24B <clienttype>.B
@@ -171,25 +172,25 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				asd->md5keylen = (boost::uint16_t)(12 + rand() % 4);
 				MD5_Salt(asd->md5keylen, asd->md5key);
 
-				WFIFOHEAD(cl, 4 + asd->md5keylen);
-				WFIFOW(cl,0) = HEADER_AC_ACK_HASH;
-				WFIFOW(cl,2) = 4 + asd->md5keylen;
-				memcpy(WFIFOP(cl,4), asd->md5key, asd->md5keylen);
-				cl->send_buffer(WFIFOW(cl,2));
-				cl->skip(2);
+				WFIFOHEAD(cl,sizeof(PACKET_AC_ACK_HASH) + asd->md5keylen);
+				TYPECAST_PACKET(WFIFOP(cl,0),spacket,AC_ACK_HASH);
 
+				spacket->header = HEADER_AC_ACK_HASH;
+				spacket->packet_len = sizeof(PACKET_AC_ACK_HASH) + asd->md5keylen;
+				memcpy(spacket->salt, asd->md5key, asd->md5keylen);
+				cl->send_buffer(spacket->packet_len);
+				cl->skip(sizeof(PACKET_CA_REQ_HASH));
 			}
 			break;
 
 		// nProtect GameGuard Challenge
 		case HEADER_CA_REQ_GAME_GUARD_CHECK:
 			{
-				WFIFOHEAD(cl,3);
-				WFIFOW(cl,0) = HEADER_AC_ACK_GAME_GUARD;
-				WFIFOB(cl,2) = ((asd->gameguardChallenged)?(2):(1));
+				WFIFOPACKET(cl, spacket, AC_ACK_GAME_GUARD);
+				spacket->answer = ((asd->gameguardChallenged)?(2):(1));
 				asd->gameguardChallenged = true;
-				cl->send_buffer(3);
-				cl->skip(2);
+				cl->send_buffer(sizeof(struct PACKET_AC_ACK_GAME_GUARD));
+				cl->skip(sizeof(PACKET_CA_REQ_GAME_GUARD_CHECK));
 			}
 			break;
 

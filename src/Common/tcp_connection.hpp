@@ -49,8 +49,6 @@ using namespace boost::asio::ip;
 #define WFIFOL(cl,pos) (*(unsigned int*)WFIFOP(cl,pos))
 #define RFIFOQ(cl,pos) (*(unsigned long long*)RFIFOP(cl,pos))
 #define WFIFOQ(cl,pos) (*(unsigned long long*)WFIFOP(cl,pos))
-#define RFIFOS(cl,str,pos) ((struct str*)RFIFOP(cl,pos))
-#define WFIFOS(cl,str,pos) ((struct str*)WFIFOP(cl,pos))
 #define RFIFOSPACE(cl) (cl->max_rdata - cl->rdata_size)
 #define WFIFOSPACE(cl) (cl->max_wdata - cl->wdata_size)
 
@@ -69,14 +67,12 @@ using namespace boost::asio::ip;
 #define RBUFW(p,pos) (*(unsigned short*)RBUFP((p),(pos)))
 #define RBUFL(p,pos) (*(unsigned int*)RBUFP((p),(pos)))
 #define RBUFQ(p,pos) (*(unsigned long long*)RBUFP((p),(pos)))
-#define RBUFS(p,str,pos) ((struct str*)RBUFP((p),(pos)))
 
 #define WBUFP(p,pos) (((unsigned char*)(p)) + (pos))
 #define WBUFB(p,pos) (*(unsigned char*)WBUFP((p),(pos)))
 #define WBUFW(p,pos) (*(unsigned short*)WBUFP((p),(pos)))
 #define WBUFL(p,pos) (*(unsigned int*)WBUFP((p),(pos)))
 #define WBUFQ(p,pos) (*(unsigned long long*)WBUFP((p),(pos)))
-#define WBUFS(p,str,pos) ((struct str*)WBUFP((p),(pos)))
 
 #define TOB(n) ((unsigned char)((n)&UCHAR_MAX))
 #define TOW(n) ((unsigned short)((n)&USHORT_MAX))
