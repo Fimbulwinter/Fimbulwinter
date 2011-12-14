@@ -8,6 +8,7 @@
     <ClCompile Include="core.cpp" />
     <ClCompile Include="strfuncs.cpp" />
     <ClCompile Include="md5.cpp" />
+    <ClCompile Include="datastructs.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tcp_server.hpp" />
