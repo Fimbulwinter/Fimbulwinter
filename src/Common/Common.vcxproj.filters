@@ -21,6 +21,6 @@
     <ClInclude Include="strfuncs.hpp" />
     <ClInclude Include="md5.hpp" />
     <ClInclude Include="packets.hpp" />
-    <ClInclude Include="datastructs.h" />
+    <ClInclude Include="datastructs.cpp" />
   </ItemGroup>
 </Project>
