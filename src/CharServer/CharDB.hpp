@@ -39,7 +39,7 @@ public:
 
 	int get_char_count(int accid) // Get the number of chars in a account. 
 	{
-		soci::statement s =	(db_->prepare << "SELECT `char_id` FROM `char` WHERE `account_id`=:id", use(accid));
+		soci::statement s =	(db_->prepare << "SELECT `char_id` FROM `char` WHERE `account_id`=:id LIMIT 1", use(accid));
 	
 		s.execute(false);
 
@@ -57,7 +57,7 @@ public:
 			"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 			"`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
 			"`robe`"
-			" FROM `char` WHERE `account_id`=:acc AND `char_num` < :max",
+			" FROM `char` WHERE `account_id`=:acc AND `char_num` < :max LIMIT 1",
 			use(account_id), use(MAX_CHARS),
 			into(c.char_id),
 			into(c.slot),
@@ -123,7 +123,7 @@ public:
 			"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 			"`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
 			"`robe`"
-			" FROM `char` WHERE `char_id`=:ch",
+			" FROM `char` WHERE `char_id`=:ch LIMIT 1",
 			use(id),
 			into(c.char_id),
 			into(c.slot),
@@ -195,7 +195,7 @@ public:
 	{
 		// TODO: Divorce, De-addopt, leave party, delete pets, delete homunculus, mercenary data, friend list, saved hotkeys, invetory, memo areas, char registry, skills, sc's and leave or break guild
 		
-		statement s = (db_->prepare << "DELETE FROM `char` WHERE `char_id`=:d", use(cid));
+		statement s = (db_->prepare << "DELETE FROM `char` WHERE `char_id`=:d LIMIT 1", use(cid));
 		s.execute(false);
 
 		return true;

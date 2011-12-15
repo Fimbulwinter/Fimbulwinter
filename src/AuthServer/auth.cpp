@@ -135,7 +135,7 @@ void AuthServer::send_auth_err(AuthSessionData *asd, int result)
 		timestamp2string((char*)packet->block_date, 20, unban_time, "%Y-%m-%d %H:%M:%S");
 	}
 
-	cl->send_buffer(23);
+	cl->send_buffer(sizeof(struct PACKET_AC_REFUSE_LOGIN));
 }
 
 /*==============================================================*
@@ -187,8 +187,8 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 	else
 		ShowStatus("Connection of the account '%s' accepted.\n", asd->username);
 
-	WFIFOPACKET2(asd->cl,packet,AC_ACCEPT_LOGIN,sizeof(struct PACKET_AC_ACCEPT_LOGIN::CHAR_SERVER_INFO)*server_num);
-	packet->packet_len = sizeof(struct PACKET_AC_ACCEPT_LOGIN)+sizeof(struct PACKET_AC_ACCEPT_LOGIN::CHAR_SERVER_INFO)*server_num;
+	WFIFOPACKET2(asd->cl, packet, AC_ACCEPT_LOGIN, sizeof(struct PACKET_AC_ACCEPT_LOGIN::CHAR_SERVER_INFO) * server_num);
+	packet->packet_len = sizeof(struct PACKET_AC_ACCEPT_LOGIN) + sizeof(struct PACKET_AC_ACCEPT_LOGIN::CHAR_SERVER_INFO) * server_num;
 	packet->auth_code = asd->login_id1;
 	packet->account_id = asd->account_id;
 	packet->user_level = asd->login_id2;

@@ -64,7 +64,7 @@ public:
 	{
 		soci::statement s =	(db_->prepare << "SELECT `account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, \
 			`state`, `unban_time`, `expiration_time`, `logincount`, `lastlogin`, \
-			`last_ip`, `birthdate` FROM `login` WHERE `account_id`=:id", use(accid),
+			`last_ip`, `birthdate` FROM `login` WHERE `account_id`=:id LIMIT 1", use(accid),
 			into(acc.account_id),
 			into(acc.userid),
 			into(acc.user_pass),
@@ -88,7 +88,7 @@ public:
 	{
 		soci::statement s =	(db_->prepare << "SELECT `account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, \
 							`state`, `unban_time`, `expiration_time`, `logincount`, `lastlogin`, \
-							`last_ip`, `birthdate` FROM `login` WHERE `userid`=:name", use(name),
+							`last_ip`, `birthdate` FROM `login` WHERE `userid`=:name LIMIT 1", use(name),
 							into(acc.account_id),
 							into(acc.userid),
 							into(acc.user_pass),
@@ -112,7 +112,7 @@ public:
 	{
 		if (nw)
 		{
-			*db_ << "INSERT INTO `login`(`account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, \
+			*db_ << "INSERT INTO `login` (`account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, \
 					`state`, `unban_time`, `expiration_time`, `logincount`, `lastlogin`, \
 					`last_ip`, `birthdate`) VALUES (\
 					:id, :uid, :pwd, :sex, :email, :lvl, :state, :unban, :expr, :loginc, \
@@ -133,7 +133,7 @@ public:
 		}
 		else
 		{
-			*db_ << "UPDATE `login` `login` SET `userid`=:uid, `user_pass`=:pw, `sex`=:s, `email`=:email, `level`=:lvl, \
+			*db_ << "UPDATE `login` SET `userid`=:uid, `user_pass`=:pw, `sex`=:s, `email`=:email, `level`=:lvl, \
 					`state`=:state, `unban_time`=:unban, `expiration_time`=:expr, `logincount`=:loginc, `lastlogin`=:llogin, \
 					`last_ip`=:lip, `birthdate`=:birth WHERE `account_id`=:id",
 					use(acc.userid),

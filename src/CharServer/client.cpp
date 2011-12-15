@@ -82,23 +82,23 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 			delete2_cancel(cl, csd);
 			cl->skip(6);
 			break;
+
 		case HEADER_CH_DELETE_CHAR:
 		case HEADER_CH_DELETE_CHAR2:
-			if (cmd == HEADER_CH_DELETE_CHAR) FIFOSD_CHECK(46);
-			if (cmd == HEADER_CH_DELETE_CHAR2) FIFOSD_CHECK(56);
+			if (cmd == HEADER_CH_DELETE_CHAR) FIFOSD_CHECK(sizeof(struct PACKET_CH_DELETE_CHAR));
+			if (cmd == HEADER_CH_DELETE_CHAR2) FIFOSD_CHECK(sizeof(struct PACKET_CH_DELETE_CHAR2));
 			{
 				int cid = RFIFOL(cl,2);
 				char email[40];
 				memcpy(email, RFIFOP(cl,6), 40);
 
-				cl->skip((cmd == HEADER_CH_DELETE_CHAR) ? 46 : 56);
+				cl->skip((cmd == HEADER_CH_DELETE_CHAR) ? sizeof(struct PACKET_CH_DELETE_CHAR) : sizeof(struct PACKET_CH_DELETE_CHAR2));
 
 				if (_strcmpi(email, csd->email) != 0 && (strcmp("a@a.com", csd->email) || (strcmp("a@a.com", email) && strcmp("", email))))
 				{
-					WFIFOHEAD(cl,3);
-					WFIFOW(cl,0) = HEADER_HC_REFUSE_DELETECHAR;
-					WFIFOB(cl,2) = 0;
-					cl->send_buffer(3);
+					WFIFOPACKET(cl, spacket, HC_REFUSE_DELETECHAR); 
+					spacket->error_code = 0;
+					cl->send_buffer(sizeof(struct PACKET_HC_REFUSE_DELETECHAR));
 					break;
 				}
 
@@ -115,10 +115,9 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 
 				if (!found)
 				{
-					WFIFOHEAD(cl,3);
-					WFIFOW(cl,0) = HEADER_HC_REFUSE_DELETECHAR;
-					WFIFOB(cl,2) = 0;
-					cl->send_buffer(3);
+					WFIFOPACKET(cl, spacket, HC_REFUSE_DELETECHAR); 
+					spacket->error_code = 0;
+					cl->send_buffer(sizeof(struct PACKET_HC_REFUSE_DELETECHAR));
 					break;
 				}
 				else
@@ -130,22 +129,20 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 
 					if (!chars->delete_char(cid))
 					{
-						WFIFOHEAD(cl,3);
-						WFIFOW(cl,0) = HEADER_HC_REFUSE_DELETECHAR;
-						WFIFOB(cl,2) = 0;
-						cl->send_buffer(3);
+						WFIFOPACKET(cl, spacket, HC_REFUSE_DELETECHAR); 
+						spacket->error_code = 0;
+						cl->send_buffer(sizeof(struct PACKET_HC_REFUSE_DELETECHAR));
 						break;
 					}
 
-					WFIFOHEAD(cl,2);
-					WFIFOW(cl,0) = HEADER_HC_ACCEPT_DELETECHAR;
-					cl->send_buffer(2);
+					WFIFOPACKET(cl, spacket, HC_ACCEPT_DELETECHAR);
+					cl->send_buffer(sizeof(struct PACKET_HC_ACCEPT_DELETECHAR));
 				}
 			}
 			break;
 
 		case HEADER_CH_MAKE_CHAR:
-			FIFOSD_CHECK(37);
+			FIFOSD_CHECK(sizeof(struct PACKET_CH_MAKE_CHAR));
 			{
 				TYPECAST_PACKET(RFIFOP(cl,0),rpacket,CH_MAKE_CHAR);
 
@@ -173,9 +170,10 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 					chars->load_char(i, char_dat, false); //Only the short data is needed.
 
 					// send to player
-					WFIFOPACKET(cl,spacket,HC_ACCEPT_MAKECHAR);
+					WFIFOPACKET(cl, spacket, HC_ACCEPT_MAKECHAR);
 
 					char_to_buf(&spacket->charinfo, &char_dat);
+
 					cl->send_buffer(sizeof(struct PACKET_HC_ACCEPT_MAKECHAR));
 
 					// add new entry to the chars list
@@ -185,34 +183,41 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 							csd->found_char[n] = i; // the char_id of the new char
 					}
 				}
-				cl->skip(37);
+				cl->skip(sizeof(struct PACKET_CH_MAKE_CHAR));
 			}
 			break;
+
 		case HEADER_CH_ENTER_CHECKBOT:
-			WFIFOHEAD(cl,5);
-			WFIFOW(cl,0) = HEADER_HC_CHECKBOT_RESULT;
-			WFIFOW(cl,2) = 5;
-			WFIFOB(cl,4) = 1;
-			cl->send_buffer(5);
-			cl->skip(8);
+			FIFOSD_CHECK(sizeof(struct PACKET_CH_ENTER_CHECKBOT));
+			{
+				WFIFOPACKET(cl, spacket, HC_CHECKBOT_RESULT);
+				spacket->packet_len = sizeof(struct PACKET_HC_CHECKBOT_RESULT);
+				spacket->result = 1;
+				cl->send_buffer(spacket->packet_len);
+				cl->skip(TYPECAST_PACKET_ONCE(RFIFOP(cl,0), CH_ENTER_CHECKBOT)->packet_len);
+			}
 			break;
+
 		case HEADER_CH_CHECKBOT:
-			WFIFOHEAD(cl,5);
-			WFIFOW(cl,0) = HEADER_HC_CHECKBOT_RESULT;
-			WFIFOW(cl,2) = 5;
-			WFIFOB(cl,4) = 1;
-			cl->send_buffer(5);
-			cl->skip(32);
+			FIFOSD_CHECK(sizeof(struct PACKET_CH_CHECKBOT));
+			{
+				WFIFOPACKET(cl, spacket, HC_CHECKBOT_RESULT);
+				spacket->packet_len = sizeof(struct PACKET_HC_CHECKBOT_RESULT);
+				spacket->result = 1;
+				cl->send_buffer(spacket->packet_len);
+				cl->skip(TYPECAST_PACKET_ONCE(RFIFOP(cl,0), CH_CHECKBOT)->packet_len);
+			}
 			break;
+
 		case HEADER_CH_ENTER:
-			if(RFIFOREST(cl) < 17)
+			if(RFIFOREST(cl) < sizeof(struct PACKET_CH_ENTER))
 				return 0;
 			{
 				int account_id = RFIFOL(cl,2);
 				unsigned int login_id1 = RFIFOL(cl,6);
 				unsigned int login_id2 = RFIFOL(cl,10);
 				char sex = RFIFOB(cl,16);
-				cl->skip(17);
+				cl->skip(sizeof(struct PACKET_CH_ENTER));
 
 				if (csd)
 				{
@@ -254,19 +259,20 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 					}
 					else
 					{
-						WFIFOHEAD(cl,3);
-						WFIFOW(cl,0) = HEADER_HC_REFUSE_ENTER;
-						WFIFOB(cl,2) = 0;
-						cl->send_buffer(3);
+						WFIFOPACKET(cl, spacket, HC_REFUSE_ENTER);
+						spacket->error_code = 0;
+						cl->send_buffer(sizeof(struct PACKET_HC_REFUSE_ENTER));
 					}
 				}
 			}
 			break;
+
 		case HEADER_PING:
-			if (RFIFOREST(cl) < 6)
+			if (RFIFOREST(cl) < sizeof(PACKET_PING))
 				return 0;
-			cl->skip(6);
+			cl->skip(sizeof(PACKET_PING));
 			break;
+
 		default:
 			ShowWarning("Unknown packet 0x%04x sent from %s, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
 			cl->set_eof();
@@ -297,20 +303,18 @@ void CharServer::auth_ok(tcp_connection::pointer cl, CharSessionData *csd)
 
 			set_char_offline(csd->account_id, -1);
 
-			WFIFOHEAD(cl,3);	
-			WFIFOW(cl,0) = HEADER_SC_NOTIFY_BAN;
-			WFIFOB(cl,2) = 8;
-			cl->send_buffer(3);
+			WFIFOPACKET(cl, packet, SC_NOTIFY_BAN);
+			packet->error_code = 8;
+			cl->send_buffer(sizeof(struct PACKET_SC_NOTIFY_BAN));
 
 			return;
 		}
 
 		if (online_chars[csd->account_id].cl->tag() != cl->tag())
 		{
-			WFIFOHEAD(cl,3);	
-			WFIFOW(cl,0) = HEADER_SC_NOTIFY_BAN;
-			WFIFOB(cl,2) = 8;
-			cl->send_buffer(3);
+			WFIFOPACKET(cl, packet, SC_NOTIFY_BAN);
+			packet->error_code = 8;
+			cl->send_buffer(sizeof(struct PACKET_SC_NOTIFY_BAN));
 
 			return;
 		}
@@ -357,7 +361,7 @@ void CharServer::set_charsel(int account_id, tcp_connection::pointer cl)
 void CharServer::send_chars(tcp_connection::pointer cl, CharSessionData *csd)
 {
 	int j = 0;
-	WFIFOPACKET2(cl,packet,HC_ACCEPT_ENTER,MAX_CHARS*sizeof(CHARACTER_INFO));
+	WFIFOPACKET2(cl, packet, HC_ACCEPT_ENTER, MAX_CHARS * sizeof(CHARACTER_INFO));
 
 #if PACKETVER >= 20100413
 	packet->total_slots = MAX_CHARS_SLOTS;
@@ -611,7 +615,7 @@ void CharServer::delete2_accept( tcp_connection::pointer cl, CharSessionData * c
 		return;
 	}
 
-	*database << "SELECT `delete_date` FROM `char` WHERE `char_id` = :c", use(char_id), into(delete_date);
+	*database << "SELECT `delete_date` FROM `char` WHERE `char_id` = :c LIMIT 1", use(char_id), into(delete_date);
 
 	if( !delete_date || delete_date>time(NULL) )
 	{// not queued or delay not yet passed

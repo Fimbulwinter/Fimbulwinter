@@ -62,7 +62,7 @@ void AuthServer::run()
 			config.network_bindip = auth_config->read<string>("network.bindip", "0.0.0.0");
 			config.network_bindport = auth_config->read<unsigned short>("network.bindport", 6900);
 			config.auth_database = auth_config->read<bool>("auth.database", false);
-			config.auth_use_md5 = auth_config->read<bool>("auth.usemd5", false);
+			config.auth_use_md5 = auth_config->read<bool>("auth.use_md5", false);
 		}
 		ShowStatus("Finished reading authserver.conf.\n");
 

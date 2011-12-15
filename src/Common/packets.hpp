@@ -25,7 +25,7 @@
 
 // Packet Manipulation Macros
 
-#define TYPECAST_PACKET_ONCE(buf,NAME) (PACKET_##NAME *)(buf)
+#define TYPECAST_PACKET_ONCE(buf,NAME) ((struct PACKET_##NAME *)(buf))
 #define TYPECAST_PACKET(buf,var,NAME) struct PACKET_##NAME *##var = TYPECAST_PACKET_ONCE(buf,##NAME)
 
 #define WFIFOPACKET2(cl,var,NAME,add) \
@@ -1398,6 +1398,12 @@ struct PACKET_CA_LOGIN_TOKEN {
 	char access_token[];
 };
 
+struct PACKET_CH_ENTER_CHECKBOT {
+	unsigned short header;
+	unsigned short packet_len;
+	unsigned int account_id;
+};
+
 struct PACKET_CH_CHECKBOT {
 	unsigned short header;
 	unsigned short packet_len;
@@ -1414,12 +1420,6 @@ struct PACKET_HC_CHECKBOT_RESULT {
 	unsigned short header;
 	unsigned short packet_len;
 	unsigned char result;
-};
-
-struct PACKET_CH_ENTER_CHECKBOT {
-	unsigned short header;
-	unsigned short packet_len;
-	unsigned int account_id;
 };
 
 struct PACKET_ZC_MSG_SKILL {

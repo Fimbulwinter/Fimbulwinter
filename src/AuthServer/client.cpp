@@ -60,7 +60,7 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 
 	while(RFIFOREST(cl) >= 2)
 	{
-		unsigned short cmd = RFIFOW(cl,0);
+		unsigned short cmd = RFIFOW(cl, 0);
 
 		switch(cmd)
 		{
@@ -83,12 +83,12 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				unsigned char clienttype;
 				bool israwpass = (cmd == HEADER_CA_LOGIN || cmd == HEADER_CA_LOGIN_PCBANG || cmd == HEADER_CA_LOGIN_CHANNEL || cmd == HEADER_CA_LOGIN_TOKEN);
 
-				if((cmd == HEADER_CA_LOGIN && packet_len < 55)
-					||  (cmd == HEADER_CA_LOGIN_PCBANG && packet_len < 84)
-					||  (cmd == HEADER_CA_LOGIN_CHANNEL && packet_len < 85)
-					||  (cmd == HEADER_CA_LOGIN2 && packet_len < 47)
-					||  (cmd == HEADER_CA_LOGIN3 && packet_len < 48)
-					||  (cmd == HEADER_CA_LOGIN4 && packet_len < 60) 
+				if((cmd == HEADER_CA_LOGIN && packet_len < sizeof(struct PACKET_CA_LOGIN))
+					||  (cmd == HEADER_CA_LOGIN_PCBANG && packet_len < sizeof(struct PACKET_CA_LOGIN_PCBANG))
+					||  (cmd == HEADER_CA_LOGIN_CHANNEL && packet_len < sizeof(struct PACKET_CA_LOGIN_CHANNEL))
+					||  (cmd == HEADER_CA_LOGIN2 && packet_len < sizeof(struct PACKET_CA_LOGIN2))
+					||  (cmd == HEADER_CA_LOGIN3 && packet_len < sizeof(struct PACKET_CA_LOGIN3))
+					||  (cmd == HEADER_CA_LOGIN4 && packet_len < sizeof(struct PACKET_CA_LOGIN4)) 
 					||  (cmd == HEADER_CA_LOGIN_TOKEN && (packet_len < 4 || packet_len < RFIFOW(cl, 2)))
 					)
 					return 0;
@@ -172,12 +172,13 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 				asd->md5keylen = (boost::uint16_t)(12 + rand() % 4);
 				MD5_Salt(asd->md5keylen, asd->md5key);
 
-				WFIFOHEAD(cl,sizeof(PACKET_AC_ACK_HASH) + asd->md5keylen);
-				TYPECAST_PACKET(WFIFOP(cl,0),spacket,AC_ACK_HASH);
+				WFIFOHEAD(cl, sizeof(PACKET_AC_ACK_HASH) + asd->md5keylen);
+				TYPECAST_PACKET(WFIFOP(cl, 0), spacket, AC_ACK_HASH);
 
 				spacket->header = HEADER_AC_ACK_HASH;
 				spacket->packet_len = sizeof(PACKET_AC_ACK_HASH) + asd->md5keylen;
 				memcpy(spacket->salt, asd->md5key, asd->md5keylen);
+
 				cl->send_buffer(spacket->packet_len);
 				cl->skip(sizeof(PACKET_CA_REQ_HASH));
 			}
@@ -187,8 +188,10 @@ int AuthServer::parse_from_client(tcp_connection::pointer cl)
 		case HEADER_CA_REQ_GAME_GUARD_CHECK:
 			{
 				WFIFOPACKET(cl, spacket, AC_ACK_GAME_GUARD);
+
 				spacket->answer = ((asd->gameguardChallenged)?(2):(1));
 				asd->gameguardChallenged = true;
+
 				cl->send_buffer(sizeof(struct PACKET_AC_ACK_GAME_GUARD));
 				cl->skip(sizeof(PACKET_CA_REQ_GAME_GUARD_CHECK));
 			}
