@@ -44,11 +44,15 @@ CharDB *CharServer::chars;
 
 // Auth
 CharServer::auth_node_db CharServer::auth_nodes;
-CharServer::online_account_db CharServer::online_chars;
+CharServer::online_char_db CharServer::online_chars;
 bool CharServer::auth_conn_ok;
 
 // Maps
 map_index CharServer::maps;
+map<int, int> CharServer::map_to_zone;
+
+// Zone
+CharServer::zone_server_db CharServer::servers;
 
 /*==============================================================*
 * Function:	Start Char Server									*                                                     

@@ -100,7 +100,7 @@ public:
 		int i = 0, j = 0;
 		while(s.fetch())
 		{
-			// TODO: Translate lastmap with map index
+			c.last_point.map = CharServer::maps.get_map_id(lastmap);
 
 			csd->found_char[i++] = c.char_id;
 			CharServer::char_to_buf(charinfo++, &c);
@@ -162,9 +162,10 @@ public:
 			into(c.delete_date),
 			into(c.robe));
 
-		// TODO: Translate lastmap with map index
 		s.execute(true);
 		s.fetch();
+
+		c.last_point.map = CharServer::maps.get_map_id(lastmap);
 
 		if (full)
 		{
@@ -181,7 +182,7 @@ public:
 			":q, :w, :e, :r,  :t, :y, :u, :o, :p, :a, :b, :c,:d, :e,:f, :g, :h, :i, :j, :l, :m, :n)",
 			use(c.account_id), use(c.slot), use(c.name), use(0 /* TODO: Start Zeny */), use(c.str), use(c.agi), use(c.vit), use(c.int_), use(c.dex), use(c.luk),
 			use((40 * (100 + c.vit)/100)), use((40 * (100 + c.vit)/100 )),  use((11 * (100 + c.int_)/100)), use((11 * (100 + c.int_)/100)), use(c.hair), use(c.hair_color),
-			use(string("prontera.gat") /* mapindex_id2name(start_point.map) */), use(150 /* start_point.x */), use(150 /* start_point.y */), use(string("prontera.gat") /* c.mapindex_id2name(start_point.map) */), use(150 /* start_point.x */), use(150 /* start_point.y */);
+			use(string("prontera.gat") /* TODO: StartMap mapindex_id2name(start_point.map) */), use(150 /* start_point.x */), use(150 /* start_point.y */), use(string("prontera.gat") /* c.mapindex_id2name(start_point.map) */), use(150 /* start_point.x */), use(150 /* start_point.y */);
 
 			return database_helper::get_last_insert_id(db_);
 		}

@@ -202,7 +202,7 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 		packet->server_info[n].ip_address = htonl(it->second.addr.to_ulong());
 		packet->server_info[n].port = ntohs(htons(it->second.port));
 		memcpy(packet->server_info[n].name, it->second.name, 20);
-		packet->server_info[n].user_count = 0; // Users online
+		packet->server_info[n].user_count = it->second.users; // Users online
 		packet->server_info[n].state = 0; // Server Type
 		packet->server_info[n].property_ = 0; // Mark as new server?
 		n++;
@@ -288,7 +288,18 @@ void AuthServer::select_charserver_timeout(int timer, int accid)
 void AuthServer::shutdown_account(int accid)
 {
 	if (online_accounts.count(accid))
+	{
+		if (online_accounts[accid].char_server > -1)
+		{
+			if (servers.count(online_accounts[accid].char_server))
+			{
+				if (servers[online_accounts[accid].char_server].users > 0)
+					servers[online_accounts[accid].char_server].users--;
+			}
+		}
+
 		online_accounts.erase(accid);
+	}
 
 	if (auth_nodes.count(accid))
 		auth_nodes.erase(accid);

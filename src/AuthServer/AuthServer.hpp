@@ -84,6 +84,8 @@ struct CharServerConnection
 
 	char name[20];
 	tcp_connection::pointer cl;
+
+	unsigned int users;
 };
 
 /*==============================================================*

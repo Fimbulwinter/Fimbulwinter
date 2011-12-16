@@ -35,6 +35,12 @@
 
 using namespace std;
 
+struct Point 
+{
+	unsigned short map;
+	short x,y;
+};
+
 struct CharData
 {
 	int char_id;
@@ -75,7 +81,7 @@ struct CharData
 	unsigned int mapip;
 	unsigned short mapport;
 
-/*	struct point last_point,save_point,memo_point[MAX_MEMOPOINTS];
+	struct Point last_point, save_point;/*,memo_point[MAX_MEMOPOINTS];
 	struct item inventory[MAX_INVENTORY],cart[MAX_CART];
 	struct storage_data storage;
 	struct s_skill skill[MAX_SKILL];
@@ -110,6 +116,11 @@ enum
 	INTER_AC_REQ_ACC_DATA_REPLY,
 
 	INTER_CA_SET_ACC_OFF,
+
+	INTER_ZC_LOGIN,
+	INTER_CZ_LOGIN_REPLY,
+
+	INTER_ZC_MAPS,
 };
 
 #define sex_num2str(num) ( (num ==  SEX_FEMALE  ) ? 'F' : (num ==  SEX_MALE  ) ? 'M' : 'S' )

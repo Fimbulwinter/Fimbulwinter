@@ -65,6 +65,54 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
+		case HEADER_CH_SELECT_CHAR:
+			FIFOSD_CHECK(3);
+			{
+				int slot = RFIFOB(cl,2);
+				int char_id;
+				CharData cd;
+
+				cl->skip(3);
+
+				{
+					statement s = (database->prepare << "SELECT `char_id` FROM `char` WHERE `account_id`=:a AND `char_num`=:s",
+						use(csd->account_id), use(slot), into(char_id));
+
+					s.execute(true);
+
+					if (s.get_affected_rows() <= 0)
+					{
+						WFIFOPACKET(cl, spacket, HC_REFUSE_ENTER);
+						spacket->error_code = 0;
+						cl->send_buffer(sizeof(struct PACKET_HC_REFUSE_ENTER));
+					}
+				}
+
+				chars->load_char(char_id, cd, true);
+
+				int server = -1;
+				if (map_to_zone.count(cd.last_point.map))
+					server = map_to_zone[cd.last_point.map];
+
+				if (server < 0)
+				{
+					// TODO: Find for major city
+
+					WFIFOPACKET(cl, spacket, SC_NOTIFY_BAN);
+					spacket->error_code = 1;
+					cl->send_buffer(sizeof(struct PACKET_SC_NOTIFY_BAN));
+					break;
+				}
+
+				WFIFOPACKET(cl, spacket, HC_NOTIFY_ZONESVR);
+				spacket->char_id = char_id;
+				maps.copy_map_name_ext((char*)spacket->map_name, cd.last_point.map);
+				spacket->addr.ip = htonl(servers[server].addr.to_ulong());
+				spacket->addr.port = servers[server].port;
+				cl->send_buffer(sizeof(struct PACKET_HC_NOTIFY_ZONESVR));
+			}
+			break;
+
 		case HEADER_CH_REQUEST_DEL_TIMER:
 			FIFOSD_CHECK(6);
 			delete2_req(cl, csd);
@@ -273,6 +321,42 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 			cl->skip(sizeof(PACKET_PING));
 			break;
 
+		case INTER_ZC_LOGIN:
+			if (RFIFOREST(cl) < 60)
+				return 0;
+			{
+				char *user = (char*)RFIFOP(cl, 2);
+				char *pass = (char*)RFIFOP(cl, 26);
+
+				if (strcmp(user, config.inter_login_user.c_str()) || strcmp(pass, config.inter_login_pass.c_str()))
+				{
+					WFIFOHEAD(cl, 3);
+					WFIFOW(cl, 0) = INTER_CZ_LOGIN_REPLY;
+					WFIFOB(cl, 2) = 1;
+					cl->send_buffer(3);
+				}
+				else
+				{
+					int id = cl->tag();
+					servers[id].cl = cl;
+					servers[id].addr = address_v4(ntohl(RFIFOL(cl, 54)));
+					servers[id].port = ntohs(RFIFOW(cl, 58));
+					servers[id].users = 0;
+					
+					cl->set_parser(&CharServer::parse_from_zone);
+					cl->flags.server = 1;
+					cl->realloc_fifo(FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
+
+					WFIFOHEAD(cl, 3);
+					WFIFOW(cl, 0) = INTER_CZ_LOGIN_REPLY;
+					WFIFOB(cl, 2) = 0;
+					cl->send_buffer(3);
+				}
+
+				cl->skip(60);
+			}
+			break;
+
 		default:
 			ShowWarning("Unknown packet 0x%04x sent from %s, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
 			cl->set_eof();
@@ -426,8 +510,7 @@ void CharServer::char_to_buf(struct CHARACTER_INFO *charinfo, CharData *p)
 	charinfo->can_rename = ( p->rename > 0 ) ? 0 : 1;
 #endif
 #if (PACKETVER >= 20100720 && PACKETVER <= 20100727) || PACKETVER >= 20100803
-	//mapindex_getmapname_ext(mapindex_id2name(p->last_point.map), (char*)WBUFP(buf,108));
-	strncpy((char*)charinfo->map_name, "prontera.gat", MAP_NAME_LENGTH_EXT);
+	maps.copy_map_name_ext(charinfo->map_name, p->last_point.map);
 #endif
 #if PACKETVER >= 20100803
 	charinfo->delete_date = TOL(p->delete_date);

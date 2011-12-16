@@ -21,6 +21,7 @@
 #include <soci/soci.h>
 #include <ragnarok.hpp>
 #include <map_index.hpp>
+#include <vector>
 
 using namespace std;
 
@@ -60,12 +61,23 @@ struct OnlineChar
 	int server;
 };
 
+struct ZoneServerConnection
+{
+	boost::asio::ip::address_v4 addr;
+	unsigned short port;
+
+	tcp_connection::pointer cl;
+
+	unsigned int users;
+};
+
 class CharDB;
 class CharServer
 {
 public:
 	typedef std::map<int, struct AuthNode> auth_node_db;
-	typedef std::map<int, struct OnlineChar> online_account_db;
+	typedef std::map<int, struct OnlineChar> online_char_db;
+	typedef std::map<int, struct ZoneServerConnection> zone_server_db;
 
 	struct login_config
 	{
@@ -131,10 +143,14 @@ public:
 
 	// Auth
 	static auth_node_db auth_nodes;
-	static online_account_db online_chars;
+	static online_char_db online_chars;
 
 	// Maps
 	static map_index maps;
+	static map<int, int> map_to_zone;
+
+	// Zone
+	static zone_server_db servers;
 };
 
 #include "CharDB.hpp"

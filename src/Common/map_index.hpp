@@ -70,8 +70,8 @@ public:
 			char name[MAP_NAME_LENGTH];
 			int id = -1;
 			
-			if (sscanf(sbuff, "%10s", name) == 1 ||
-				sscanf(sbuff, "%10s %d", name, &id) == 2)
+			if (sscanf(sbuff, "%11s", name) == 1 ||
+				sscanf(sbuff, "%11s %d", name, &id) == 2)
 			{
 				if (id == -1)
 					id = last_map++;
@@ -93,7 +93,7 @@ public:
 			}
 		}
 
-		ShowStatus("Finished reading map_index, %d maps found.", count);
+		ShowStatus("Finished reading map_index, %d maps found.\n", count);
 
 		ifs.close();
 
@@ -116,6 +116,18 @@ public:
 			throw "Map not found.";
 
 		return id_map[id]->name;
+	}
+
+	void *copy_map_name_ext(char *dst, int id)
+	{
+		char tmp[MAP_NAME_LENGTH_EXT];
+
+		if (!id_map.count(id))
+			throw "Map not found.";
+
+		strncpy(tmp, id_map[id]->name, MAP_NAME_LENGTH);
+		strcat(tmp, ".gat");
+		strncpy(dst, tmp, MAP_NAME_LENGTH_EXT);
 	}
 
 private:

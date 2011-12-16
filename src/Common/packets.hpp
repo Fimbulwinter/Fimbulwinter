@@ -1894,6 +1894,17 @@ struct PACKET_ZC_FAILED_TRADE_BUYING_STORE_TO_SELLER {
 	unsigned short ITID;
 } PACKED;
 
+struct PACKET_HC_NOTIFY_ZONESVR {
+	short header;
+	unsigned long char_id;
+	unsigned char map_name[16];
+	struct ZSERVER_ADDR
+	{
+		unsigned long ip;
+		short port;
+	} PACKED addr;
+} PACKED;
+
 #ifdef _MSC_VER
 #pragma pack(pop)
 #pragma warning(default : 4200)

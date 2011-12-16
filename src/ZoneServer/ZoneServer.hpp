@@ -82,6 +82,8 @@ public:
 	// Client
 	static void set_char_offline(int account_id, char char_id);
 	static void disconnect_timeout(int timer, int accid);
+	static void send_maps();
+	static void load_my_maps();
 
 	static bool char_conn_ok;
 	static tcp_connection::pointer char_conn;
@@ -104,4 +106,5 @@ public:
 
 	// Maps
 	static map_index maps;
+	static vector<int> my_maps;
 };
