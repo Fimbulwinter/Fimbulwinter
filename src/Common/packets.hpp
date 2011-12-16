@@ -1,22 +1,22 @@
-/*=========================================================*
-*	______ _           _           _           _		   *
-*	|  ___(_)         | |         | |         | |		   *
-*	| |_   _ _ __ ___ | |__  _   _| |_   _____| |_ _ __    *
-*	|  _| | | '_ ` _ \| '_ \| | | | \ \ / / _ \ __| '__|   *
-*	| |   | | | | | | | |_) | |_| | |\ V /  __/ |_| |      *
-*	\_|   |_|_| |_| |_|_.__/ \__,_|_| \_/ \___|\__|_|      *
-* -------------------------------------------------------- *
-*               An Ragnarok Online Emulator                *
-* -------------------------------------------------------- *
-*                Licenced under GNU GPL v3                 *
-* -------------------------------------------------------- *
-*      Packet Headers and Structures (from AEGIS 13.3)     *
-*                                                          * 
-* All the packets introduced after 2010-04-16 clients were *
-* guessed according to their functionality may present un- *
-* known fields and messed-up names. Informations regarding *
-* packets can be found at /doc/packet_doc.txt.             *
-* ======================================================== */
+/*==================================================================*
+*     ___ _           _           _          _       _				*
+*    / __(_)_ __ ___ | |__  _   _| |_      _(_)_ __ | |_ ___ _ __	*
+*   / _\ | | '_ ` _ \| '_ \| | | | \ \ /\ / / | '_ \| __/ _ \ '__|	*
+*  / /   | | | | | | | |_) | |_| | |\ V  V /| | | | | ||  __/ |		*
+*  \/    |_|_| |_| |_|_.__/ \__,_|_| \_/\_/ |_|_| |_|\__\___|_|		*
+*																	*
+* ------------------------------------------------------------------*
+*							 Emulator   			                *
+* ------------------------------------------------------------------*
+*                      Licenced under GNU GPL v3           			*
+* ----------------------------------------------------------------- *
+*      Packet Headers and Structures (from AEGIS 13.3)     			*
+*                                                          			* 
+* All the packets introduced after 2010-04-16 clients were 			*
+* guessed according to their functionality may present un- 			*
+* known fields and messed-up names. Informations regarding 			*
+* packets can be found at /doc/packet_doc.txt.             			*
+* =================================================================	*/
 
 #pragma once
 
