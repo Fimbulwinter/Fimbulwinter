@@ -30,7 +30,6 @@
 
 // Config
 config_file *AuthServer::auth_config;
-config_file *AuthServer::database_config;
 
 struct AuthServer::login_config AuthServer::config;
 
@@ -61,19 +60,9 @@ void AuthServer::run()
 		{
 			config.network_bindip = auth_config->read<string>("network.bindip", "0.0.0.0");
 			config.network_bindport = auth_config->read<unsigned short>("network.bindport", 6900);
-			config.auth_database = auth_config->read<bool>("auth.database", false);
 			config.auth_use_md5 = auth_config->read<bool>("auth.use_md5", false);
 		}
 		ShowStatus("Finished reading authserver.conf.\n");
-
-		if (config.auth_database)
-			database_config = auth_config;
-		else
-			database_config = new config_file("./Config/database.conf");
-		{
-			// Validate something?
-		}
-		ShowStatus("Finished reading database.conf.\n");
 	}
 	catch (config_file::file_not_found *fnf)
 	{
@@ -89,7 +78,7 @@ void AuthServer::run()
 
 		try
 		{
-			database = database_helper::get_session(database_config);
+			database = database_helper::get_session(auth_config);
 		}
 		catch (soci::soci_error err)
 		{

@@ -116,10 +116,23 @@ std::istream& operator>>(std::istream& is, config_file& cf)
 				line += nextline;
 				terminate = false;
 			}
-
+			
 			config_file::trim(key);
 			config_file::trim(line);
-			cf.contents_[key] = line;
+
+			if (key == "import")
+			{
+				std::ifstream in(line.c_str());
+
+				if(!in) 
+					throw config_file::file_not_found(line); 
+
+				in >> cf;
+			}
+			else
+			{
+				cf.contents_[key] = line;
+			}
 		}
 	}
 

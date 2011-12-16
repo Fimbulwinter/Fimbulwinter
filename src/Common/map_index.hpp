@@ -46,7 +46,7 @@ public:
 
 		if (ifs.fail())
 		{
-			ShowError("Error reading map_index, file not found.\n", file.c_str());
+			ShowError("Error reading map_index, file not found.\n");
 			return false;
 		}
 
@@ -75,6 +75,8 @@ public:
 			{
 				if (id == -1)
 					id = last_map++;
+				else
+					last_map = id + 1;
 
 				map_index_node *node = new map_index_node();
 				strncpy(node->name, name, sizeof(node->name));
@@ -87,11 +89,11 @@ public:
 			}
 			else
 			{
-				ShowWarning("Error reading map_index at line %d.\n", file.c_str(), line);
+				ShowWarning("Error reading map_index at line %d.\n", line);
 			}
 		}
 
-		ShowStatus("Finished reading map_index, %d maps found.", file.c_str(), count);
+		ShowStatus("Finished reading map_index, %d maps found.", count);
 
 		ifs.close();
 

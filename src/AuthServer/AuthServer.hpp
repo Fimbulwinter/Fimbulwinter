@@ -132,7 +132,6 @@ public:
 		unsigned short	network_bindport;
 
 		// Authentication Types/Settings
-		bool auth_database;
 		bool auth_use_md5;
 		//int OTP; [TODO]
 	};
@@ -156,7 +155,6 @@ public:
 
 	// Config
 	static config_file *auth_config;
-	static config_file *database_config;
 
 	static struct login_config config;
 

@@ -117,8 +117,7 @@ public:
 	static tcp_connection::pointer auth_conn;
 
 	// Config
-	static config_file *auth_config;
-	static config_file *database_config;
+	static config_file *char_config;
 
 	static struct login_config config;
 

@@ -30,8 +30,7 @@
 tcp_connection::pointer CharServer::auth_conn;
 
 // Config
-config_file *CharServer::auth_config;
-config_file *CharServer::database_config;
+config_file *CharServer::char_config;
 
 struct CharServer::login_config CharServer::config;
 
@@ -64,19 +63,19 @@ void CharServer::run()
 	// Read Config Files
 	try
 	{
-		auth_config = new config_file("./Config/charserver.conf");
+		char_config = new config_file("./Config/charserver.conf");
 		{
-			config.server_name = auth_config->read<string>("server.name", "Cronus++");
+			config.server_name = char_config->read<string>("server.name", "Cronus++");
 
-			config.network_bindip = auth_config->read<string>("network.bindip", "0.0.0.0");
-			config.network_bindport = auth_config->read<unsigned short>("network.bindport", 6121);
+			config.network_bindip = char_config->read<string>("network.bindip", "0.0.0.0");
+			config.network_bindport = char_config->read<unsigned short>("network.bindport", 6121);
 
-			config.network_charip = auth_config->read<string>("network.charip", "");
+			config.network_charip = char_config->read<string>("network.charip", "");
 
-			config.inter_login_ip = auth_config->read<string>("inter.login.ip", "127.0.0.1");
-			config.inter_login_port = auth_config->read<unsigned short>("inter.login.port", 6900);
-			config.inter_login_user = auth_config->read<string>("inter.login.user", "s1");
-			config.inter_login_pass = auth_config->read<string>("inter.login.pass", "p1");
+			config.inter_login_ip = char_config->read<string>("inter.login.ip", "127.0.0.1");
+			config.inter_login_port = char_config->read<unsigned short>("inter.login.port", 6900);
+			config.inter_login_user = char_config->read<string>("inter.login.user", "s1");
+			config.inter_login_pass = char_config->read<string>("inter.login.pass", "p1");
 
 			if (config.network_charip == "")
 			{
@@ -103,12 +102,6 @@ void CharServer::run()
 			}
 		}
 		ShowStatus("Finished reading charserver.conf.\n");
-
-		database_config = new config_file("./Config/database.conf");
-		{
-			// Validate something?
-		}
-		ShowStatus("Finished reading database.conf.\n");
 	}
 	catch (config_file::file_not_found *fnf)
 	{
@@ -130,7 +123,7 @@ void CharServer::run()
 
 		try
 		{
-			database = database_helper::get_session(database_config);
+			database = database_helper::get_session(char_config);
 		}
 		catch (soci::soci_error err)
 		{
