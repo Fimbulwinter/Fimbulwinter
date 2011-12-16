@@ -63,7 +63,7 @@ public:
 		unsigned short	network_bindport;
 
 		// IP to sent to CharServer
-		string			network_charip;
+		string			network_zoneip;
 
 		// Interconnection
 		string			inter_char_ip;

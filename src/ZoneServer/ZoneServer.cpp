@@ -67,12 +67,12 @@ void ZoneServer::run()
 			config.network_bindip = char_config->read<string>("network.bindip", "0.0.0.0");
 			config.network_bindport = char_config->read<unsigned short>("network.bindport", 6121);
 
-			config.network_charip = char_config->read<string>("network.charip", "");
+			config.network_zoneip = char_config->read<string>("network.zoneip", "");
 
-			config.inter_char_ip = char_config->read<string>("inter.login.ip", "127.0.0.1");
-			config.inter_char_port = char_config->read<unsigned short>("inter.login.port", 6900);
-			config.inter_char_user = char_config->read<string>("inter.login.user", "s1");
-			config.inter_char_pass = char_config->read<string>("inter.login.pass", "p1");
+			config.inter_char_ip = char_config->read<string>("inter.char.ip", "127.0.0.1");
+			config.inter_char_port = char_config->read<unsigned short>("inter.char.port", 6900);
+			config.inter_char_user = char_config->read<string>("inter.char.user", "s1");
+			config.inter_char_pass = char_config->read<string>("inter.char.pass", "p1");
 
 			if (config.network_charip == "")
 			{
