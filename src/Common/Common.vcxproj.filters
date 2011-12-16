@@ -8,7 +8,6 @@
     <ClCompile Include="core.cpp" />
     <ClCompile Include="strfuncs.cpp" />
     <ClCompile Include="md5.cpp" />
-    <ClCompile Include="datastruct.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tcp_server.hpp" />
@@ -23,5 +22,6 @@
     <ClInclude Include="md5.hpp" />
     <ClInclude Include="packets.hpp" />
     <ClInclude Include="datastruct.hpp" />
+    <ClInclude Include="map_index.hpp" />
   </ItemGroup>
 </Project>

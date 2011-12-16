@@ -48,6 +48,9 @@ CharServer::auth_node_db CharServer::auth_nodes;
 CharServer::online_account_db CharServer::online_chars;
 bool CharServer::auth_conn_ok;
 
+// Maps
+map_index CharServer::maps;
+
 /*==============================================================*
 * Function:	Start Char Server									*                                                     
 * Author: GreenBox                                              *
@@ -82,7 +85,8 @@ void CharServer::run()
 				tcp::resolver resolver(*io_service);
 				tcp::resolver::query query(boost::asio::ip::host_name(), "");
 				tcp::resolver::iterator iter = resolver.resolve(query);
-				tcp::resolver::iterator end; // End marker.
+				tcp::resolver::iterator end;
+
 				while (iter != end)
 				{
 					tcp::endpoint ep = *iter++;
@@ -113,6 +117,12 @@ void CharServer::run()
 	}
 
 	TimerManager::Initialize(io_service);
+	
+	if (!maps.load("./Data/map_index"))
+	{
+		getchar();
+		abort();
+	}
 
 	// Initialize Database System
 	{

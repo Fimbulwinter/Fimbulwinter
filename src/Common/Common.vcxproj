@@ -13,7 +13,6 @@
   <ItemGroup>
     <ClCompile Include="config_file.cpp" />
     <ClCompile Include="core.cpp" />
-    <ClCompile Include="datastruct.cpp" />
     <ClCompile Include="md5.cpp" />
     <ClCompile Include="show_message.cpp" />
     <ClCompile Include="strfuncs.cpp" />
@@ -25,6 +24,7 @@
     <ClInclude Include="core.hpp" />
     <ClInclude Include="database_helper.h" />
     <ClInclude Include="datastruct.hpp" />
+    <ClInclude Include="map_index.hpp" />
     <ClInclude Include="md5.hpp" />
     <ClInclude Include="packets.hpp" />
     <ClInclude Include="ragnarok.hpp" />

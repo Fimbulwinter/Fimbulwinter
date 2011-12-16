@@ -20,6 +20,7 @@
 #include <string>
 #include <soci/soci.h>
 #include <ragnarok.hpp>
+#include <map_index.hpp>
 
 using namespace std;
 
@@ -132,6 +133,9 @@ public:
 	// Auth
 	static auth_node_db auth_nodes;
 	static online_account_db online_chars;
+
+	// Maps
+	static map_index maps;
 };
 
 #include "CharDB.hpp"

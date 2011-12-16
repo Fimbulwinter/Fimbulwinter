@@ -16,6 +16,7 @@
 #pragma once
 
 #include <time.h>
+#include <string>
 
 #define PACKETVER 20110111
 
@@ -31,6 +32,8 @@
 
 #define MAP_NAME_LENGTH (11 + 1)
 #define MAP_NAME_LENGTH_EXT (MAP_NAME_LENGTH + 4)
+
+using namespace std;
 
 struct CharData
 {
