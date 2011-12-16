@@ -1138,12 +1138,14 @@ enum {
 };
 
 // Packet Structures
-
+#ifdef _MSC_VER
 #pragma pack(push)
 #pragma pack(1)
-//#ifdef _MSCV_VER
 #pragma warning(disable : 4200)
-//#endif
+#define PACKED
+#else
+#define PACKET __attribute__((packed))
+#endif
 
 struct CHARACTER_INFO {
 	unsigned int char_id;
@@ -1204,7 +1206,7 @@ struct CHARACTER_INFO {
 	//Non-standard (and probably wrong), since can_rename is a 2-byte boolean.
 	unsigned int can_changeslot;
 #endif
-};
+} PACKED;
 
 struct PACKET_CA_LOGIN {
 	unsigned short header;
@@ -1212,7 +1214,7 @@ struct PACKET_CA_LOGIN {
 	char username[24];
 	char password[24];
 	unsigned char client_type;
-};
+} PACKED;
 
 struct PACKET_CH_ENTER {
 	unsigned short header;
@@ -1221,7 +1223,7 @@ struct PACKET_CH_ENTER {
 	unsigned int user_level;
 	unsigned short client_type;
 	unsigned char Sex;
-};
+} PACKED;
 
 struct PACKET_CH_MAKE_CHAR {
   unsigned short header;
@@ -1235,13 +1237,13 @@ struct PACKET_CH_MAKE_CHAR {
   unsigned char char_slot;
   unsigned short head_color;
   unsigned short head_style;
-};
+} PACKED;
 
 struct PACKET_CH_DELETE_CHAR {
 	unsigned short header;
 	unsigned int char_id;
 	char email[40];
-};
+} PACKED;
 
 struct PACKET_AC_ACCEPT_LOGIN {
 	unsigned short header;
@@ -1266,7 +1268,7 @@ struct PACKET_AC_REFUSE_LOGIN {
 	unsigned short header;
 	unsigned char error_code;
 	char block_date[20];
-};
+} PACKED;
 
 struct PACKET_HC_ACCEPT_ENTER {
 	unsigned short header;
@@ -1278,51 +1280,51 @@ struct PACKET_HC_ACCEPT_ENTER {
 #endif
 	unsigned char unknown[20];
 	struct CHARACTER_INFO charinfo[];
-};
+} PACKED;
 
 struct PACKET_HC_REFUSE_ENTER {
 	unsigned short header;
 	unsigned char error_code;
-};
+} PACKED;
 
 struct PACKET_HC_ACCEPT_MAKECHAR {
 	unsigned short header;
 	struct CHARACTER_INFO charinfo;
-};
+} PACKED;
 
 struct PACKET_HC_REFUSE_MAKECHAR {
 	unsigned short header;
 	unsigned char error_code;
-};
+} PACKED;
 
 struct PACKET_HC_ACCEPT_DELETECHAR {
 	unsigned short header;
-};
+} PACKED;
 
 struct PACKET_HC_REFUSE_DELETECHAR {
 	unsigned short header;
 	unsigned char error_code;
-};
+} PACKED;
 
 struct PACKET_SC_NOTIFY_BAN {
 	unsigned short header;
 	unsigned char error_code;
-};
+} PACKED;
 
 struct PACKET_CA_REQ_HASH {
 	unsigned short header;
-};
+} PACKED;
 
 struct PACKET_AC_ACK_HASH {
 	unsigned short header;
 	unsigned short packet_len;
 	unsigned char salt[];
-};
+} PACKED;
 
 struct PACKET_PING {
 	unsigned short header;
 	unsigned int account_id;
-};
+} PACKED;
 
 struct PACKET_CA_LOGIN2 {
 	unsigned short header;
@@ -1330,7 +1332,7 @@ struct PACKET_CA_LOGIN2 {
 	char username[24];
 	unsigned char password_md5[16];
 	unsigned char client_type;
-};
+} PACKED;
 
 struct PACKET_CA_LOGIN3 {
 	unsigned short header;
@@ -1339,13 +1341,13 @@ struct PACKET_CA_LOGIN3 {
 	unsigned char password_md5[16];
 	unsigned char client_type;
 	unsigned char client_info;
-};
+} PACKED;
 
 struct PACKET_CH_DELETE_CHAR2 {
 	unsigned short header;
 	unsigned int char_id;
 	char email[50];
-};
+} PACKED;
 
 struct PACKET_CA_LOGIN_PCBANG {
 	unsigned short header;
@@ -1355,16 +1357,16 @@ struct PACKET_CA_LOGIN_PCBANG {
 	unsigned char clienttype;
 	char ip_address[16];
 	char mac_address[13];
-};
+} PACKED;
 
 struct PACKET_CA_REQ_GAME_GUARD_CHECK {
 	unsigned short header;
-};
+} PACKED;
 
 struct PACKET_AC_ACK_GAME_GUARD {
 	unsigned short header;
 	unsigned char answer;
-};
+} PACKED;
 
 struct PACKET_CA_LOGIN4 {
 	unsigned short header;
@@ -1373,7 +1375,7 @@ struct PACKET_CA_LOGIN4 {
 	unsigned char password_md5[16];
 	unsigned char clienttype;
 	char mac_address[13];
-};
+} PACKED;
 
 struct PACKET_CA_LOGIN_CHANNEL {
 	unsigned short header;
@@ -1384,7 +1386,7 @@ struct PACKET_CA_LOGIN_CHANNEL {
 	char ip_address[16];
 	char mac_address[13];
 	unsigned char channeling_corp;
-};
+} PACKED;
 
 struct PACKET_CA_LOGIN_TOKEN {
 	unsigned short header;
@@ -1396,76 +1398,76 @@ struct PACKET_CA_LOGIN_TOKEN {
 	char mac_address[17];
 	char ip_address[15];
 	char access_token[];
-};
+} PACKED;
 
 struct PACKET_CH_ENTER_CHECKBOT {
 	unsigned short header;
 	unsigned short packet_len;
 	unsigned int account_id;
-};
+} PACKED;
 
 struct PACKET_CH_CHECKBOT {
 	unsigned short header;
 	unsigned short packet_len;
 	unsigned int account_id;
 	char szStringInfo[24];
-};
+} PACKED;
 
 struct PACKET_HC_CHECKBOT {
 	unsigned short header;
 	unsigned short packet_len;
-};
+} PACKED;
 
 struct PACKET_HC_CHECKBOT_RESULT {
 	unsigned short header;
 	unsigned short packet_len;
 	unsigned char result;
-};
+} PACKED;
 
 struct PACKET_ZC_MSG_SKILL {
 	short PacketType;
 	unsigned short SKID;
 	int MSGID;
-};
+} PACKED;
 
 struct PACKET_CZ_BATTLE_FIELD_LIST {
 	unsigned short PacketType;
-};
+} PACKED;
 
 struct PACKET_ZC_BATTLE_FIELD_LIST {
 	short PacketType;
 	unsigned short PacketLength;
 	short Count;
-};
+} PACKED;
 
 struct PACKET_CZ_JOIN_BATTLE_FIELD {
 	short PacketType;
 	unsigned long BFNO;
 	short JoinTeam;
-};
+} PACKED;
 
 struct PACKET_ZC_JOIN_BATTLE_FIELD {
 	short PacketType;
 	unsigned long BFNO;
 	short JoinTeam;
 	short Result;
-};
+} PACKED;
 
 struct PACKET_CZ_CANCEL_BATTLE_FIELD {
 	short PacketType;
 	unsigned long BFNO;
-};
+} PACKED;
 
 struct PACKET_ZC_CANCEL_BATTLE_FIELD {
 	short PacketType;
 	unsigned long BFNO;
 	short Result;
-};
+} PACKED;
 
 struct PACKET_CZ_REQ_BATTLE_STATE_MONITOR {
 	short PacketType;
 	unsigned long BFNO;
-};
+} PACKED;
 
 struct PACKET_ZC_ACK_BATTLE_STATE_MONITOR {
 	short PacketType;
@@ -1476,28 +1478,28 @@ struct PACKET_ZC_ACK_BATTLE_STATE_MONITOR {
 	short TeamCount_B;
 	short MyCount;
 	short JoinTeam;
-};
+} PACKED;
 
 struct PACKET_ZC_BATTLE_NOTI_START_STEP {
 	short PacketType;
 	short BFNO;
 	short Result;
-};
+} PACKED;
 
 struct PACKET_ZC_BATTLE_JOIN_NOTI_DEFER {
 	short PacketType;
 	short BFNO;
-};
+} PACKED;
 
 struct PACKET_ZC_BATTLE_JOIN_DISABLE_STATE {
 	short PacketType;
 	bool Enable;
-};
+} PACKED;
 
 struct PACKET_CZ_GM_FULLSTRIP {
 	short PacketType;
 	unsigned long TargetAID;
-};
+} PACKED;
 
 struct PACKET_ZC_NOTIFY_EXP {
 	short PacketType;
@@ -1505,7 +1507,7 @@ struct PACKET_ZC_NOTIFY_EXP {
 	int amount;
 	unsigned short varID;
 	short expType;
-};
+} PACKED;
 
 struct PACKET_ZC_NOTIFY_MOVEENTRY7 {
 	short PacketType;
@@ -1537,7 +1539,7 @@ struct PACKET_ZC_NOTIFY_MOVEENTRY7 {
 	unsigned char ySize;
 	short clevel;
 	short font;
-};
+} PACKED;
 
 // Old Packet? Not used btw.
 struct PACKET_ZC_NOTIFY_NEWENTRY5 {
@@ -1569,7 +1571,7 @@ struct PACKET_ZC_NOTIFY_NEWENTRY5 {
 	unsigned char ySize;
 	short clevel;
 	short font;
-};
+} PACKED;
 
 // Another one? Y U DO THIS?
 struct PACKET_ZC_NOTIFY_STANDENTRY5 {
@@ -1602,14 +1604,14 @@ struct PACKET_ZC_NOTIFY_STANDENTRY5 {
 	unsigned char state;
 	short clevel;
 	short font;
-};
+} PACKED;
 
 struct PACKET_ZC_DELETE_ITEM_FROM_BODY {
 	short PacketType;
 	short DeleteType;
 	unsigned short Index;
 	short Count;
-};
+} PACKED;
 
 struct PACKET_ZC_USESKILL_ACK2 {
 	short PacketType;
@@ -1621,45 +1623,45 @@ struct PACKET_ZC_USESKILL_ACK2 {
 	unsigned long property;
 	unsigned long delayTime;
 	bool isDisposable;
-};
+} PACKED;
 
 struct PACKET_ZC_CHANGE_GROUP_MASTER {
 	short PacketType;
 	unsigned long OldMasterAID;
 	unsigned long NewMasterAID;
-};
+} PACKED;
 
 struct PACKET_ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN {
 	short PacketType;
 	unsigned short PacketLength;
 	unsigned char type;
 	unsigned short ItemID;
-};
+} PACKED;
 
 struct PACKET_ZC_PLAY_NPC_BGM {
 	short PacketType;
 	char Bgm[24];
-};
+} PACKED;
 
 /* Useless Packet. SKIP ALLLLL THE USELESS PACKETS
 struct PACKET_ZC_DEFINE_CHECK {
 	short PacketType;
 	short PacketLength;
-};*/
+} PACKED;*/
 
 struct PACKET_ZC_PC_PURCHASE_ITEMLIST_FROMMC2 {
 	short PacketType;
 	unsigned short PacketLength;
 	unsigned long AID;
 	unsigned long UniqueID;
-};
+} PACKED;
 
 struct PACKET_CZ_PC_PURCHASE_ITEMLIST_FROMMC2 {
 	short PacketType;
 	short PacketLength;
 	unsigned long AID;
 	unsigned long UniqueID;
-};
+} PACKED;
 
 struct PACKET_CZ_PARTY_BOOKING_REQ_REGISTER {
 	short PacketType;
@@ -1669,12 +1671,12 @@ struct PACKET_CZ_PARTY_BOOKING_REQ_REGISTER {
 			short MapID;
 			short Job[6];
 		}RegisterInfo;
-};
+} PACKED;
 
 struct PACKET_ZC_PARTY_BOOKING_ACK_REGISTER {
 	short PacketType;
 	short Result;
-};
+} PACKED;
 
 struct PACKET_CZ_PARTY_BOOKING_REQ_SEARCH {
 	short PacketType;
@@ -1683,27 +1685,27 @@ struct PACKET_CZ_PARTY_BOOKING_REQ_SEARCH {
 	short Job;
 	unsigned long LastIndex;
 	short ResultCount;
-};
+} PACKED;
 
 struct PACKET_ZC_PARTY_BOOKING_ACK_SEARCH {
 	short PacketType;
 	short PacketLength;
 	bool IsExistMoreResult;
-};
+} PACKED;
 
 struct PACKET_CZ_PARTY_BOOKING_REQ_DELETE {
 	short PacketType;
-};
+} PACKED;
 
 struct PACKET_ZC_PARTY_BOOKING_ACK_DELETE {
 	short PacketType;
 	short Result;
-};
+} PACKED;
 
 struct PACKET_CZ_PARTY_BOOKING_REQ_UPDATE {
 	short PacketType;
 	short Job[6];
-};
+} PACKED;
 
 struct PACKET_ZC_PARTY_BOOKING_NOTIFY_INSERT {
 	short PacketType;
@@ -1719,7 +1721,7 @@ struct PACKET_ZC_PARTY_BOOKING_NOTIFY_INSERT {
 					short Job[6];
 				}detail;
 		}info;
-};
+} PACKED;
 
 struct PACKET_ZC_PARTY_BOOKING_NOTIFY_UPDATE {
 	short PacketType;
@@ -1730,23 +1732,23 @@ struct PACKET_ZC_PARTY_BOOKING_NOTIFY_UPDATE {
 struct PACKET_ZC_PARTY_BOOKING_NOTIFY_DELETE {
 	short PacketType;
 	unsigned long Index;
-};
+} PACKED;
 
 struct PACKET_CZ_SIMPLE_CASH_BTNSHOW {
 	short PacketType;
-};
+} PACKED;
 
 struct PACKET_ZC_SIMPLE_CASH_BTNSHOW {
 	short PacketType;
 	bool show;
-};
+} PACKED;
 
 struct PACKET_ZC_NOTIFY_HP_TO_GROUPM_R2 {
 	short PacketType;
 	unsigned long AID;
 	int hp;
 	int maxhp;
-};
+} PACKED;
 
 struct PACKET_ZC_ADD_EXCHANGE_ITEM2 {
 	short PacketType;
@@ -1760,12 +1762,12 @@ struct PACKET_ZC_ADD_EXCHANGE_ITEM2 {
 		struct EQUIPSLOTINFO {
 			unsigned short info[4];
 		}slot;
-};
+} PACKED;
 
 struct PACKET_ZC_OPEN_BUYING_STORE {
 	short PacketType;
 	unsigned char count;
-};
+} PACKED;
 
 struct PACKET_CZ_REQ_OPEN_BUYING_STORE {
 	short PacketType;
@@ -1773,40 +1775,40 @@ struct PACKET_CZ_REQ_OPEN_BUYING_STORE {
 	unsigned long LimitZeny;
 	unsigned char result;
 	char storeName[80];
-};
+} PACKED;
 
 struct PACKET_ZC_FAILED_OPEN_BUYING_STORE_TO_BUYER {
 	short PacketType;
 	short Result;
 	int total_weight;
-};
+} PACKED;
 
 struct PACKET_ZC_MYITEMLIST_BUYING_STORE {
 	short PacketType;
 	unsigned short PacketLength;
 	unsigned long AID;
 	int limitZeny;
-};
+} PACKED;
 
 struct PACKET_ZC_BUYING_STORE_ENTRY {
 	short PacketType;
 	unsigned long makerAID;
 	char storeName[80];
-};
+} PACKED;
 
 struct PACKET_CZ_REQ_CLOSE_BUYING_STORE {
 	short PacketType;
-};
+} PACKED;
 
 struct PACKET_ZC_DISAPPEAR_BUYING_STORE_ENTRY {
 	short PacketType;
 	unsigned long makerAID;
-};
+} PACKED;
 
 struct PACKET_CZ_REQ_CLICK_TO_BUYING_STORE {
 	short PacketType;
 	unsigned long makerAID;
-};
+} PACKED;
 
 struct PACKET_ZC_ACK_ITEMLIST_BUYING_STORE {
 	short PacketType;
@@ -1821,26 +1823,26 @@ struct PACKET_CZ_REQ_TRADE_BUYING_STORE {
 	unsigned short PacketLength;
 	unsigned long makerAID;
 	unsigned long StoreID;
-};
+} PACKED;
 
 struct PACKET_ZC_FAILED_TRADE_BUYING_STORE_TO_BUYER {
 	short PacketType;
 	short Result;
-};
+} PACKED;
 
 struct PACKET_ZC_UPDATE_ITEM_FROM_BUYING_STORE {
 	short PacketType;
 	unsigned short ITID;
 	short count;
 	int limitZeny;
-};
+} PACKED;
 
 struct PACKET_ZC_ITEM_DELETE_BUYING_STORE {
 	short PacketType;
 	short index;
 	short count;
 	int zeny;
-};
+} PACKED;
 
 struct PACKET_ZC_EL_INIT {
 	short PacketType;
@@ -1849,51 +1851,50 @@ struct PACKET_ZC_EL_INIT {
 	int maxHP;
 	int sp;
 	int maxSP;
-};
+} PACKED;
 
 struct PACKET_ZC_EL_PAR_CHANGE {
 	short PacketType;
 	unsigned short var;
 	int value;
-};
+} PACKED;
 
 struct PACKET_ZC_BROADCAST_IN_ZONE {
 	short PacketType;
 	unsigned short PacketLength;
 	unsigned char Msgtype;
 	unsigned long ColorRGB;
-};
+} PACKED;
 
 struct PACKET_ZC_COSTUME_SPRITE_CHANGE {
 	short PacketType;
 	unsigned long GID;
 	unsigned char type;
 	int value;
-};
+} PACKED;
 
 struct PACKET_AC_OTP_USER {
 	short PacketType;
-};
+} PACKED;
 
 struct PACKET_CA_OTP_AUTH_REQ {
 	short PacketType;
 	char OTPCode[7];
-};
+} PACKED;
 
 struct PACKET_AC_OTP_AUTH_ACK {
 	short PacketType;
 	unsigned short PacketLength;
 	unsigned short LoginResult;
-};
+} PACKED;
 
 struct PACKET_ZC_FAILED_TRADE_BUYING_STORE_TO_SELLER {
 	short PacketType;
 	short Result;
 	unsigned short ITID;
-};
+} PACKED;
 
-//#ifdef _MSCV_VER
-#pragma warning(default : 4200)
-//#endif
-
+#ifdef _MSC_VER
 #pragma pack(pop)
+#pragma warning(default : 4200)
+#endif
