@@ -26,6 +26,7 @@
 #include <boost/foreach.hpp>
 #include <strfuncs.hpp>
 #include <stdarg.h>
+#include <stdint.h>
 
 PacketData *ZoneServer::client_packets[MAX_PACKET_DB];
 
@@ -108,11 +109,11 @@ void ZoneServer::init_packets()
 	memset(client_packets, 0, sizeof(client_packets));
 
 #if CLIENTVER == 26
-	add_packet(0x0436, 19, &ZoneServer::packet_wanttoconnect, 5, 2, 6, 10, 14, 18);
+	addpacket(0x0436, 19, &ZoneServer::packet_wanttoconnect, 2, 6, 10, 14, 18);
 #endif
 }
 
-void ZoneServer::add_packet(unsigned short id, short size, PacketCallback func, int numargs, ...)
+void ZoneServer::client_add_packet(unsigned short id, short size, PacketCallback func, ...)
 {
 	if (id > MAX_PACKET_DB)
 	{
@@ -120,23 +121,20 @@ void ZoneServer::add_packet(unsigned short id, short size, PacketCallback func, 
 		return;
 	}
 
-	if (numargs > MAX_PACKET_POS)
-	{
-		ShowWarning("(ZoneServer::add_packet) invalid number of positions in packet %x.\n", id);
-		return;
-	}
-
 	PacketData *pd = new PacketData();
 
 	va_list va;
-	va_start(va, numargs);
+	va_start(va, func);
 
 	pd->len = size;
 	pd->callback = func;
 
-	for (int i = 0; i < numargs; i++)
+	for (int i = 0; i < MAX_PACKET_POS; i++)
 	{
 		pd->pos[i] = va_arg(va, unsigned short);
+
+		if (pd->pos[i] == 0xFFFF)
+			break;
 	}
 
 	va_end(va);

@@ -59,6 +59,8 @@ struct PacketData
 	unsigned short pos[MAX_PACKET_POS];
 };
 
+#define addpacket(id, size, func, ...) ZoneServer::client_add_packet(id, size, func, __VA_ARGS__, 0xFFFF)
+
 class ZoneServer
 {
 public:
@@ -96,7 +98,7 @@ public:
 	static void disconnect_timeout(int timer, int accid);
 
 	static void init_packets();
-	static void add_packet(unsigned short id, short size, PacketCallback func, int numargs, ...);
+	static void client_add_packet(unsigned short id, short size, PacketCallback func, ...);
 
 	static void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd);
 
