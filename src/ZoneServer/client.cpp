@@ -25,7 +25,9 @@
 #include <iostream>
 #include <boost/foreach.hpp>
 #include <strfuncs.hpp>
+#include <stdarg.h>
 
+PacketData *ZoneServer::client_packets[MAX_PACKET_DB];
 
 /*==============================================================*
 * Function:	Parse from Client									*                                                     
@@ -53,9 +55,39 @@ int ZoneServer::parse_from_client(tcp_connection::pointer cl)
 
 		//#define FIFOSD_CHECK(rest) { if(RFIFOREST(cl) < rest) return 0; if (csd==NULL || !csd->auth) { cl->skip(rest); return 0; } }
 
-		switch (cmd)
+		if (client_packets[cmd])
 		{
-		default:
+			unsigned short packet_size;
+
+			if (client_packets[cmd]->len > -1)
+			{
+				packet_size = client_packets[cmd]->len;
+			}
+			else if (client_packets[cmd]->len == -1)
+			{
+				if (RFIFOREST(cl) < 4)
+					return 0;
+
+				packet_size = RFIFOW(cl, 2);
+			}
+
+			if (RFIFOREST(cl) < packet_size)
+				return 0;
+
+			if (client_packets[cmd]->callback)
+			{
+				if (!sd && client_packets[cmd]->callback != &ZoneServer::packet_wanttoconnect)
+					;
+				else if (sd && cl->flags.eof)
+					;
+				else
+					client_packets[cmd]->callback(cl, sd);
+			}
+
+			cl->skip(client_packets[cmd]->len == -1 ? RFIFOW(cl, 2) : client_packets[cmd]->len);
+		}
+		else
+		{
 			ShowWarning("Unknown packet 0x%04x sent from %s, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
 			cl->set_eof();
 			return 0;
@@ -63,4 +95,51 @@ int ZoneServer::parse_from_client(tcp_connection::pointer cl)
 	}
 
 	return 0;
+}
+
+void ZoneServer::packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd)
+{
+
+
+}
+
+void ZoneServer::init_packets() 
+{
+	memset(client_packets, 0, sizeof(client_packets));
+
+#if CLIENTVER == 26
+	add_packet(0x0436, 19, &ZoneServer::packet_wanttoconnect, 5, 2, 6, 10, 14, 18);
+#endif
+}
+
+void ZoneServer::add_packet(unsigned short id, short size, PacketCallback func, int numargs, ...)
+{
+	if (id > MAX_PACKET_DB)
+	{
+		ShowWarning("(ZoneServer::add_packet) invalid packet id %x.\n", id);
+		return;
+	}
+
+	if (numargs > MAX_PACKET_POS)
+	{
+		ShowWarning("(ZoneServer::add_packet) invalid number of positions in packet %x.\n", id);
+		return;
+	}
+
+	PacketData *pd = new PacketData();
+
+	va_list va;
+	va_start(va, numargs);
+
+	pd->len = size;
+	pd->callback = func;
+
+	for (int i = 0; i < numargs; i++)
+	{
+		pd->pos[i] = va_arg(va, unsigned short);
+	}
+
+	va_end(va);
+
+	client_packets[id] = pd;
 }

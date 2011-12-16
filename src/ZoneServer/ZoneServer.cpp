@@ -134,6 +134,7 @@ void ZoneServer::run()
 		ShowSQL("Successfully opened database connection.\n");
 	}
 
+	init_packets();
 	connect_to_char();
 
 	// Initialize Network System

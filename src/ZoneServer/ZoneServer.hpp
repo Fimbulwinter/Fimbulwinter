@@ -24,7 +24,8 @@
 
 using namespace std;
 
-#define MAX_CHAR_BUF 140
+#define MAX_PACKET_DB 0x900
+#define MAX_PACKET_POS 20
 
 struct ZoneSessionData
 {
@@ -48,6 +49,14 @@ struct OnlineChar
 
 	tcp_connection::pointer cl;
 	int disconnect_timer;
+};
+
+typedef boost::function<void (tcp_connection::pointer, ZoneSessionData *)> PacketCallback;
+struct PacketData
+{
+	short len;
+	PacketCallback callback;
+	unsigned short pos[MAX_PACKET_POS];
 };
 
 class ZoneServer
@@ -75,15 +84,21 @@ public:
 	static void run();
 	static int parse_from_client(tcp_connection::pointer cl);
 	static int parse_from_char(tcp_connection::pointer cl);
+	static void load_my_maps();
 	
-	// Auth InterConn
+	// Char InterConn
 	static void connect_to_char();
+	static void send_maps();
 
 	// Client
+	static PacketData *client_packets[MAX_PACKET_DB];
 	static void set_char_offline(int account_id, char char_id);
 	static void disconnect_timeout(int timer, int accid);
-	static void send_maps();
-	static void load_my_maps();
+
+	static void init_packets();
+	static void add_packet(unsigned short id, short size, PacketCallback func, int numargs, ...);
+
+	static void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd);
 
 	static bool char_conn_ok;
 	static tcp_connection::pointer char_conn;

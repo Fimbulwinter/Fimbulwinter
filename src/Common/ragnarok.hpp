@@ -19,6 +19,7 @@
 #include <string>
 
 #define PACKETVER 20110111
+#define CLIENTVER 26
 
 #define NAME_LENGTH (23 + 1)
 
