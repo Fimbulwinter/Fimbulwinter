@@ -86,7 +86,6 @@ public:
 	static void run();
 	static int parse_from_client(tcp_connection::pointer cl);
 	static int parse_from_char(tcp_connection::pointer cl);
-	static void load_my_maps();
 	
 	// Char InterConn
 	static void connect_to_char();
@@ -122,6 +121,5 @@ public:
 	static online_account_db online_chars;
 
 	// Maps
-	static map_index maps;
-	static vector<int> my_maps;
+	
 };

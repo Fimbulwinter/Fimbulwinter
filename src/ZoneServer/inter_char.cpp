@@ -25,6 +25,7 @@
 #include <iostream>
 #include <boost/foreach.hpp>
 #include <strfuncs.hpp>
+#include "MapManager.hpp"
 
 /*==============================================================*
 * Function:	Connect to Char-Server								*                                                     
@@ -148,18 +149,18 @@ void ZoneServer::send_maps()
 {
 	if (char_conn_ok)
 	{
-		WFIFOHEAD(char_conn, 4 + sizeof(int) * my_maps.size());
+		WFIFOHEAD(char_conn, 4 + sizeof(int) * MapManager::maps.size());
 		WFIFOW(char_conn, 0) = INTER_ZC_MAPS;
-		WFIFOW(char_conn, 2) = 4 + sizeof(int) * my_maps.size();
+		WFIFOW(char_conn, 2) = 4 + sizeof(int) * MapManager::maps.size();
 
 		int i = 0;
-		BOOST_FOREACH(int m, my_maps)
+		BOOST_FOREACH(MapData &map, MapManager::maps)
 		{
-			WFIFOL(char_conn, 4 + (i * sizeof(int))) = m;
+			WFIFOL(char_conn, 4 + (i * sizeof(int))) = map.m;
 
 			i++;
 		}
 
-		char_conn->send_buffer(4 + sizeof(int) * my_maps.size());
+		char_conn->send_buffer(4 + sizeof(int) * MapManager::maps.size());
 	}
 }

@@ -26,6 +26,8 @@
 #include <boost/foreach.hpp>
 #include <strfuncs.hpp>
 #include <fstream>
+#include <zlib.h>
+#include "mapmanager.hpp"
 
 // Login InterConn
 tcp_connection::pointer ZoneServer::char_conn;
@@ -46,10 +48,6 @@ soci::session *ZoneServer::database;
 ZoneServer::auth_node_db ZoneServer::auth_nodes;
 ZoneServer::online_account_db ZoneServer::online_chars;
 bool ZoneServer::char_conn_ok;
-
-// Maps
-map_index ZoneServer::maps;
-vector<int> ZoneServer::my_maps;
 
 /*==============================================================*
 * Function:	Start Char Server									*                                                     
@@ -109,13 +107,7 @@ void ZoneServer::run()
 	}
 
 	TimerManager::Initialize(io_service);
-	
-	if (!maps.load("./Data/map_index"))
-	{
-		getchar();
-		abort();
-	}
-	load_my_maps();
+	MapManager::initialize();
 
 	// Initialize Database System
 	{
@@ -179,59 +171,4 @@ int main(int argc, char *argv[])
 void ZoneServer::set_char_offline(int account_id, char char_id)
 {
 	
-}
-
-void ZoneServer::load_my_maps()
-{
-	ifstream ifs("./config/zonemaps.lst", ifstream::in);
-	int line = 0;
-
-	if (ifs.fail())
-	{
-		ShowFatalError("Error reading ZoneServer map file, file not found.\n");
-		abort();
-	}
-
-	while (ifs.good())
-	{
-		char buff[256];
-		char *sbuff = buff;
-		line++;
-
-		ifs.getline(buff, sizeof(buff));
-
-		while (isspace(*sbuff) && *sbuff)
-			sbuff++;
-
-		if (buff[0] == 0)
-			continue;
-
-		if (buff[0] == '#')
-			continue;
-
-		char *tmp = sbuff;
-		while (*tmp)
-		{
-			if (isspace(*tmp))
-			{
-				*tmp = 0;
-				break;
-			}
-
-			tmp++;
-		}
-
-		int m;
-		try
-		{
-			m = maps.get_map_id(string(sbuff));
-		}
-		catch (char *msg)
-		{
-			ShowWarning("Error parsing ZoneMaps file on line %d: %s\n", line, msg);
-			continue;
-		}
-
-		my_maps.push_back(m);
-	}
 }

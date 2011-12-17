@@ -4,8 +4,10 @@
     <ClCompile Include="client.cpp" />
     <ClCompile Include="ZoneServer.cpp" />
     <ClCompile Include="inter_char.cpp" />
+    <ClCompile Include="MapManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZoneServer.hpp" />
+    <ClInclude Include="MapManager.hpp" />
   </ItemGroup>
 </Project>
