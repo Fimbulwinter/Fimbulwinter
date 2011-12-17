@@ -653,7 +653,7 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 			strcat(prefix,CL_MAGENTA"[SQL]"CL_RESET":");
 			break;
 		case MSG_INFORMATION: // Bright White (Variable information)
-			strcat(prefix,CL_WHITE"[Information]"CL_RESET":");
+			strcat(prefix,CL_WHITE"[Info]"CL_RESET":");
 			break;
 		case MSG_NOTICE: // Bright White (Less than a warning)
 			strcat(prefix,CL_WHITE"[Notice]"CL_RESET":");
