@@ -122,6 +122,10 @@ enum
 	INTER_CZ_LOGIN_REPLY,
 
 	INTER_ZC_MAPS,
+
+	INTER_ZC_AUTH,
+	INTER_CZ_AUTH_OK,
+	INTER_CZ_AUTH_FAIL,
 };
 
 #define sex_num2str(num) ( (num ==  SEX_FEMALE  ) ? 'F' : (num ==  SEX_MALE  ) ? 'M' : 'S' )

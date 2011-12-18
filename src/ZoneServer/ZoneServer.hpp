@@ -21,6 +21,7 @@
 #include <soci/soci.h>
 #include <ragnarok.hpp>
 #include <map_index.hpp>
+#include "BlockManager.hpp"
 
 using namespace std;
 
@@ -31,15 +32,36 @@ struct ZoneSessionData
 {
 	bool auth;
 
+	int login_id1;
+	int login_id2;
+	unsigned int client_tick;
+	time_t canlog_tick;
+
+	struct BlockList bl;
+	CharData status;
+
 	tcp_connection::pointer cl;
+	int gmlevel;
+};
+
+enum SessionState 
+{ 
+	ST_LOGIN, 
+	ST_LOGOUT, 
+	ST_MAPCHANGE 
 };
 
 struct AuthNode
 {
-	int login_id1;
-	int login_id2;
+	int account_id, char_id;
+	int login_id1, login_id2, sex;
+	time_t expiration_time;
+	struct ZoneSessionData *sd;
+	struct CharData *char_dat;
+	unsigned int node_created;
+	enum SessionState state;
 
-	char sex;
+	tcp_connection::pointer cl;
 };
 
 struct OnlineChar 
@@ -90,6 +112,8 @@ public:
 	// Char InterConn
 	static void connect_to_char();
 	static void send_maps();
+	static void inter_confirm_auth(ZoneSessionData *sd);
+	static void create_auth_entry(ZoneSessionData *sd, enum SessionState state);
 
 	// Client
 	static PacketData *client_packets[MAX_PACKET_DB];
@@ -100,7 +124,9 @@ public:
 	static void client_add_packet(unsigned short id, short size, PacketCallback func, ...);
 
 	static void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd);
-
+	static void auth_fail(tcp_connection::pointer cl, int err);
+	static void auth_ok( ZoneSessionData * sd );
+	// Char InterConn
 	static bool char_conn_ok;
 	static tcp_connection::pointer char_conn;
 
@@ -119,7 +145,4 @@ public:
 	// Auth
 	static auth_node_db auth_nodes;
 	static online_account_db online_chars;
-
-	// Maps
-	
 };

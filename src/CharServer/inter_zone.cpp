@@ -101,6 +101,62 @@ int CharServer::parse_from_zone(tcp_connection::pointer cl)
 				cl->skip(RFIFOW(cl, 2));
 			}
 			break;
+
+		case INTER_ZC_AUTH:
+			if (RFIFOREST(cl) < 15)
+				return 0;
+			{
+				int account_id;
+				int char_id;
+				int login_id1;
+				char sex;
+				struct CharData* cd = 0;
+				struct CharData char_dat;
+
+				account_id = RFIFOL(cl,2);
+				char_id    = RFIFOL(cl,6);
+				login_id1  = RFIFOL(cl,10);
+				sex        = RFIFOB(cl,14);
+				cl->skip(15);
+
+				// TODO: Cache char data
+				chars->load_char(char_id, char_dat, true);
+				/*cd = (struct mmo_charstatus*)uidb_get(char_db_,char_id);
+				if(!)
+				{	//Really shouldn't happen.
+					mmo_char_fromsql(char_id, &char_dat, true);
+					cd = (struct mmo_charstatus*)uidb_get(char_db_,char_id);
+				}*/
+				if(auth_nodes.count(account_id) && /*cd != NULL &&*/
+					auth_nodes[account_id].char_id == char_id &&
+					auth_nodes[account_id].login_id1 == login_id1 &&
+					auth_nodes[account_id].sex == sex)
+				{
+					WFIFOHEAD(cl, 24 + sizeof(struct CharData));
+					WFIFOW(cl,0) = INTER_CZ_AUTH_OK;
+					WFIFOW(cl,2) = 24 + sizeof(struct CharData);
+					WFIFOL(cl,4) = account_id;
+					WFIFOL(cl,8) = auth_nodes[account_id].login_id1;
+					WFIFOL(cl,12) = auth_nodes[account_id].login_id2;
+					WFIFOL(cl,16) = auth_nodes[account_id].expiration_time; // FIXME: will wrap to negative after "19-Jan-2038, 03:14:07 AM GMT"
+					WFIFOL(cl,20) = auth_nodes[account_id].gmlevel;
+					memcpy(WFIFOP(cl,24), &char_dat, sizeof(struct CharData));
+					cl->send_buffer(WFIFOW(cl,2));
+
+					auth_nodes.erase(account_id);
+					set_char_online(cl->tag(), char_id, account_id);
+				}
+				else
+				{
+					// auth failed
+					WFIFOHEAD(cl,19);
+					WFIFOW(cl,0) = INTER_CZ_AUTH_FAIL;
+					WFIFOL(cl,2) = account_id;
+					cl->send_buffer(6);
+				}
+			}
+			break;
+
 		default:
 			ShowWarning("Unknown packet 0x%x sent from ZoneServer, closing connection.\n", cmd, cl->socket().remote_endpoint().address().to_string().c_str());
 			cl->set_eof();

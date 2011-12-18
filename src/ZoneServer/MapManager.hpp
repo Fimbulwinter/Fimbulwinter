@@ -34,6 +34,31 @@ struct MapCell
 #endif
 };
 
+enum BlockType 
+{ 
+	BL_NUL   = 0x000,
+	BL_PC    = 0x001,
+	BL_MOB   = 0x002,
+	BL_PET   = 0x004,
+	BL_HOM   = 0x008,
+	BL_MER   = 0x010,
+	BL_ITEM  = 0x020,
+	BL_SKILL = 0x040,
+	BL_NPC   = 0x080,
+	BL_CHAT  = 0x100,
+	BL_ELEM   = 0x200,
+
+	BL_ALL   = 0xFFF,
+};
+
+struct BlockList
+{
+	struct BlockList *next, *prev;
+	int id;
+	short m, x, y;
+	enum BlockType type;
+};
+
 // MapData
 struct MapData 
 {
@@ -44,7 +69,7 @@ struct MapData
 	struct MapCell* cell;
 
 	// MapIndex ID, Width, Height(in cells)
-	short m, w, h;
+	short m, w, h, wb, hb;
 
 	// Number of players on the map
 	int users;
@@ -65,6 +90,9 @@ struct MapData
 		unsigned gvg_dungeon : 1;
 		unsigned gvg_noparty : 1;
 	} flags;
+
+	// Blocks
+	struct BlockList **blocks;
 };
 
 // eAthena MapCache file header

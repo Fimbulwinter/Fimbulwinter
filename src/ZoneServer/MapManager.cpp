@@ -144,6 +144,11 @@ void MapManager::initialize()
 		for (int i = 0; i < my_maps.size(); i++)
 		{
 			decode_mapcache(&maps[i], map_cache_buffer, map_cache_decode_buffer);
+
+			maps[i].wb = (maps[i].w + BLOCK_SIZE - 1) / BLOCK_SIZE;
+			maps[i].hb = (maps[i].h + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+			maps[i].blocks = new struct BlockList *[maps[i].wb * maps[i].hb];
 		}
 
 		free(map_cache_buffer);
