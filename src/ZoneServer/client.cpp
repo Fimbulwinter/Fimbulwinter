@@ -199,8 +199,8 @@ void ZoneServer::auth_ok( ZoneSessionData * sd )
 	WFIFOW(sd->cl, 0) = HEADER_ZC_ACCEPT_ENTER;
 	WFIFOL(sd->cl, 2) = time(NULL);
 	WFIFOPOS(sd->cl, 6, sd->bl.x, sd->bl.y, 3/*sd->ud.dir*/); // TODO: UnitData Direction
-	WFIFOB(sd->cl, 9) = 5; // ignored
-	WFIFOB(sd->cl,10) = 5; // ignored
+	WFIFOB(sd->cl, 9) = 5;
+	WFIFOB(sd->cl,10) = 5;
 	sd->cl->skip(11);
 }
 
