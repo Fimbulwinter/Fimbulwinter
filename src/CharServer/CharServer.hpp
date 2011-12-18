@@ -45,8 +45,12 @@ struct CharSessionData
 
 struct AuthNode
 {
+	int char_id;
+
 	int login_id1;
 	int login_id2;
+	int gmlevel;
+	time_t expiration_time;
 
 	char sex;
 };
@@ -110,6 +114,7 @@ public:
 
 	// Client
 	static void set_char_offline(int account_id, char char_id);
+	static void set_char_online(int server, int char_id, int account_id);
 	static void disconnect_timeout(int timer, int accid);
 
 	static void send_chars(tcp_connection::pointer cl, CharSessionData *csd);
@@ -124,7 +129,7 @@ public:
 	static void delete2_ack( tcp_connection::pointer cl, int char_id, int result, time_t deltime );
 	static void delete2_accept_ack( tcp_connection::pointer cl, int char_id, int param3 );
 	static void delete2_cancel_ack( tcp_connection::pointer cl, int char_id, int result );
-	
+
 	static bool auth_conn_ok;
 	static tcp_connection::pointer auth_conn;
 

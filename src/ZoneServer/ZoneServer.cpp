@@ -172,3 +172,21 @@ void ZoneServer::set_char_offline(int account_id, char char_id)
 {
 	
 }
+
+void ZoneServer::create_auth_entry(ZoneSessionData *sd, enum SessionState state)
+{
+	if (auth_nodes.count(sd->status.account_id))
+		return;
+
+	auth_nodes[sd->status.account_id].account_id = sd->status.account_id;
+	auth_nodes[sd->status.account_id].char_id = sd->status.char_id;
+	auth_nodes[sd->status.account_id].login_id1 = sd->login_id1;
+	auth_nodes[sd->status.account_id].login_id2 = sd->login_id2;
+	auth_nodes[sd->status.account_id].sex = sd->status.sex;
+	auth_nodes[sd->status.account_id].cl = sd->cl;
+	auth_nodes[sd->status.account_id].sd = sd;
+	auth_nodes[sd->status.account_id].node_created = time(NULL);
+	auth_nodes[sd->status.account_id].state = state;
+
+	sd->auth = false;
+}

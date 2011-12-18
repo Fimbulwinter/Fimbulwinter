@@ -34,55 +34,6 @@ struct MapCell
 #endif
 };
 
-// MapData
-struct MapData 
-{
-	// Map name
-	char name[MAP_NAME_LENGTH];
-
-	// MapCell array
-	struct MapCell* cell;
-
-	// MapIndex ID, Width, Height(in cells)
-	short m, w, h;
-
-	// Number of players on the map
-	int users;
-
-	// MapFlags
-	struct map_flag 
-	{
-		// PvP Flags
-		unsigned pvp : 1;
-		unsigned pvp_noparty : 1;
-		unsigned pvp_noguild : 1;
-		unsigned pvp_nightmaredrop :1;
-		unsigned pvp_nocalcrank : 1;
-
-		// GvG Flags
-		unsigned gvg_castle : 1;
-		unsigned gvg : 1;
-		unsigned gvg_dungeon : 1;
-		unsigned gvg_noparty : 1;
-	} flags;
-};
-
-// eAthena MapCache file header
-struct MapCacheHeader 
-{
-	unsigned int file_size;
-	unsigned short map_count;
-};
-
-// eAthena MapCache Map Descriptor
-struct MapCacheMapInfo 
-{
-	char name[MAP_NAME_LENGTH];
-	unsigned short xs;
-	unsigned short ys;
-	unsigned int len;
-};
-
 enum BlockType 
 { 
 	BL_NUL   = 0x000,
@@ -106,6 +57,58 @@ struct BlockList
 	int id;
 	short m, x, y;
 	enum BlockType type;
+};
+
+// MapData
+struct MapData 
+{
+	// Map name
+	char name[MAP_NAME_LENGTH];
+
+	// MapCell array
+	struct MapCell* cell;
+
+	// MapIndex ID, Width, Height(in cells)
+	short m, w, h, wb, hb;
+
+	// Number of players on the map
+	int users;
+
+	// MapFlags
+	struct map_flag 
+	{
+		// PvP Flags
+		unsigned pvp : 1;
+		unsigned pvp_noparty : 1;
+		unsigned pvp_noguild : 1;
+		unsigned pvp_nightmaredrop :1;
+		unsigned pvp_nocalcrank : 1;
+
+		// GvG Flags
+		unsigned gvg_castle : 1;
+		unsigned gvg : 1;
+		unsigned gvg_dungeon : 1;
+		unsigned gvg_noparty : 1;
+	} flags;
+
+	// Blocks
+	struct BlockList **blocks;
+};
+
+// eAthena MapCache file header
+struct MapCacheHeader 
+{
+	unsigned int file_size;
+	unsigned short map_count;
+};
+
+// eAthena MapCache Map Descriptor
+struct MapCacheMapInfo 
+{
+	char name[MAP_NAME_LENGTH];
+	unsigned short xs;
+	unsigned short ys;
+	unsigned int len;
 };
 
 class MapManager

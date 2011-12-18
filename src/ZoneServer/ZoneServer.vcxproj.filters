@@ -5,9 +5,13 @@
     <ClCompile Include="ZoneServer.cpp" />
     <ClCompile Include="inter_char.cpp" />
     <ClCompile Include="MapManager.cpp" />
+    <ClCompile Include="BlockManager.cpp" />
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZoneServer.hpp" />
     <ClInclude Include="MapManager.hpp" />
+    <ClInclude Include="BlockManager.hpp" />
+    <ClInclude Include="Player.hpp" />
   </ItemGroup>
 </Project>

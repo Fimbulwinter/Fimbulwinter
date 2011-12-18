@@ -183,11 +183,23 @@ int main(int argc, char *argv[])
 **==============================================================*/
 void CharServer::set_char_offline(int account_id, char char_id)
 {
+	if (char_id > 0)
+	{
+		statement s = (database->prepare << "UPDATE `char` SET `online` = 0 WHERE `char_id` = :c", use(char_id));
+		s.execute();
+	}
+	else
+	{
+		statement s = (database->prepare << "UPDATE `char` SET `online` = 0 WHERE `account_id` = :a", use(account_id));
+		s.execute();
+	}
+
 	if (online_chars.count(account_id))
 	{
 		if (online_chars[account_id].server > -1)
 		{
-			// TODO: Decrement ZoneServer users online
+			if (servers[online_chars[account_id].server].users > 0)
+				servers[online_chars[account_id].server].users--;
 		}
 
 		if (online_chars[account_id].disconnect_timer)
@@ -207,4 +219,16 @@ void CharServer::set_char_offline(int account_id, char char_id)
 		WFIFOL(auth_conn,2) = account_id;
 		auth_conn->send_buffer(6);
 	}
+}
+
+void CharServer::set_char_online(int server, int char_id, int account_id)
+{
+	statement s = (database->prepare << "UPDATE `char` SET `online` = 1 WHERE `char_id` = :c", use(char_id));
+	s.execute();
+
+	online_chars[account_id].server = server;
+	online_chars[account_id].char_id = char_id;
+
+	if (online_chars[account_id].disconnect_timer)
+		TimerManager::FreeTimer(online_chars[account_id].disconnect_timer);
 }

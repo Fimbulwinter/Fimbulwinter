@@ -104,6 +104,13 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 					break;
 				}
 
+				auth_nodes[csd->account_id].sex = csd->sex;
+				auth_nodes[csd->account_id].char_id = char_id;
+				auth_nodes[csd->account_id].gmlevel = csd->gmlevel;
+				auth_nodes[csd->account_id].login_id1 = csd->login_id1;
+				auth_nodes[csd->account_id].login_id2 = csd->login_id2;
+				auth_nodes[csd->account_id].expiration_time = csd->expiration_time;
+
 				WFIFOPACKET(cl, spacket, HC_NOTIFY_ZONESVR);
 				spacket->char_id = char_id;
 				maps.copy_map_name_ext((char*)spacket->map_name, cd.last_point.map);
