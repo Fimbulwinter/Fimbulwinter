@@ -104,9 +104,15 @@ void MapManager::initialize()
 			my_maps.push_back(m);
 		}
 
+		if (my_maps.size() == 0)
+		{
+			ShowFatalError("No maps assigned to this server.\n");
+			abort();
+		}
+
 		// Create map array
 		maps.resize(my_maps.size());
-		for (int i = 0; i < my_maps.size(); i++)
+		for (unsigned int i = 0; i < my_maps.size(); i++)
 		{
 			memset(&maps[i], 0, sizeof(struct MapData));
 
@@ -141,7 +147,7 @@ void MapManager::initialize()
 		char map_cache_decode_buffer[MAX_MAP_SIZE];
 
 		ShowStatus("Loading maps (%d)..\n", my_maps.size());
-		for (int i = 0; i < my_maps.size(); i++)
+		for (unsigned int i = 0; i < my_maps.size(); i++)
 		{
 			decode_mapcache(&maps[i], map_cache_buffer, map_cache_decode_buffer);
 

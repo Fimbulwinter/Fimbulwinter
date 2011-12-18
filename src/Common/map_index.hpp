@@ -81,6 +81,8 @@ public:
 			{
 
 				 map_index_node *node = new map_index_node();
+
+				 memset(node->subname, 0, sizeof(node->subname));
 				 
 				 if(strcmp(copymapname,"") != 0){
 					 char* ptr;
@@ -122,8 +124,11 @@ public:
 		return true;
 	}
 
-	int get_map_id(string server_name)
+	int get_map_id(string server_name, bool ext = false)
 	{
+		if (ext)
+			server_name.resize(server_name.length() - 4);
+
 		PatriciaTrieNode<string, map_index_node *> *node = map_id.LookupNode(server_name);
 
 		if (!node)
@@ -140,14 +145,17 @@ public:
 		return id_map[id]->server_name;
 	}
 
-	void *copy_map_name_ext(char *dst, int id)
+	void copy_map_name_ext(char *dst, int id)
 	{
 		char tmp[MAP_NAME_LENGTH_EXT];
 
 		if (!id_map.count(id))
 			throw "Map not found.";
 
-		strncpy(tmp, id_map[id]->server_name, MAP_NAME_LENGTH);
+		if (strcmp(id_map[id]->subname, "") != 0)
+			strncpy(tmp, id_map[id]->server_name, MAP_NAME_LENGTH);
+		else
+			strncpy(tmp, id_map[id]->subname, MAP_NAME_LENGTH);
 		strcat(tmp, ".gat");
 		strncpy(dst, tmp, MAP_NAME_LENGTH_EXT);
 	}

@@ -122,7 +122,7 @@ public:
 
 	static int get_map_by_index(int m)
 	{
-		for (int i = 0; i < maps.size(); i++)
+		for (unsigned int i = 0; i < maps.size(); i++)
 		{
 			if (maps[i].m == m)
 				return i;

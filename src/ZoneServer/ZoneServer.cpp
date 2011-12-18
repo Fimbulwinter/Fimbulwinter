@@ -185,7 +185,7 @@ void ZoneServer::create_auth_entry(ZoneSessionData *sd, enum SessionState state)
 	auth_nodes[sd->status.account_id].sex = sd->status.sex;
 	auth_nodes[sd->status.account_id].cl = sd->cl;
 	auth_nodes[sd->status.account_id].sd = sd;
-	auth_nodes[sd->status.account_id].node_created = time(NULL);
+	auth_nodes[sd->status.account_id].node_created = (unsigned int)time(NULL);
 	auth_nodes[sd->status.account_id].state = state;
 
 	sd->auth = false;

@@ -14,6 +14,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CharServer", "src\CharServe
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZoneServer", "src\ZoneServer\ZoneServer.vcxproj", "{F9621943-2FD8-42F7-8B33-0F171530F721}"
+	ProjectSection(ProjectDependencies) = postProject
+		{090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3} = {090CD1B1-2490-4A4E-A58F-E1A6BF41E2C3}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

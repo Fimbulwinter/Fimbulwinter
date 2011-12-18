@@ -138,7 +138,7 @@ int CharServer::parse_from_zone(tcp_connection::pointer cl)
 					WFIFOL(cl,4) = account_id;
 					WFIFOL(cl,8) = auth_nodes[account_id].login_id1;
 					WFIFOL(cl,12) = auth_nodes[account_id].login_id2;
-					WFIFOL(cl,16) = auth_nodes[account_id].expiration_time; // FIXME: will wrap to negative after "19-Jan-2038, 03:14:07 AM GMT"
+					WFIFOL(cl,16) = (unsigned int)auth_nodes[account_id].expiration_time; // FIXME: will wrap to negative after "19-Jan-2038, 03:14:07 AM GMT"
 					WFIFOL(cl,20) = auth_nodes[account_id].gmlevel;
 					memcpy(WFIFOP(cl,24), &char_dat, sizeof(struct CharData));
 					cl->send_buffer(WFIFOW(cl,2));
