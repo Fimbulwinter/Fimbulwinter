@@ -21,37 +21,55 @@
 using namespace soci;
 
 
-/*==============================================================*
-* Class: Account												*                                                     
-* Author: GreenBox                                              *
-* Date: 10/12/11 												*
-* Description: Account General Informations						*
-**==============================================================*/
+/**
+ * Account Class 
+ * Last Update: 08/12/11
+ * Author: GreenBox (Fimbulwinter Dev Team)
+ *
+ * @param	account_id	The Account ID
+ * @param	userid	The User Login 
+ * @param	user_pass	User Password (Size: 23+1 plaintext, 32+1 MD5)
+ * @param	sex	User Gender 
+ * @param	email	User Email
+ * @param	level	GM Level
+ * @param	state	Account State (packet 0x006a value + 1 (0: compte OK))
+ * @param	unban_time	(timestamp): ban time limit of the account (0 = no ban)
+ * @param	expiration_time (timestamp): validity limit of the account (0 = unlimited)
+ * @param	logincount Number of successful login attempts
+ * @param	lastlogin	Last Login date
+ * @param	last_ip	Last Login IP
+ * @param	birthdate	assigned birth date (format: YYYY-MM-DD, default: 0000-00-00)
+ *
+ * @return	void	No Return
+ **/
 class Account
 {
 public:
 	int account_id;
 	string userid;
-	string user_pass;        // 23+1 for plaintext, 32+1 for md5-ed passwords
-	char sex;               // gender (M/F/S)
-	string email;         // e-mail (by default: a@a.com)
-	int level;              // GM level
-	unsigned int state;     // packet 0x006a value + 1 (0: compte OK)
-	time_t unban_time;      // (timestamp): ban time limit of the account (0 = no ban)
-	time_t expiration_time; // (timestamp): validity limit of the account (0 = unlimited)
-	unsigned int logincount;// number of successful auth attempts
-	string lastlogin;     // date+time of last successful login
-	string last_ip;       // save of last IP of connection
-	string birthdate;   // assigned birth date (format: YYYY-MM-DD, default: 0000-00-00)
+	string user_pass;      
+	char sex;              
+	string email;         
+	int level;              
+	unsigned int state;     
+	time_t unban_time;      
+	time_t expiration_time; 
+	unsigned int logincount;
+	string lastlogin;     
+	string last_ip;       
+	string birthdate;  
 };
 
-/*==============================================================*
-* Class: AccountDB												*                                                     
-* Author: GreenBox                                              *
-* Date: 10/12/11 												*
-* Description: Account DB constructor and manipulation			*
-* modules.                                                      *
-**==============================================================*/
+/**
+ * Account Database 
+ * Last Update: 08/12/11
+ * Author: GreenBox (Fimbulwinter Dev Team)
+ *
+ * @param	load_account	Loads the server accounts( By ID and Name )
+ * @param	save_account	Saves the account into the database 
+ *
+ * @return	bool	Returns Success or Failure
+ **/
 class AccountDB
 {
 public:

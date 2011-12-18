@@ -28,7 +28,8 @@ using namespace std;
 struct map_index_node
 {
 	int id;
-	char name[MAP_NAME_LENGTH];
+	char server_name[MAP_NAME_LENGTH];
+	char subname[MAP_NAME_LENGTH];
 };
 
 class map_index
@@ -42,7 +43,7 @@ public:
 	bool load(string file)
 	{
 		ifstream ifs(file, ifstream::in);
-		int count = 0, line = 0;
+		int count = 0, line = 0, qcp = 0,j = 0;
 
 		if (ifs.fail())
 		{
@@ -67,22 +68,43 @@ public:
 			if (buff[0] == '#')
 				continue;
 
-			char name[MAP_NAME_LENGTH];
+			char server_name[MAP_NAME_LENGTH];
+			char copymapname[1024];
 			int id = -1;
 			
-			if (sscanf(sbuff, "%11s", name) == 1 ||
-				sscanf(sbuff, "%11s %d", name, &id) == 2)
+
+			if (sscanf(sbuff, "%11s %d %s",server_name,&id,copymapname) == 3 ||
+				sscanf(sbuff, "%11s", server_name) == 1 ||
+				sscanf(sbuff, "%11s %d", server_name, &id) == 2 
+			)
+				
 			{
+
+				 map_index_node *node = new map_index_node();
+				 
+				 if(strcmp(copymapname,"") != 0){
+					 char* ptr;
+					 int j = 0;
+					 ptr = strtok (copymapname," ");
+					   while (ptr != NULL)
+					   {
+						strncpy(node->subname, copymapname, sizeof(node->subname));
+						ptr = strtok (NULL," ");
+						j++;qcp++;
+					   }
+						 memset(copymapname,0,1024);
+				}
+				
 				if (id == -1)
 					id = last_map++;
 				else
 					last_map = id + 1;
 
-				map_index_node *node = new map_index_node();
-				strncpy(node->name, name, sizeof(node->name));
+				
+				strncpy(node->server_name, server_name, sizeof(node->server_name));
 				node->id = id;
 				
-				map_id.Insert(string(name), node);
+				map_id.Insert(string(server_name), node);
 				id_map[id] = node;
 
 				count++;
@@ -93,16 +115,16 @@ public:
 			}
 		}
 
-		ShowStatus("Finished reading map_index, %d maps found.\n", count);
+		ShowStatus("Finished reading map_index, %d maps found, %d virtual maps found.\n", count,qcp);
 
 		ifs.close();
 
 		return true;
 	}
 
-	int get_map_id(string name)
+	int get_map_id(string server_name)
 	{
-		PatriciaTrieNode<string, map_index_node *> *node = map_id.LookupNode(name);
+		PatriciaTrieNode<string, map_index_node *> *node = map_id.LookupNode(server_name);
 
 		if (!node)
 			throw "Map not found.";
@@ -115,7 +137,7 @@ public:
 		if (!id_map.count(id))
 			throw "Map not found.";
 
-		return id_map[id]->name;
+		return id_map[id]->server_name;
 	}
 
 	void *copy_map_name_ext(char *dst, int id)
@@ -125,7 +147,7 @@ public:
 		if (!id_map.count(id))
 			throw "Map not found.";
 
-		strncpy(tmp, id_map[id]->name, MAP_NAME_LENGTH);
+		strncpy(tmp, id_map[id]->server_name, MAP_NAME_LENGTH);
 		strcat(tmp, ".gat");
 		strncpy(dst, tmp, MAP_NAME_LENGTH_EXT);
 	}
