@@ -1,0 +1,3 @@
+[submodule "src/ScriptEngine"]
+	path = src/ScriptEngine
+	url = git@github.com:Fimbulwinter/ivxengine.git
