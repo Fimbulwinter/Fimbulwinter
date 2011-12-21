@@ -21,11 +21,12 @@
 using namespace soci;
 
 
-/**
- * Account Class 
- * Last Update: 08/12/11
- * Author: GreenBox (Fimbulwinter Dev Team)
- *
+/*! 
+ *  \brief     Account Class
+ *  \details   General Information about accounts
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
  * @param	account_id	The Account ID
  * @param	userid	The User Login 
  * @param	user_pass	User Password (Size: 23+1 plaintext, 32+1 MD5)
@@ -40,8 +41,8 @@ using namespace soci;
  * @param	last_ip	Last Login IP
  * @param	birthdate	assigned birth date (format: YYYY-MM-DD, default: 0000-00-00)
  *
- * @return	void	No Return
  **/
+
 class Account
 {
 public:
@@ -60,16 +61,14 @@ public:
 	string birthdate;  
 };
 
-/**
- * Account Database 
- * Last Update: 08/12/11
- * Author: GreenBox (Fimbulwinter Dev Team)
- *
- * @param	load_account	Loads the server accounts( By ID and Name )
- * @param	save_account	Saves the account into the database 
- *
- * @return	bool	Returns Success or Failure
- **/
+/*! 
+ *  \brief     AccountDB Class
+ *  \details   Insert and Remove a account into the database
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *  
+ */
 class AccountDB
 {
 public:
@@ -78,7 +77,12 @@ public:
 		db_ = db;
 	}
 
-	bool load_account(int accid, Account &acc) // Load Account Module ( By ID )
+	/*!\details Loads a account using a account id
+	* @param	accid	User Account ID
+	* @param	Account	Account Manipulator
+	* @return	boolean	Success or Failure
+	**/
+	bool load_account(int accid, Account &acc)
 	{
 		soci::statement s =	(db_->prepare << "SELECT `account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, \
 			`state`, `unban_time`, `expiration_time`, `logincount`, `lastlogin`, \
@@ -102,7 +106,12 @@ public:
 		return s.get_affected_rows() == 1;
 	}
 
-	bool load_account(string name, Account &acc) // Load Account Module ( By Name )
+	/*!\details Loads a account using a account name
+	* @param	name	User Account Name
+	* @param	Account	Account Manipulator
+	* @return	boolean	Success or Failure
+	**/
+	bool load_account(string name, Account &acc)
 	{
 		soci::statement s =	(db_->prepare << "SELECT `account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, \
 							`state`, `unban_time`, `expiration_time`, `logincount`, `lastlogin`, \
@@ -126,6 +135,10 @@ public:
 		return s.get_affected_rows() == 1;
 	}
 
+	/*!\details Saves a account into database
+	* @param	acc	account object
+	* @param	Account	Account Manipulator
+	**/
 	void save_account(Account &acc, bool nw = false) // Save the Account into the database.
 	{
 		if (nw)

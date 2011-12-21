@@ -27,12 +27,15 @@
 AuthServer::auth_node_db AuthServer::auth_nodes;
 AuthServer::online_account_db AuthServer::online_accounts;
 
-/*==============================================================*
-* Function:	TimeStamp to String function						*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description: Save a timestamp in string format                *
-**==============================================================*/
+/*! 
+ *  \brief     Time Stamp to String
+ *  \details   Convert a time stamp into a string
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ *  @return	string	Time into a string
+ **/
 const char *timestamp2string(char *str, size_t size, time_t timestamp, const char *format)
 {
 	size_t len = strftime(str, size, format, localtime(&timestamp));
@@ -40,12 +43,21 @@ const char *timestamp2string(char *str, size_t size, time_t timestamp, const cha
 	return str;
 }
 
-/*==============================================================*
-* Function:	AuthServer Autentication							*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description: Authenticate a user on the AuthServer            *
-**==============================================================*/
+/*! 
+ *  \brief     Authenticate
+ *  \details   Authenticate the account into the AuthServer
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ *	@param	AuthSessionData	Account Information Structure
+ *
+ *  @return	0	Unknown Account
+ *	@return	1	Invalid Password
+ *	@return	2	Connection Refused(Acc Expired)
+ *	@return	6	Connection Refused(Acc Banned)
+ *	@return	-1	Success
+ **/
 int AuthServer::authenticate(AuthSessionData *asd)
 {
 	Account acc;
@@ -109,13 +121,15 @@ int AuthServer::authenticate(AuthSessionData *asd)
 	return -1;
 }
 
-/*==============================================================*
-* Function:	Authentication Error Function						*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description: Send to the client an anthentication 			*
-* error message          										*
-**==============================================================*/
+/*! 
+ *  \brief     Authentication Error
+ *  \details   Send to the client a login error message
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ *  @param	result	Error Type
+ **/
 void AuthServer::send_auth_err(AuthSessionData *asd, int result)
 {
 	tcp_connection::pointer cl = asd->cl;
@@ -138,12 +152,14 @@ void AuthServer::send_auth_err(AuthSessionData *asd, int result)
 	cl->send_buffer(sizeof(struct PACKET_AC_REFUSE_LOGIN));
 }
 
-/*==============================================================*
-* Function:	AuthServer Autentication Success					*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description: Connect the user into the auth server            *
-**==============================================================*/
+/*! 
+ *  \brief     Authentication Success
+ *  \details   Connect a Account into Auth Server
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void AuthServer::send_auth_ok(AuthSessionData *asd)
 {
 	tcp_connection::pointer cl = asd->cl;
@@ -223,12 +239,19 @@ void AuthServer::send_auth_ok(AuthSessionData *asd)
 		_1, asd->account_id));
 }
 
-/*==============================================================*
-* Function:	MD5 Password Check									*                                                     
-* Author: Minos	                                                *
-* Date: 09/12/11 												*
-* Description: Check a md5 password					            *
-**==============================================================*/
+/*! 
+ *  \brief     Authentication Error
+ *  \details   Send to the client a login error message
+ *  \author    Fimbulwinter Development Team
+ *  \author    Castor
+ *  \date      09/12/11
+ *
+ *  @param	str1	hash
+ *	@param	str2	hash
+ *	@param	passwd	PlainText Passwd
+ *
+ *	@return	md5str	MD5 Password
+ **/
 bool md5check(const char* str1, const char* str2, const char* passwd)
 {
 	char md5str[64+1];
@@ -241,12 +264,14 @@ bool md5check(const char* str1, const char* str2, const char* passwd)
 	return !(strcmp(passwd,md5str));
 }
 
-/*==============================================================*
-* Function:	Authentication Check								*                                                     
-* Author: GreenBox/Minos                                        *
-* Date: 09/12/11 												*
-* Description: Check the auth type(PlainText/MD5/Token)			*
-**==============================================================*/
+/*! 
+ *  \brief     Authentication Check
+ *  \details   Check the auth type
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox/Castor
+ *  \date      09/12/11
+ *
+ **/
 bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char *passwd, const char *refpass)
 {
 	if (type == auth_raw)
@@ -266,25 +291,29 @@ bool AuthServer::check_auth(const char *md5key, enum auth_type type, const char 
 	return false;
 }
 
-/*==============================================================*
-* Function:	Select CharServer Timeout							*                                                     
-* Author: GreenBox		                                        *
-* Date: 10/12/11 												*
-* Description: Occurs when the client don't select a CharServer *
-* in given time.												*
-**==============================================================*/
+/*! 
+ *  \brief     Select CharServer Timeout
+ *  \details   Occurs when the client don't select a CharServer
+ * in given time.				
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      09/12/11
+ *
+ **/
 void AuthServer::select_charserver_timeout(int timer, int accid)
 {
 	shutdown_account(accid);
 }
 
-/*==============================================================*
-* Function:	Shutdown Account									*                                                     
-* Author: GreenBox		                                        *
-* Date: 10/12/11 												*
-* Description: Remove and account from online list and			*
-* remove it from the authentication node						*
-**==============================================================*/
+/*! 
+ *  \brief     Shutdown Account
+ *  \details   Remove and account from online list and	remove it 
+ *  from the authentication node	
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      09/12/11
+ *
+ **/
 void AuthServer::shutdown_account(int accid)
 {
 	if (online_accounts.count(accid))
