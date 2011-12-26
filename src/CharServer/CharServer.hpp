@@ -129,6 +129,8 @@ public:
 	static void delete2_ack( tcp_connection::pointer cl, int char_id, int result, time_t deltime );
 	static void delete2_accept_ack( tcp_connection::pointer cl, int char_id, int param3 );
 	static void delete2_cancel_ack( tcp_connection::pointer cl, int char_id, int result );
+	static void inter_reply_regs( tcp_connection::pointer cl, int account_id, int char_id, int type );
+	static void request_accreg2( int account_id, int char_id );
 
 	static bool auth_conn_ok;
 	static tcp_connection::pointer auth_conn;

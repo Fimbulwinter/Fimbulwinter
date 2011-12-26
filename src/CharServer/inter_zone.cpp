@@ -25,7 +25,6 @@
 #include <boost/foreach.hpp>
 #include <strfuncs.hpp>
 
-
 /*==============================================================*
 * Function:	Parse from Zone Server								*                                                     
 * Author: TODO													*
@@ -77,6 +76,22 @@ int CharServer::parse_from_zone(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
+		case INTER_ZC_REQ_REGS:
+			if (RFIFOREST(cl) < 13)
+			{
+				if (RFIFOB(cl,12))
+					inter_reply_regs(cl, RFIFOL(cl,2), RFIFOL(cl,6), 3);
+
+				if (RFIFOB(cl,11))
+					inter_reply_regs(cl, RFIFOL(cl,2), RFIFOL(cl,6), 2);
+
+				if (RFIFOB(cl,10))
+					request_accreg2(RFIFOL(cl,2), RFIFOL(cl,6));
+
+				return 1;
+			}
+			break;
+
 		case INTER_ZC_MAPS:
 			if (RFIFOREST(cl) < 4 || RFIFOREST(cl) < RFIFOW(cl, 2))
 				return 0;
@@ -119,7 +134,7 @@ int CharServer::parse_from_zone(tcp_connection::pointer cl)
 				sex        = RFIFOB(cl,14);
 				cl->skip(15);
 
-				// TODO: Cache char data
+				// TODO: Cache char data?
 				chars->load_char(char_id, char_dat, true);
 				/*cd = (struct mmo_charstatus*)uidb_get(char_db_,char_id);
 				if(!)
@@ -167,3 +182,36 @@ int CharServer::parse_from_zone(tcp_connection::pointer cl)
 	return 0;
 }
 
+void CharServer::inter_reply_regs( tcp_connection::pointer cl, int account_id, int char_id, int type )
+{
+	static struct AccountReg reg;
+	WFIFOHEAD(cl, 13 + 5000);
+	chars->load_acc_reg(account_id, char_id, reg, type);
+
+	WFIFOW(cl,0) = INTER_ZC_REQ_REGS_REPLY;
+	WFIFOL(cl,4) = account_id;
+	WFIFOL(cl,8) = char_id;
+	WFIFOB(cl,12) = type;
+
+	if(reg.reg_num==0)
+	{
+		WFIFOW(cl,2)=13;
+	}
+	else
+	{
+		int i, p;
+
+		for (p = 13,i = 0; i < reg.reg_num && p < 5000; i++) 
+		{
+			p += sprintf((char*)WFIFOP(cl,p), "%s", reg.reg[i].str) + 1;
+			p += sprintf((char*)WFIFOP(cl,p), "%s", reg.reg[i].value) + 1;
+		}
+
+		WFIFOW(cl,2)=p;
+
+		if (p >= 5000)
+			ShowWarning("Too many account regs for %d:%d, not all values were loaded.\n", account_id, char_id);
+	}
+
+	cl->send_buffer(WFIFOW(cl,2));
+}

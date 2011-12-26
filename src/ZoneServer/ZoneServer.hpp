@@ -28,20 +28,35 @@ using namespace std;
 #define MAX_PACKET_DB 0x900
 #define MAX_PACKET_POS 20
 
+typedef enum ClearType
+{
+	CLR_OUTSIGHT = 0,
+	CLR_DEAD,
+	CLR_RESPAWN,
+	CLR_TELEPORT,
+} ClearType;
+
 struct ZoneSessionData
 {
-	bool auth;
-
 	int login_id1;
 	int login_id2;
+	int gmlevel;
 	unsigned int client_tick;
 	time_t canlog_tick;
 
+	unsigned short mapindex;
 	struct BlockList bl;
 	CharData status;
+	Registry save_reg;
+
+	struct
+	{
+		unsigned int lesseffect : 1;
+		unsigned int active : 1;
+		unsigned int connect_new : 1;
+	} state;
 
 	tcp_connection::pointer cl;
-	int gmlevel;
 };
 
 enum SessionState 
@@ -53,13 +68,19 @@ enum SessionState
 
 struct AuthNode
 {
+	AuthNode()
+	{
+		sd = 0;
+		char_dat = 0;
+	}
+
 	int account_id, char_id;
 	int login_id1, login_id2, sex;
 	time_t expiration_time;
 	struct ZoneSessionData *sd;
 	struct CharData *char_dat;
 	unsigned int node_created;
-	enum SessionState state;
+	enum SessionState auth_state;
 
 	tcp_connection::pointer cl;
 };
@@ -126,6 +147,14 @@ public:
 	static void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd);
 	static void auth_fail(tcp_connection::pointer cl, int err);
 	static void auth_ok( ZoneSessionData * sd );
+
+	static void packet_lesseffect(tcp_connection::pointer cl, ZoneSessionData *sd);
+	static void packet_loadendack(tcp_connection::pointer cl, ZoneSessionData *sd);
+	static void request_registry( ZoneSessionData * sd, int flag );
+	static void clif_spawn( struct BlockList* bl );
+	static void addblock( struct BlockList* bl );
+	static void packet_ticksend(tcp_connection::pointer cl, ZoneSessionData *sd);
+
 	// Char InterConn
 	static bool char_conn_ok;
 	static tcp_connection::pointer char_conn;

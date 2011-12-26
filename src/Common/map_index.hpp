@@ -152,10 +152,13 @@ public:
 		if (!id_map.count(id))
 			throw "Map not found.";
 
+		map_index_node *min = id_map[id];
+
 		if (strcmp(id_map[id]->subname, "") != 0)
-			strncpy(tmp, id_map[id]->server_name, MAP_NAME_LENGTH);
-		else
 			strncpy(tmp, id_map[id]->subname, MAP_NAME_LENGTH);
+		else
+			strncpy(tmp, id_map[id]->server_name, MAP_NAME_LENGTH);
+
 		strcat(tmp, ".gat");
 		strncpy(dst, tmp, MAP_NAME_LENGTH_EXT);
 	}

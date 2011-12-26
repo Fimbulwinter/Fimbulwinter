@@ -226,3 +226,7 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 	return 0;
 }
 
+void CharServer::request_accreg2( int account_id, int char_id )
+{
+	throw std::exception("The method or operation is not implemented.");
+}

@@ -113,6 +113,65 @@ int ZoneServer::parse_from_char(tcp_connection::pointer cl)
 
 		switch (cmd)
 		{
+
+		case INTER_ZC_REQ_REGS_REPLY:
+			if (RFIFOREST(cl) < 4 || RFIFOREST(cl) < RFIFOW(cl, 2))
+				return 0;
+			{
+				int j, p, len, max, flag;
+				struct ZoneSessionData *sd;
+				struct GlobalReg *reg;
+				int *qty;
+				int account_id = RFIFOL(cl,4), char_id = RFIFOL(cl,8);
+
+				sd = BlockManager::get_session(account_id);
+				if (sd && RFIFOB(cl,12) == 3 && sd->status.char_id != char_id)
+					sd = NULL;
+				
+				if (!sd) 
+					break;
+
+				flag = (sd->save_reg.global_num == -1 || sd->save_reg.account_num == -1 || sd->save_reg.account2_num == -1);
+
+				switch (RFIFOB(cl,12)) 
+				{
+				case 3: //Character Registry
+					reg = sd->save_reg.global;
+					qty = &sd->save_reg.global_num;
+					max = GLOBAL_REG_NUM;
+					break;
+				case 2: //Account Registry
+					reg = sd->save_reg.account;
+					qty = &sd->save_reg.account_num;
+					max = ACCOUNT_REG_NUM;
+					break;
+				case 1: //Account2 Registry
+					reg = sd->save_reg.account2;
+					qty = &sd->save_reg.account2_num;
+					max = ACCOUNT_REG2_NUM;
+					break;
+				default:
+					ShowError("intif_parse_Registers: Unrecognized type %d\n", RFIFOB(cl,12));
+					return 0;
+				}
+
+				for(j = 0, p = 13; j < max && p < RFIFOW(cl,2); j++)
+				{
+					sscanf((char *)RFIFOP(cl, p), "%31c%n", reg[j].str, &len);
+					reg[j].str[len] = '\0';
+					p += len + 1;
+
+					sscanf((char *)RFIFOP(cl, p), "%255c%n", reg[j].value, &len);
+					reg[j].value[len] = '\0';
+					p += len + 1;
+				}
+				*qty = j;
+
+				if (flag && sd->save_reg.global_num > -1 && sd->save_reg.account_num > -1 && sd->save_reg.account2_num > -1)
+					PC::reg_received(sd);
+			}
+			break;
+
 		case INTER_CZ_LOGIN_REPLY:
 			if (RFIFOREST(cl) < 3)
 				return 0;
@@ -188,7 +247,7 @@ int ZoneServer::parse_from_char(tcp_connection::pointer cl)
 				if (!auth_nodes.count(account_id))
 					return 0;
 
-				if (auth_nodes[account_id].state != ST_LOGIN)
+				if (auth_nodes[account_id].auth_state != ST_LOGIN)
 					return 0;
 
 				if (auth_nodes[account_id].sd == NULL)
@@ -264,3 +323,23 @@ void ZoneServer::inter_confirm_auth(ZoneSessionData *sd)
 		create_auth_entry(sd, ST_LOGIN);
 	}
 }
+
+void ZoneServer::request_registry( ZoneSessionData * sd, int flag )
+{
+	if (!sd)
+		return;
+
+	sd->save_reg.account2_num = -1;
+	sd->save_reg.account_num = -1;
+	sd->save_reg.global_num = -1;
+
+	WFIFOHEAD(char_conn,6);
+	WFIFOW(char_conn,0) = INTER_ZC_REQ_REGS;
+	WFIFOL(char_conn,2) = sd->status.account_id;
+	WFIFOL(char_conn,6) = sd->status.char_id;
+	WFIFOB(char_conn,10) = (flag & 1 ? 1 : 0); // Request Account Reg 2
+	WFIFOB(char_conn,11) = (flag & 2 ? 1 : 0); // Request Account Reg
+	WFIFOB(char_conn,12) = (flag & 4 ? 1 : 0); // Request Char Reg
+	char_conn->send_buffer(13);
+}
+

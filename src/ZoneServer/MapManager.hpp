@@ -11,6 +11,26 @@
 // Note that this will increase map cells memory usage by 100%
 //#define ENABLE_CUSTOM_CELLFLAGS
 
+typedef enum 
+{
+	CELL_CHKWALL,		// wall (gat type 1)
+	CELL_CHKWATER,		// water (gat type 3)
+	CELL_CHKCLIFF,		// cliff/gap (gat type 5)
+
+	CELL_CHKPASS,		// passable cell (gat type non-1/5)
+	CELL_CHKREACH,		// Same as PASS, but ignores the cell-stacking mod.
+	CELL_CHKNOPASS,		// non-passable cell (gat types 1 and 5)
+	CELL_CHKNOREACH,	// Same as NOPASS, but ignores the cell-stacking mod.
+	CELL_CHKSTACK,		// whether cell is full (reached cell stacking limit) 
+
+	CELL_CHKNPC,
+	CELL_CHKBASILICA,
+	CELL_CHKLANDPROTECTOR,
+	CELL_CHKNOVENDING,
+	CELL_CHKNOCHAT,
+	CELL_CHKMAELSTROM,
+} CellCheck;
+
 struct MapCell 
 {
 	// terrain flags
@@ -130,4 +150,6 @@ public:
 
 		return -1;
 	}
+
+	static bool check_cell(int m, short x, short y, CellCheck cellchk);
 };

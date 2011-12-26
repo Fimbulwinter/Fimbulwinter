@@ -75,7 +75,11 @@ int ZoneServer::parse_from_client(tcp_connection::pointer cl)
 	if (cl->flags.eof)
 	{
 		if (sd)
+		{
+			BlockManager::remove_block(&sd->bl);
+		
 			delete sd;
+		}
 
 		ShowInfo("Closed connection from '"CL_WHITE"%s"CL_RESET"'.\n", cl->socket().remote_endpoint().address().to_string().c_str());
 		cl->do_close();
@@ -85,8 +89,6 @@ int ZoneServer::parse_from_client(tcp_connection::pointer cl)
 	while(RFIFOREST(cl) >= 2)
 	{
 		unsigned short cmd = RFIFOW(cl, 0);
-
-		//#define FIFOSD_CHECK(rest) { if(RFIFOREST(cl) < rest) return 0; if (csd==NULL || !csd->auth) { cl->skip(rest); return 0; } }
 
 		if (client_packets[cmd])
 		{
@@ -110,6 +112,8 @@ int ZoneServer::parse_from_client(tcp_connection::pointer cl)
 			if (client_packets[cmd]->callback)
 			{
 				if (!sd && client_packets[cmd]->callback != &ZoneServer::packet_wanttoconnect)
+					;
+				else if(sd && sd->bl.prev == NULL && client_packets[cmd]->callback != packet_loadendack)
 					;
 				else if (sd && cl->flags.eof)
 					;
@@ -201,15 +205,70 @@ void ZoneServer::auth_ok( ZoneSessionData * sd )
 	WFIFOPOS(sd->cl, 6, sd->bl.x, sd->bl.y, 3/*sd->ud.dir*/); // TODO: UnitData Direction
 	WFIFOB(sd->cl, 9) = 5;
 	WFIFOB(sd->cl,10) = 5;
-	sd->cl->skip(11);
+	sd->cl->send_buffer(11);
+}
+
+void ZoneServer::packet_lesseffect(tcp_connection::pointer cl, ZoneSessionData *sd)
+{
+	int isLess = RFIFOL(cl, client_packets[RFIFOW(cl, 0)]->pos[0]);
+
+	sd->state.lesseffect = (isLess != 0);
+}
+
+void ZoneServer::packet_loadendack(tcp_connection::pointer cl, ZoneSessionData *sd)
+{
+	if(sd->bl.prev != NULL)
+		return;
+
+	if (!sd->state.active)
+	{
+		sd->state.connect_new = 0;
+
+		return;
+	}
+
+	// TODO: Update Look, Items, Cart, Guild, Party and Guild
+	addblock(&sd->bl);
+	clif_spawn(&sd->bl);
+
+	// TODO: Send Map Properties
+	// TODO: Info about nearby objects
+}
+
+void ZoneServer::packet_ticksend(tcp_connection::pointer cl, ZoneSessionData *sd)
+{
+	sd->client_tick = RFIFOL(cl, client_packets[RFIFOW(cl, 0)]->pos[0]);
+
+	WFIFOHEAD(cl, 6);
+	WFIFOW(cl,0) = 0x7f;
+	WFIFOL(cl,2) = time(NULL);
+	cl->send_buffer(6);
+}
+
+void ZoneServer::clif_spawn( struct BlockList* bl )
+{
+	// TODO: this
 }
 
 void ZoneServer::init_packets() 
 {
 	memset(client_packets, 0, sizeof(client_packets));
 
-#if CLIENTVER == 26
+#if CLIENTVER >= 5
+	addpacket(0x007d, 2, &ZoneServer::packet_loadendack, 0);
+	addpacket(0x014d, 2, NULL, 0);
+	addpacket(0x014f, 6, NULL, 2);
+#endif
+
+#if CLIENTVER >= 13
+	addpacket(0x021d, 6, &ZoneServer::packet_lesseffect, 2);
+#endif
+
+#if CLIENTVER >= 26
 	addpacket(0x0436, 19, &ZoneServer::packet_wanttoconnect, 2, 6, 10, 14, 18);
+	addpacket(0x0360, 6, &ZoneServer::packet_ticksend, 2);
+	addpacket(0x0368, 6, NULL, 2);
+	addpacket(0x035f, 6, &ZoneServer::packet_walktoxy, 2);
 #endif
 }
 
@@ -239,5 +298,7 @@ void ZoneServer::client_add_packet(unsigned short id, short size, PacketCallback
 
 	va_end(va);
 
+	if (client_packets[id])
+		delete client_packets[id];
 	client_packets[id] = pd;
 }

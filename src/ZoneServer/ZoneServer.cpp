@@ -29,6 +29,8 @@
 #include <zlib.h>
 #include "mapmanager.hpp"
 
+static struct BlockList bl_head;
+
 // Login InterConn
 tcp_connection::pointer ZoneServer::char_conn;
 
@@ -186,7 +188,61 @@ void ZoneServer::create_auth_entry(ZoneSessionData *sd, enum SessionState state)
 	auth_nodes[sd->status.account_id].cl = sd->cl;
 	auth_nodes[sd->status.account_id].sd = sd;
 	auth_nodes[sd->status.account_id].node_created = (unsigned int)time(NULL);
-	auth_nodes[sd->status.account_id].state = state;
+	auth_nodes[sd->status.account_id].auth_state = state;
 
-	sd->auth = false;
+	sd->state.active = 0;
+}
+
+void ZoneServer::addblock( struct BlockList* bl )
+{
+	int m, x, y, pos;
+
+	if (!bl)
+		return;
+
+	if (bl->prev != NULL) 
+	{
+		ShowError("ZoneServer::addblock: bl->prev != NULL\n");
+		return;
+	}
+
+	m = bl->m;
+	x = bl->x;
+	y = bl->y;
+	if (m < 0 || m >= MapManager::maps.size())
+	{
+		ShowError("ZoneServer::addblock: invalid map id (%d), only %d are loaded.\n", m, MapManager::maps.size());
+		return;
+	}
+
+	if (x < 0 || x >= MapManager::maps[m].w || y < 0 || y >= MapManager::maps[m].h)
+	{
+		ShowError("ZoneServer::addblock: out-of-bounds coordinates (\"%s\",%d,%d), map is %dx%d\n", MapManager::maps[m].name, x, y, MapManager::maps[m].w, MapManager::maps[m].h);
+		return;
+	}
+
+	pos = x / BLOCK_SIZE + (y / BLOCK_SIZE) * MapManager::maps[m].wb;
+
+	if (bl->type == BL_MOB) 
+	{
+		/*bl->next = MapManager::maps[m].block_mob[pos];
+		bl->prev = &bl_head;
+		if (bl->next) bl->next->prev = bl;
+		map[m].block_mob[pos] = bl;*/
+		// TODO: soon
+	}
+	else
+	{
+		bl->next = MapManager::maps[m].blocks[pos];
+		bl->prev = &bl_head;
+
+		if (bl->next) 
+			bl->next->prev = bl;
+
+		MapManager::maps[m].blocks[pos] = bl;
+	}
+
+#ifdef CELL_NOSTACK
+	// TODO:? map_addblcell(bl);
+#endif
 }

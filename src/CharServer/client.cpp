@@ -504,7 +504,7 @@ void CharServer::char_to_buf(struct CHARACTER_INFO *charinfo, CharData *p)
 	charinfo->head_mid = p->head_mid;
 	charinfo->head_color = p->hair_color;
 	charinfo->body_color = p->clothes_color;
-	memcpy(charinfo->name, p->name.c_str(), NAME_LENGTH);
+	memcpy(charinfo->name, p->name, NAME_LENGTH);
 	charinfo->str = (unsigned char)min<unsigned short>(p->str, UINT8_MAX);
 	charinfo->agi = (unsigned char)min<unsigned short>(p->agi, UINT8_MAX);
 	charinfo->vit = (unsigned char)min<unsigned short>(p->vit, UINT8_MAX);
@@ -565,7 +565,7 @@ int CharServer::create_char(CharSessionData *csd, char* name, int str, int agi, 
 	c.int_ = int_;
 	c.dex = dex;
 	c.luk = luk;
-	c.name = string(name);
+	strncpy(c.name, name, NAME_LENGTH);
 	c.slot = slot;
 	c.hair_color = hair_color;
 	c.hair = hair_style;

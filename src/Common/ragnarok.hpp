@@ -34,6 +34,13 @@
 #define MAP_NAME_LENGTH (11 + 1)
 #define MAP_NAME_LENGTH_EXT (MAP_NAME_LENGTH + 4)
 
+#define MAP_PRONTERA "prontera"
+
+#define GLOBAL_REG_NUM 256
+#define ACCOUNT_REG_NUM 64
+#define ACCOUNT_REG2_NUM 16
+#define MAX_REG_NUM 256
+
 using namespace std;
 
 struct Point 
@@ -74,7 +81,7 @@ struct CharData
 	short head_top,head_mid,head_bottom;
 	short robe;
 
-	string name;
+	char name[NAME_LENGTH];
 	unsigned int base_level,job_level;
 	short str,agi,vit,int_,dex,luk;
 	unsigned char slot,sex;
@@ -95,6 +102,29 @@ struct CharData
 	short rename;
 
 	time_t delete_date;
+};
+
+struct GlobalReg
+{
+	char str[32];
+	char value[256];
+};
+
+struct AccountReg
+{
+	int account_id, char_id;
+	int reg_num;
+	struct GlobalReg reg[MAX_REG_NUM];
+};
+
+struct Registry 
+{
+	int global_num;
+	struct GlobalReg global[GLOBAL_REG_NUM];
+	int account_num;
+	struct GlobalReg account[ACCOUNT_REG_NUM];
+	int account2_num;
+	struct GlobalReg account2[ACCOUNT_REG2_NUM];
 };
 
 enum {
@@ -126,6 +156,9 @@ enum
 	INTER_ZC_AUTH,
 	INTER_CZ_AUTH_OK,
 	INTER_CZ_AUTH_FAIL,
+
+	INTER_ZC_REQ_REGS,
+	INTER_ZC_REQ_REGS_REPLY,
 };
 
 #define sex_num2str(num) ( (num ==  SEX_FEMALE  ) ? 'F' : (num ==  SEX_MALE  ) ? 'M' : 'S' )

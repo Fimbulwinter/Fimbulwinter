@@ -211,3 +211,75 @@ bool MapManager::decode_mapcache(struct MapData *m, char *buffer, char *decode_b
 
 	return false;
 }
+
+bool MapManager::check_cell( int mi, short x, short y, CellCheck cellchk )
+{
+	struct MapData *m;
+	
+	if (mi < 0 || mi > maps.size())
+		return false;
+
+	m = &maps[mi];
+
+	struct MapCell cell;
+
+	// NOTE: this intentionally overrides the last row and column
+	if(x < 0 || x >= m->w - 1 || y < 0 || y >= m->h - 1)
+		return (cellchk == CELL_CHKNOPASS);
+
+	cell = m->cell[x + y * m->w];
+
+	switch(cellchk)
+	{
+	case CELL_CHKWALL:
+		return (!cell.walkable && !cell.shootable);
+
+	case CELL_CHKWATER:
+		return (cell.water);
+
+	case CELL_CHKCLIFF:
+		return (!cell.walkable && cell.shootable);
+
+	case CELL_CHKNPC:
+		return (cell.npc);
+	case CELL_CHKBASILICA:
+		return (cell.basilica);
+	case CELL_CHKLANDPROTECTOR:
+		return (cell.landprotector);
+#ifdef ENABLE_CUSTOM_CELLFLAGS
+	case CELL_CHKNOVENDING:
+		return (cell.novending);
+	case CELL_CHKNOCHAT:
+		return (cell.nochat);
+#endif
+	case CELL_CHKMAELSTROM:
+		return (cell.maelstrom);
+
+		// special checks
+	case CELL_CHKPASS:
+#ifdef CELL_NOSTACK
+		if (cell.cell_bl >= battle_config.cell_stack_limit) return true;
+#endif
+	case CELL_CHKREACH:
+		return (cell.walkable);
+
+	case CELL_CHKNOPASS:
+#ifdef CELL_NOSTACK
+		if (cell.cell_bl >= battle_config.cell_stack_limit) return false;
+#endif
+	case CELL_CHKNOREACH:
+		return (!cell.walkable);
+
+	case CELL_CHKSTACK:
+#ifdef CELL_NOSTACK
+		return (cell.cell_bl >= battle_config.cell_stack_limit);
+#else
+		return false;
+#endif
+
+	default:
+		return false;
+	}
+
+	return false;
+}
