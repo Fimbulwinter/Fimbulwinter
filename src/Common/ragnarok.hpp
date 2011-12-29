@@ -22,6 +22,7 @@
 #define CLIENTVER 26
 
 #define NAME_LENGTH (23 + 1)
+#define MESSAGE_SIZE (79 + 1)
 
 #define MAX_CHARS_SLOTS 9
 

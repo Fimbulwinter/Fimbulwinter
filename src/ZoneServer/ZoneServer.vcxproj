@@ -13,7 +13,8 @@
   <ItemGroup>
     <ClCompile Include="BlockManager.cpp" />
     <ClCompile Include="MapManager.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PacketHandling.cpp" />
+    <ClCompile Include="PlayerModules.cpp" />
     <ClCompile Include="ZoneServer.cpp" />
     <ClCompile Include="client.cpp" />
     <ClCompile Include="inter_char.cpp" />
@@ -21,7 +22,8 @@
   <ItemGroup>
     <ClInclude Include="BlockManager.hpp" />
     <ClInclude Include="MapManager.hpp" />
-    <ClInclude Include="Player.hpp" />
+    <ClInclude Include="PacketHandling.hpp" />
+    <ClInclude Include="PlayerModules.hpp" />
     <ClInclude Include="ZoneServer.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

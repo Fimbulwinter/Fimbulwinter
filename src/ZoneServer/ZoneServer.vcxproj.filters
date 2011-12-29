@@ -6,12 +6,14 @@
     <ClCompile Include="inter_char.cpp" />
     <ClCompile Include="MapManager.cpp" />
     <ClCompile Include="BlockManager.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PacketHandling.cpp" />
+    <ClCompile Include="PlayerModules.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZoneServer.hpp" />
     <ClInclude Include="MapManager.hpp" />
     <ClInclude Include="BlockManager.hpp" />
-    <ClInclude Include="Player.hpp" />
+    <ClInclude Include="PacketHandling.hpp" />
+    <ClInclude Include="PlayerModules.hpp" />
   </ItemGroup>
 </Project>

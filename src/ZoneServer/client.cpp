@@ -28,7 +28,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include "BlockManager.hpp"
-#include "Player.hpp"
+#include "PacketHandling.hpp"
 
 static inline void WBUFPOS(unsigned char * p, unsigned short pos, short x, short y, unsigned char dir)
 {
