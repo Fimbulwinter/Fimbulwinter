@@ -151,7 +151,7 @@ void MapManager::initialize()
 		}
 
 		ifs.seekg(0, ios::end);
-		sz = ifs.tellg();
+		sz = (int)ifs.tellg();
 		ifs.seekg(0, ios::beg);
 
 		map_cache_buffer = (char*)malloc(sz);
@@ -227,7 +227,7 @@ bool MapManager::decode_mapcache(struct MapData *m, char *buffer, char *decode_b
 	return false;
 }
 
-bool MapManager::check_cell( int mi, short x, short y, CellCheck cellchk )
+bool MapManager::check_cell( unsigned int mi, short x, short y, CellCheck cellchk )
 {
 	struct MapData *m;
 	

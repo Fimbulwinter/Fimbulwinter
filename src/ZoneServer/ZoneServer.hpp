@@ -22,42 +22,12 @@
 #include <ragnarok.hpp>
 #include <map_index.hpp>
 #include "BlockManager.hpp"
+#include "PlayerModules.hpp"
 
 using namespace std;
 
 #define MAX_PACKET_DB 0x900
 #define MAX_PACKET_POS 20
-
-typedef enum ClearType
-{
-	CLR_OUTSIGHT = 0,
-	CLR_DEAD,
-	CLR_RESPAWN,
-	CLR_TELEPORT,
-} ClearType;
-
-struct ZoneSessionData
-{
-	int login_id1;
-	int login_id2;
-	int gmlevel;
-	unsigned int client_tick;
-	time_t canlog_tick;
-
-	unsigned short mapindex;
-	struct BlockList bl;
-	CharData status;
-	Registry save_reg;
-
-	struct
-	{
-		unsigned int lesseffect : 1;
-		unsigned int active : 1;
-		unsigned int connect_new : 1;
-	} state;
-
-	tcp_connection::pointer cl;
-};
 
 enum SessionState 
 { 

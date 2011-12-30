@@ -195,7 +195,8 @@ void ZoneServer::create_auth_entry(ZoneSessionData *sd, enum SessionState state)
 
 void ZoneServer::addblock( struct BlockList* bl )
 {
-	int m, x, y, pos;
+	int x, y, pos;
+	unsigned int m;
 
 	if (!bl)
 		return;

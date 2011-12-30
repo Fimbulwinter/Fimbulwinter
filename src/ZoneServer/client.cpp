@@ -201,7 +201,7 @@ void ZoneServer::auth_ok( ZoneSessionData * sd )
 {
 	WFIFOHEAD(sd->cl, 11);
 	WFIFOW(sd->cl, 0) = HEADER_ZC_ACCEPT_ENTER;
-	WFIFOL(sd->cl, 2) = time(NULL);
+	WFIFOL(sd->cl, 2) = (unsigned int)time(NULL);
 	WFIFOPOS(sd->cl, 6, sd->bl.x, sd->bl.y, 3/*sd->ud.dir*/); // TODO: UnitData Direction
 	WFIFOB(sd->cl, 9) = 5;
 	WFIFOB(sd->cl,10) = 5;
@@ -241,7 +241,7 @@ void ZoneServer::packet_ticksend(tcp_connection::pointer cl, ZoneSessionData *sd
 
 	WFIFOHEAD(cl, 6);
 	WFIFOW(cl,0) = 0x7f;
-	WFIFOL(cl,2) = time(NULL);
+	WFIFOL(cl,2) = (unsigned int)time(NULL);
 	cl->send_buffer(6);
 }
 
@@ -268,7 +268,7 @@ void ZoneServer::init_packets()
 	addpacket(0x0436, 19, &ZoneServer::packet_wanttoconnect, 2, 6, 10, 14, 18);
 	addpacket(0x0360, 6, &ZoneServer::packet_ticksend, 2);
 	addpacket(0x0368, 6, NULL, 2);
-	addpacket(0x035f, 6, &ZoneServer::packet_walktoxy, 2);
+	//addpacket(0x035f, 6, &ZoneServer::packet_walktoxy, 2);
 #endif
 }
 

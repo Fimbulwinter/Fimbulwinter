@@ -151,5 +151,5 @@ public:
 		return -1;
 	}
 
-	static bool check_cell(int m, short x, short y, CellCheck cellchk);
+	static bool check_cell(unsigned int m, short x, short y, CellCheck cellchk);
 };

@@ -15,18 +15,21 @@
 
 #include <show_message.hpp>
 #include <iostream>
+#include <cstdlib>
+#include "packets.hpp"
+#include "ZoneServer.hpp"
 
-typedef enum talkarea {
+enum talkarea {
 
-	COMMONTALK_AREA,
+	COMMONTALK_AREA = 0,
 	
-} talkarea;
+};
 
-typedef enum typechat {
+enum typechat {
 
-	NORMAL_CHAT,
+	NORMAL_CHAT = 0,
 	PARTY_CHAT,
 	GUILD_CHAT,
 	WHISPER_CHAT,
 
-} typechat;
+};

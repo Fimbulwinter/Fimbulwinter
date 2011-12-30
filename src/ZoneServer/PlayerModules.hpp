@@ -13,18 +13,23 @@
 *                    Player Manipulation Modules          	        *
 * ==================================================================*/
 
-#include <show_message.hpp>
-#include <database_helper.h>
-#include <boost/thread.hpp>
+#pragma once
+
 #include <ragnarok.hpp>
 #include <packets.hpp>
-#include <core.hpp>
 #include <timers.hpp>
 #include <iostream>
-#include <boost/foreach.hpp>
-#include <strfuncs.hpp>
 #include "BlockManager.hpp"
 #include "PacketHandling.hpp"
+#include "ZoneServer.hpp"
+
+typedef enum ClearType
+{
+	CLR_OUTSIGHT = 0,
+	CLR_DEAD,
+	CLR_RESPAWN,
+	CLR_TELEPORT,
+} ClearType;
 
 /*! 
  *  \brief     Zone Server Player Informations
@@ -35,23 +40,61 @@
  *  \date      29/12/11
  *
  **/
+struct ZoneSessionData
+{
+	int login_id1;
+	int login_id2;
+	int gmlevel;
+	unsigned int client_tick;
+	time_t canlog_tick;
 
-struct zonedata {
-	
+	unsigned short mapindex;
+	struct BlockList bl;
+	CharData status;
+	Registry save_reg;
+
+	struct
+	{
+		unsigned int lesseffect : 1;
+		unsigned int active : 1;
+		unsigned int connect_new : 1;
+	} state;
+
 	tcp_connection::pointer cl;
+};
 
-	struct {
-         int login_id1; 
-		 int login_id2;
-		 char name[NAME_LENGTH];
-    }playerinfo;
 
-	struct {
-		 char message[MESSAGE_SIZE];
-    }chatinfo;
+/*! 
+ *  \brief     Player Modules Main Class
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      29/12/11
+ *
+ **/
+class PC
+{
+public:
 
-	struct {
-		struct BlockList bl;
-	}mapinfo;
+	static void set_new_pc(ZoneSessionData *sd, int account_id, int char_id, int login_id1, unsigned int client_tick, int sex, tcp_connection::pointer cl)
+	{
+		if (!sd)
+			return;
 
+		sd->bl.id        = account_id;
+		sd->status.account_id   = account_id;
+		sd->status.char_id      = char_id;
+		sd->status.sex   = sex;
+		sd->login_id1    = login_id1;
+		sd->login_id2    = 0;
+		sd->client_tick  = client_tick;
+		sd->bl.type      = BL_PC;
+		sd->canlog_tick  = time(NULL);
+		sd->state.active = 0;
+	}
+
+	static bool auth_ok(ZoneSessionData * sd, unsigned int login_id2, time_t expiration_time, int gmlevel, struct CharData * status);
+	static void auth_fail(ZoneSessionData * sd);
+	static int set_pos( ZoneSessionData * sd, unsigned short m, short x, short y, ClearType clrtype );
+	static void reg_received( struct ZoneSessionData * sd );
 };

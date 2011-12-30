@@ -27,7 +27,8 @@
 #include "PacketHandling.hpp"
 #include "PlayerModules.hpp"
 
-int packethandle_msgsend(const unsigned char* buf, int len, struct block_list* bl, enum talkarea type)
+/* TODO
+int packet_msgsend(const unsigned char* buf, int len, struct block_list* bl, enum talkarea type)
 {
 	
 	int i;
@@ -40,7 +41,7 @@ int packethandle_msgsend(const unsigned char* buf, int len, struct block_list* b
   }
 
   return 0;
-}
+}*/
 
 /*! 
  *  \brief     Message Format
@@ -51,7 +52,7 @@ int packethandle_msgsend(const unsigned char* buf, int len, struct block_list* b
  *  \date      29/12/11
  *
  **/
-static bool packethandle_msgformat(struct zonedata* zd, char** _name, char** _mes, int type)
+static bool packet_msgformat(struct ZoneSessionData* zd, char** _name, char** _mes, int type)
 {
 	char *text, *name, *mes, *_namelen, *_meslen;
 	unsigned int packetlen, textlen, namelen, meslen;
@@ -61,13 +62,13 @@ static bool packethandle_msgformat(struct zonedata* zd, char** _name, char** _me
 	packetlen = RFIFOW(zd->cl,2);
 	if( packetlen > RFIFOREST(zd->cl) )
 	{	
-		ShowWarning("packethandle_msgparse: Incorrect packet length ( '%d' should be '%d' ) received from '%s'\n", packetlen, RFIFOREST(zd->cl), zd->playerinfo.name);
+		ShowWarning("packethandle_msgparse: Incorrect packet length ( '%d' should be '%d' ) received from '%s'\n", packetlen, RFIFOREST(zd->cl), zd->status.name);
 		return false;
 	}
 	
 	if( packetlen < 4 + 1 )
 	{	
-		ShowWarning("packethandle_msgparse: Malformed packet received from '%s' ", zd->playerinfo.name );
+		ShowWarning("packethandle_msgparse: Malformed packet received from '%s' ", zd->status.name );
 		return false;
 	}
 
@@ -77,11 +78,11 @@ static bool packethandle_msgformat(struct zonedata* zd, char** _name, char** _me
 	if(type){
 	
 		name = text;
-	    namelen = strnlen(zd->playerinfo.name , NAME_LENGTH-1);
+	    namelen = strnlen(zd->status.name , NAME_LENGTH-1);
 
-	    if( strncmp(name, zd->playerinfo.name , namelen) || name[namelen] != ' ' || name[namelen+1] != ':' || name[namelen+2] != ' ' ) 
+	    if( strncmp(name, zd->status.name , namelen) || name[namelen] != ' ' || name[namelen+1] != ':' || name[namelen+2] != ' ' ) 
 	    {
-		  ShowWarning("packethandle_msgparse: Client Desync bug received from '%s'\n", zd->playerinfo.name );
+		  ShowWarning("packethandle_msgparse: Client Desync bug received from '%s'\n", zd->status.name );
 		  return false;
 	    }
 
@@ -92,7 +93,7 @@ static bool packethandle_msgformat(struct zonedata* zd, char** _name, char** _me
 		
 	  if( textlen < NAME_LENGTH + 1 )
 	  {
-	    ShowWarning("packethandle_msgparse: Incorrect packet length ( '%d' should be '%d' ) received from '%s'\n", textlen , NAME_LENGTH+1 , zd->playerinfo.name);
+	    ShowWarning("packethandle_msgparse: Incorrect packet length ( '%d' should be '%d' ) received from '%s'\n", textlen , NAME_LENGTH+1 , zd->status.name);
 	    return false;
 	  }
 
@@ -101,7 +102,7 @@ static bool packethandle_msgformat(struct zonedata* zd, char** _name, char** _me
 
 	  if( name[namelen] != '\0' )
 	  {	
-		ShowWarning("packethandle_msgparse: The Character '%s' sent a untermined name ( without '\0' ) \n", zd->playerinfo.name );
+		ShowWarning("packethandle_msgparse: The Character '%s' sent a untermined name ( without '\0' ) \n", zd->status.name );
 		return false;
 	  }
 
@@ -112,13 +113,13 @@ static bool packethandle_msgformat(struct zonedata* zd, char** _name, char** _me
 
 	if( meslen != strnlen(mes, meslen)+1 )
 	{	
-		ShowWarning("packethandle_msgparse: Incorrect packet length ( '%d' should be '%d' ) received from '%s'\n", meslen , strnlen(mes, meslen)+1 , zd->playerinfo.name);
+		ShowWarning("packethandle_msgparse: Incorrect packet length ( '%d' should be '%d' ) received from '%s'\n", meslen , strnlen(mes, meslen)+1 , zd->status.name );
 		return false;		
 	}
 	
 	if( mes[meslen-1] != '\0' )
 	{	
-        ShowWarning("packethandle_msgparse: The Character '%s' sent a untermined message ( without '\0' ) \n", zd->playerinfo.name );
+        ShowWarning("packethandle_msgparse: The Character '%s' sent a untermined message ( without '\0' ) \n", zd->status.name );
 		return false;		
 	}
 	
@@ -136,7 +137,7 @@ static bool packethandle_msgformat(struct zonedata* zd, char** _name, char** _me
  *  \date      29/12/11
  *
  **/
-void packethandle_chatpackets(tcp_connection::pointer cl, struct zonedata* zd, enum typechat tc)
+void packet_chatpackets(tcp_connection::pointer cl, struct ZoneSessionData* zd, enum TypeChat tc)
 {
 	const char* text = (char*)RFIFOP(cl,4);
 	int textlen = RFIFOW(cl,2) - 4;
@@ -144,7 +145,7 @@ void packethandle_chatpackets(tcp_connection::pointer cl, struct zonedata* zd, e
 	char *name, *message;
 	int namelen, messagelen;
 
-	if( !packethandle_msgformat(zd, &name, &message, 0) )
+	if( !packet_msgformat(zd, &name, &message, 0) )
 	  return;
 
 	switch(tc)
@@ -153,7 +154,7 @@ void packethandle_chatpackets(tcp_connection::pointer cl, struct zonedata* zd, e
 			WFIFOPACKET(cl, packet, ZC_NOTIFY_CHAT);
 			packet->PacketLength = ( sizeof(struct PACKET_ZC_NOTIFY_CHAT) + textlen );
 			packet->header = HEADER_ZC_NOTIFY_CHAT;
-			packet->GID = zd->mapinfo.bl.id;
+			packet->GID = zd->bl.id;
 			strncpy((char*)WFIFOP(cl,8), text, textlen);
 			//TODO: packethandle_msgsend();
 			
@@ -161,17 +162,17 @@ void packethandle_chatpackets(tcp_connection::pointer cl, struct zonedata* zd, e
 			WFIFOPACKET(cl, packet_s , ZC_NOTIFY_PLAYERCHAT);
 			packet_s->header = HEADER_ZC_NOTIFY_PLAYERCHAT;
 			cl->skip(sizeof(PACKET_ZC_NOTIFY_CHAT));
+			
 
-		case PARTY_CHAT:
+  		/*case PARTY_CHAT:
 			// Todo Party Chat
 
 		case GUILD_CHAT:
 			// Todo Guild Chat
 
 		case WHISPER_CHAT:
-			// Todo Whisper Chat
-
-	}
+			// Todo Whisper Chat*/
+     }
 
 	return;
 }

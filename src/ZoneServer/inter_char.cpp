@@ -26,7 +26,7 @@
 #include <boost/foreach.hpp>
 #include <strfuncs.hpp>
 #include "MapManager.hpp"
-#include "Player.hpp"
+#include "PlayerModules.hpp"
 
 /*==============================================================*
 * Function:	Connect to Char-Server								*                                                     
