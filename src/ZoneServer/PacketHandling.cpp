@@ -76,7 +76,7 @@ void ZoneServer::init_packets()
 	addpacket(0x0089, 7, NULL,2,6); // actionrequest
 	addpacket(0x008a, 29, NULL);
 	addpacket(0x008b, 2, NULL);
-	addpacket(0x008c, -1, NULL,2,4); // globalmessage
+	addpacket(0x008c, -1, boost::bind(&packet_chatpackets, _1, _2, NORMAL_CHAT) ,2,4); // globalmessage
 	addpacket(0x008d, -1, NULL);
 	addpacket(0x008e, -1, NULL);
 	//addpacket(0x008f, -1, NULL);
@@ -500,7 +500,7 @@ void ZoneServer::init_packets()
 	addpacket(0x009f, 13, NULL,5,12); // changedir
 	addpacket(0x00a2, 103, NULL,3,6,17,21,23); // useskilltoposinfo
 	addpacket(0x00a7, 12, NULL,8); // solvecharname
-	addpacket(0x00f3, -1, NULL,2,4); // globalmessage
+	addpacket(0x00f3, -1, boost::bind(&packet_chatpackets, _1, _2, NORMAL_CHAT)); // globalmessage
 	addpacket(0x00f5, 17, NULL,6,12); // useitem
 	addpacket(0x00f7, 10, packet_ticksend,6); // loadendack
 	addpacket(0x0113, 16, NULL,5,12); // movetokafra
@@ -546,7 +546,7 @@ void ZoneServer::init_packets()
 	addpacket(0x008c, 105, NULL,10,14,18,23,25); // useskilltoposinfo
 	addpacket(0x0094, 17, NULL,6,15); // dropitem
 	addpacket(0x009b, 14, NULL,10); // getcharnamerequest
-	addpacket(0x009f, -1, NULL,2,4); // globalmessage
+	addpacket(0x009f, -1, boost::bind(packet_chatpackets, _1, _2, NORMAL_CHAT)); // globalmessage
 	addpacket(0x00a2, 14, NULL,10); // solvecharname
 	addpacket(0x00a7, 25, NULL,10,14,18,23); // useskilltopos
 	addpacket(0x00f3, 10, NULL,4,9); // changedir
@@ -634,7 +634,7 @@ void ZoneServer::init_packets()
 #if CLIENTVER >= 14
 	addpacket(0x0072, 22, NULL,8,12,18); // useskilltoid
 	addpacket(0x007e, 30, NULL,4,9,22,28); // useskilltopos
-	addpacket(0x0085, -1, NULL,2,4); // globalmessage
+	addpacket(0x0085, -1, boost::bind(packet_chatpackets, _1, _2, NORMAL_CHAT)); // globalmessage
 	addpacket(0x0089, 7, packet_ticksend,3); // loadendack
 	addpacket(0x008c, 13, NULL,9); // getcharnamerequest
 	addpacket(0x0094, 14, NULL,4,10); // movetokafra
@@ -675,7 +675,7 @@ void ZoneServer::init_packets()
 	addpacket(0x009f, 17, NULL,5,13); // useitem
 	addpacket(0x00a2, 11, NULL,7); // solvecharname
 	addpacket(0x00a7, 13, NULL,10); // walktoxy
-	addpacket(0x00f3, -1, NULL,2,4); // globalmessage
+	addpacket(0x00f3, -1, boost::bind(packet_chatpackets, _1, _2, NORMAL_CHAT)); // globalmessage
 	addpacket(0x00f5, 9, NULL,5); // takeitem
 	addpacket(0x00f7, 21, NULL,11,17); // movefromkafra
 	addpacket(0x0113, 34, NULL,10,18,22,32); // useskilltopos
@@ -1650,6 +1650,7 @@ void ZoneServer::init_packets()
 	addpacket(0x0859, -1, NULL);
 #endif
 }
+
 int packet_msgsend(const unsigned char* buf, int len, struct block_list* bl, enum talkarea type)
 {
 	int i;
@@ -1681,7 +1682,7 @@ static bool packet_msgformat(struct ZoneSessionData* zd, char** _name, char** _m
 	char *text, *name, *mes, *_namelen, *_meslen;
 	unsigned int packetlen, textlen, namelen, meslen;
 
-	*_name = NULL; *_namelen = 0; *_mes = NULL; *_meslen = 0;
+	*_name = NULL; *_mes = NULL;
 
 	packetlen = RFIFOW(zd->cl,2);
 	if( packetlen > RFIFOREST(zd->cl) )
@@ -1699,7 +1700,8 @@ static bool packet_msgformat(struct ZoneSessionData* zd, char** _name, char** _m
 	text = (char*)RFIFOP(zd->cl,4);
 	textlen = packetlen - 4;
 
-	if(type){
+	if (type == 0)
+	{
 
 		name = text;
 		namelen = strnlen(zd->status.name , NAME_LENGTH-1);
@@ -1713,7 +1715,9 @@ static bool packet_msgformat(struct ZoneSessionData* zd, char** _name, char** _m
 		mes = name + namelen + 3;
 		meslen = textlen - namelen - 3;
 
-	}else{ 
+	}
+	else
+	{ 
 
 		if( textlen < NAME_LENGTH + 1 )
 		{
@@ -1750,6 +1754,9 @@ static bool packet_msgformat(struct ZoneSessionData* zd, char** _name, char** _m
 
 	*_name = name;
 	*_mes = mes;
+
+	name[namelen] = 0;
+
 	return true;
 }
 
@@ -1757,11 +1764,11 @@ static bool packet_msgformat(struct ZoneSessionData* zd, char** _name, char** _m
 *  \brief     Chat Packets Manipulation
 *  \details   General player talk messages.
 *  \author    Fimbulwinter Development Team
-*  \author    Castor
+*  \author    Castor, GreenBox
 *  \date      29/12/11
 *
 **/
-void packet_chatpackets(tcp_connection::pointer cl, struct ZoneSessionData* zd)
+void packet_chatpackets(tcp_connection::pointer cl, struct ZoneSessionData* zd, enum typechat tc)
 {
 	const char* text = (char*)RFIFOP(cl,4);
 	int textlen = RFIFOW(cl,2) - 4;
@@ -1772,35 +1779,11 @@ void packet_chatpackets(tcp_connection::pointer cl, struct ZoneSessionData* zd)
 	if( !packet_msgformat(zd, &name, &message, 0) )
 		return;
 
-	/*
+	
 
 	switch(tc)
 	{
-	case NORMAL_CHAT:
-		WFIFOPACKET(cl, packet, ZC_NOTIFY_CHAT);
-		packet->header = HEADER_ZC_NOTIFY_CHAT;
-		packet->PacketLength = ( sizeof(struct PACKET_ZC_NOTIFY_CHAT) + textlen );
-		packet->GID = zd->bl.id;
-		strncpy((char*)WFIFOP(cl,8), text, textlen);
-
-		packet_msgsend()
-		break;
-
-			/*memcpy(WFIFOP(cl,0), RFIFOP(cl,0), RFIFOW(cl,2));
-			WFIFOPACKET(cl, packet_s , ZC_NOTIFY_PLAYERCHAT);
-			packet_s->header = HEADER_ZC_NOTIFY_PLAYERCHAT;
-			cl->send_buffer(sizeof(PACKET_ZC_NOTIFY_CHAT));
-
-
-			case PARTY_CHAT:
-			// Todo Party Chat
-
-			case GUILD_CHAT:
-			// Todo Guild Chat
-
-			case WHISPER_CHAT:
-			// Todo Whisper Chat
-	}*/
+	}
 }
 
 void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd)

@@ -40,4 +40,4 @@ void packet_ticksend(tcp_connection::pointer cl, ZoneSessionData *sd);
 void packet_loadendack(tcp_connection::pointer cl, ZoneSessionData *sd);
 void packet_lesseffect(tcp_connection::pointer cl, ZoneSessionData *sd);
 void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd);
-void packet_chatpackets(tcp_connection::pointer cl, struct ZoneSessionData* zd, enum TypeChat tc);
+void packet_chatpackets(tcp_connection::pointer cl, struct ZoneSessionData* zd, enum typechat tc);
