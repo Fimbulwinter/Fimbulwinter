@@ -114,16 +114,12 @@ public:
 	static void init_packets();
 	static void client_add_packet(unsigned short id, short size, PacketCallback func, ...);
 
-	static void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd);
 	static void auth_fail(tcp_connection::pointer cl, int err);
 	static void auth_ok( ZoneSessionData * sd );
 
-	static void packet_lesseffect(tcp_connection::pointer cl, ZoneSessionData *sd);
-	static void packet_loadendack(tcp_connection::pointer cl, ZoneSessionData *sd);
 	static void request_registry( ZoneSessionData * sd, int flag );
 	static void clif_spawn( struct BlockList* bl );
 	static void addblock( struct BlockList* bl );
-	static void packet_ticksend(tcp_connection::pointer cl, ZoneSessionData *sd);
 
 	// Char InterConn
 	static bool char_conn_ok;
