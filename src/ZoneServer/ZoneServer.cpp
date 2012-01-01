@@ -51,12 +51,14 @@ ZoneServer::auth_node_db ZoneServer::auth_nodes;
 ZoneServer::online_account_db ZoneServer::online_chars;
 bool ZoneServer::char_conn_ok;
 
-/*==============================================================*
-* Function:	Start Char Server									*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description: Start the char-server and load the confs         *
-**==============================================================*/
+/*! 
+ *  \brief     Start Zone Server
+ *
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void ZoneServer::run()
 {
 	io_service = new boost::asio::io_service();
@@ -164,17 +166,19 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-/*==============================================================*
-* Function:     Set a character to offline                      *    
-* Author: GreenBox                                              *
-* Date: 08/05/11                                                *
-* Description:                                                  *	
-**==============================================================*/
 void ZoneServer::set_char_offline(int account_id, char char_id)
 {
 	
 }
 
+/*! 
+ *  \brief     Create Auth Entry
+ *  \details   Create a entry node into zone server
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      09/12/11
+ *
+ **/
 void ZoneServer::create_auth_entry(ZoneSessionData *sd, enum SessionState state)
 {
 	if (auth_nodes.count(sd->status.account_id))
@@ -193,6 +197,13 @@ void ZoneServer::create_auth_entry(ZoneSessionData *sd, enum SessionState state)
 	sd->state.active = 0;
 }
 
+/*! 
+ *  \brief     Add Block
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      ??/12/11
+ *
+ **/
 void ZoneServer::addblock( struct BlockList* bl )
 {
 	int x, y, pos;

@@ -27,6 +27,13 @@ using namespace std;
 
 #define MAX_CHAR_BUF 140
 
+/*! 
+ *  \brief     Character Session Data
+ *  \details   Char Server Main informations
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 struct CharSessionData
 {
 	bool auth;
@@ -43,6 +50,7 @@ struct CharSessionData
 	tcp_connection::pointer cl;
 };
 
+///! \brief Authorization node
 struct AuthNode
 {
 	int char_id;
@@ -55,6 +63,7 @@ struct AuthNode
 	char sex;
 };
 
+///! Online Character informations
 struct OnlineChar 
 {
 	int account_id;
@@ -65,6 +74,7 @@ struct OnlineChar
 	int server;
 };
 
+///! Zone Server Inter Connection Informations
 struct ZoneServerConnection
 {
 	boost::asio::ip::address_v4 addr;
@@ -75,6 +85,14 @@ struct ZoneServerConnection
 	unsigned int users;
 };
 
+/*! 
+ *  \brief     Char Server Main Class
+ *  \details   Char Server Modules
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 class CharDB;
 class CharServer
 {

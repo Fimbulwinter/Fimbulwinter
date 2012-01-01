@@ -27,13 +27,14 @@
 #include <strfuncs.hpp>
 #include <boost/foreach.hpp>
 
-
-/*==============================================================*
-* Function:	Parse from Client (Auth)							*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description: Parse informations from the client				*
-**==============================================================*/
+/*! 
+ *  \brief     Parse Informations From Client ( Auth )
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 int AuthServer::parse_from_client(tcp_connection::pointer cl)
 {
 	AuthSessionData *asd = ((AuthSessionData *)cl->get_data());

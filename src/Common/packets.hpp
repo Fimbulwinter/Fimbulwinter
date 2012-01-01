@@ -1916,6 +1916,24 @@ struct PACKET_ZC_NOTIFY_PLAYERCHAT {
   unsigned short PacketLength;
 } PACKED;
 
+struct PACKET_ZC_AID {
+  short header;
+  unsigned long AID;
+} PACKED;
+
+struct PACKET_ZC_NOTIFY_TIME {
+  short header;
+  unsigned long time;
+} PACKED;
+
+struct PACKET_ZC_ACCEPT_ENTER {
+  short header;
+  unsigned long startTime;
+  unsigned char PosDir[3];
+  unsigned char xSize;
+  unsigned char ySize;
+} PACKED;
+
 #ifdef _MSC_VER
 #pragma pack(pop)
 #pragma warning(default : 4200)

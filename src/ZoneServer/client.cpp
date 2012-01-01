@@ -62,12 +62,14 @@ inline void WFIFOPOS2(tcp_connection::pointer cl, unsigned short pos, short x0, 
 
 PacketData *ZoneServer::client_packets[MAX_PACKET_DB];
 
-/*==============================================================*
-* Function:	Parse from Client									*                                                     
-* Author: GreenBox												*
-* Date: 08/05/11												*
-* Description: Parse informations from client		            *
-**==============================================================*/
+/*! 
+ *  \brief     Parse From Client
+ *  \details   Parse Informations from the client 
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 int ZoneServer::parse_from_client(tcp_connection::pointer cl)
 {
 	ZoneSessionData *sd = ((ZoneSessionData *)cl->get_data());
@@ -134,6 +136,14 @@ int ZoneServer::parse_from_client(tcp_connection::pointer cl)
 	return 0;
 }
 
+/*! 
+ *  \brief     Add Packet
+ *  \details   Make a Cache of client packets
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      29/12/11
+ *
+ **/
 void ZoneServer::client_add_packet(unsigned short id, short size, PacketCallback func, ...)
 {
 	if (id > MAX_PACKET_DB)
@@ -165,25 +175,49 @@ void ZoneServer::client_add_packet(unsigned short id, short size, PacketCallback
 	client_packets[id] = pd;
 }
 
+/*! 
+ *  \brief     (Zone) Login Fail
+ *  \details   Fails to login into the Zone Server
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      29/12/11
+ *
+ *	@param	err	1 - Server Closed
+ *  @param	err	2 - There is someone already logged with this ID.
+ *	@param	err 3 - Server Timed Out
+ *	@param	err 4 - Server Full
+ *	@param	err	5 - Underaged
+ *	@param	err	8 - The server still recognizes your last login
+ *	@param	err	9 - To many connections from yours IP
+ *	@param	err	10 - Paid Service???
+ *	@param	err	15 - Disconnected by a GM
+ **/
 void ZoneServer::auth_fail(tcp_connection::pointer cl, int err)
 {
-	WFIFOHEAD(cl, 3);
-	WFIFOW(cl,0) = 0x81;
-	WFIFOB(cl,2) = err;
-	cl->send_buffer(3);
+	WFIFOPACKET(cl,packet,SC_NOTIFY_BAN);
+	packet->header = HEADER_SC_NOTIFY_BAN;
+	packet->error_code = err;
+	cl->send_buffer(sizeof(struct PACKET_SC_NOTIFY_BAN));
 	cl->set_eof();
 }
 
-
+/*! 
+ *  \brief     (Zone) Auth OK
+ *  \details   Success login into zone server
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      29/12/11
+ *
+ **/
 void ZoneServer::auth_ok( ZoneSessionData * sd )
 {
-	WFIFOHEAD(sd->cl, 11);
-	WFIFOW(sd->cl, 0) = HEADER_ZC_ACCEPT_ENTER;
-	WFIFOL(sd->cl, 2) = (unsigned int)time(NULL);
+	WFIFOPACKET(sd->cl,packet,ZC_ACCEPT_ENTER);
+	packet->header = HEADER_ZC_ACCEPT_ENTER;
+	packet->startTime = (unsigned int)time(NULL);
 	WFIFOPOS(sd->cl, 6, sd->bl.x, sd->bl.y, 3/*sd->ud.dir*/); // TODO: UnitData Direction
-	WFIFOB(sd->cl, 9) = 5;
-	WFIFOB(sd->cl,10) = 5;
-	sd->cl->send_buffer(11);
+	packet->xSize = 5;
+	packet->ySize = 5;
+    sd->cl->send_buffer(sizeof(struct PACKET_ZC_ACCEPT_ENTER));
 }
 
 void ZoneServer::clif_spawn(struct BlockList* bl)

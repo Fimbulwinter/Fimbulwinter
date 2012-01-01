@@ -26,12 +26,14 @@
 #include <strfuncs.hpp>
 #include <boost/foreach.hpp>
 
-/*==============================================================*
-* Function:	Send all WoS										*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description:									                *
-**==============================================================*/
+/*! 
+ *  \brief     Send all WoS
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void AuthServer::char_sendallwos(int cs, unsigned char *buf, size_t len)
 {			
 	BOOST_FOREACH(char_server_db::value_type &pair, servers)
@@ -45,12 +47,14 @@ void AuthServer::char_sendallwos(int cs, unsigned char *buf, size_t len)
 	}
 }
 
-/*==============================================================*
-* Function:	Parse from Char										*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description: Parse informations from char-server              *
-**==============================================================*/
+/*! 
+ *  \brief     Parse Informations from char server
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 int AuthServer::parse_from_char(tcp_connection::pointer cl)
 {
 	AuthSessionData *asd = ((AuthSessionData *)cl->get_data());

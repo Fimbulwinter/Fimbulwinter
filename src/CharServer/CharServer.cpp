@@ -54,12 +54,14 @@ map<int, int> CharServer::map_to_zone;
 // Zone
 CharServer::zone_server_db CharServer::servers;
 
-/*==============================================================*
-* Function:	Start Char Server									*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description: Start the char-server and load the confs         *
-**==============================================================*/
+/*! 
+ *  \brief     Start Char Server
+ *  \details   Start the char-server and load the confs
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void CharServer::run()
 {
 	io_service = new boost::asio::io_service();
@@ -175,12 +177,15 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-/*==============================================================*
-* Function:     Set a character to offline                      *    
-* Author: GreenBox                                              *
-* Date: 08/05/11                                                *
-* Description:                                                  *	
-**==============================================================*/
+
+/*! 
+ *  \brief     Set a character to offline mode
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void CharServer::set_char_offline(int account_id, char char_id)
 {
 	if (char_id > 0)
@@ -221,6 +226,14 @@ void CharServer::set_char_offline(int account_id, char char_id)
 	}
 }
 
+/*! 
+ *  \brief     Set a Character to online mode
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void CharServer::set_char_online(int server, int char_id, int account_id)
 {
 	statement s = (database->prepare << "UPDATE `char` SET `online` = 1 WHERE `char_id` = :c", use(char_id));

@@ -25,6 +25,14 @@
 
 using namespace std;
 
+/*! 
+ *  \brief     Map Node
+ *  \details   Map main informations
+ *  \author    Fimbulwinter Development Team
+ *  \author    Castor
+ *  \date      28/12/11
+ *
+ **/
 struct map_index_node
 {
 	int id;
@@ -32,6 +40,14 @@ struct map_index_node
 	char subname[MAP_NAME_LENGTH];
 };
 
+/*! 
+ *  \brief     MapIndex Class
+ *  \details   MapIndex Main Modules
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox , Castor
+ *  \date      28/12/11
+ *
+ **/
 class map_index
 {
 public:
@@ -40,6 +56,7 @@ public:
 		last_map = 1;
 	}
 
+	///! \brief Load a Map
 	bool load(string file)
 	{
 		ifstream ifs(file, ifstream::in);
@@ -124,6 +141,7 @@ public:
 		return true;
 	}
 
+	///! \brief Get a MapID
 	int get_map_id(string server_name, bool ext = false)
 	{
 		if (ext)
@@ -137,6 +155,7 @@ public:
 		return node->GetData()->id;
 	}
 
+	///! \brief Get a map ID
 	char *get_map_name(int id)
 	{
 		if (!id_map.count(id))
@@ -145,6 +164,7 @@ public:
 		return id_map[id]->server_name;
 	}
 
+	///! \brief Copy a map name
 	void copy_map_name_ext(char *dst, int id)
 	{
 		char tmp[MAP_NAME_LENGTH_EXT];

@@ -26,13 +26,14 @@
 #include <boost/foreach.hpp>
 #include <strfuncs.hpp>
 
-
-/*==============================================================*
-* Function:	Parse from Client									*                                                     
-* Author: GreenBox												*
-* Date: 08/05/11												*
-* Description: Parse informations from client		            *
-**==============================================================*/
+/*! 
+ *  \brief     Parse from Client
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 int CharServer::parse_from_client(tcp_connection::pointer cl)
 {
 	CharSessionData *csd = ((CharSessionData *)cl->get_data());
@@ -375,12 +376,14 @@ int CharServer::parse_from_client(tcp_connection::pointer cl)
 }
 
 
-/*==============================================================*
-* Function:	Connection Success into Char Server					*                                                     
-* Author: GreenBox												*
-* Date: 08/05/11												*
-* Description:										            *
-**==============================================================*/
+/*! 
+ *  \brief     Connection success into char server
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void CharServer::auth_ok(tcp_connection::pointer cl, CharSessionData *csd)
 {
 	if (online_chars.count(csd->account_id))
@@ -425,12 +428,14 @@ void CharServer::auth_ok(tcp_connection::pointer cl, CharSessionData *csd)
 	set_charsel(csd->account_id, cl);
 }
 
-/*==============================================================*
-* Function:	Character Selection									*                                                     
-* Author: GreenBox												*
-* Date: 08/05/11												*
-* Description:											        *
-**==============================================================*/
+/*! 
+ *  \brief     Character Selection
+ *
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void CharServer::set_charsel(int account_id, tcp_connection::pointer cl)
 {
 	// TODO: Decrement ZoneServer user on
@@ -443,12 +448,14 @@ void CharServer::set_charsel(int account_id, tcp_connection::pointer cl)
 		TimerManager::FreeTimer(online_chars[account_id].disconnect_timer);
 }
 
-/*==============================================================*
-* Function:	Send Characters										*                                                     
-* Author: GreenBox												*
-* Date: 08/05/11												*
-* Description: Send to the client character infos		        *
-**==============================================================*/
+/*! 
+ *  \brief     Send Characters
+ *  \details   Send character informations to the client
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void CharServer::send_chars(tcp_connection::pointer cl, CharSessionData *csd)
 {
 	int j = 0;
@@ -467,6 +474,14 @@ void CharServer::send_chars(tcp_connection::pointer cl, CharSessionData *csd)
 	return;
 }
 
+/*! 
+ *  \brief     Char to Buffer
+ *  \details   Makes the character cache
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void CharServer::char_to_buf(struct CHARACTER_INFO *charinfo, CharData *p)
 {
 	if( charinfo == NULL || p == NULL )
@@ -531,6 +546,14 @@ void CharServer::char_to_buf(struct CHARACTER_INFO *charinfo, CharData *p)
 	return;
 }
 
+/*! 
+ *  \brief     Create Character
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 int CharServer::create_char(CharSessionData *csd, char* name, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)
 {
 	int char_id, flag;
@@ -576,6 +599,14 @@ int CharServer::create_char(CharSessionData *csd, char* name, int str, int agi, 
 	return char_id;
 }
 
+/*! 
+ *  \brief     Check Character Name
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 int CharServer::check_char_name(char *name)
 {
 	//int i;
@@ -599,6 +630,14 @@ int CharServer::check_char_name(char *name)
 	return 0;
 }
 
+/*! 
+ *  \brief     Check Email
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 bool CharServer::check_email(char *email)
 {
 	char ch;
@@ -632,6 +671,14 @@ bool CharServer::check_email(char *email)
 	return 1;
 }
 
+/*! 
+ *  \brief     Delete Character Requisition
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      10/12/11
+ *
+ **/
 void CharServer::delete2_req(tcp_connection::pointer cl, CharSessionData *csd)
 {
 	int char_id, i;
@@ -666,6 +713,14 @@ void CharServer::delete2_req(tcp_connection::pointer cl, CharSessionData *csd)
 	}
 }
 
+/*! 
+ *  \brief     Delete character OK
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      10/12/11
+ *
+ **/
 void CharServer::delete2_accept( tcp_connection::pointer cl, CharSessionData * csd )
 {
 	char birthdate[8+1];
@@ -733,6 +788,14 @@ void CharServer::delete2_accept( tcp_connection::pointer cl, CharSessionData * c
 	delete2_accept_ack(cl, char_id, 1);
 }
 
+/*! 
+ *  \brief     Cancel Character Delection
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      10/12/11
+ *
+ **/
 void CharServer::delete2_cancel( tcp_connection::pointer cl, CharSessionData * csd )
 {
 	int char_id, i;
@@ -766,7 +829,7 @@ void CharServer::delete2_cancel( tcp_connection::pointer cl, CharSessionData * c
 void CharServer::delete2_ack( tcp_connection::pointer cl, int char_id, int result, time_t deltime )
 {
 	WFIFOHEAD(cl,14);
-	WFIFOW(cl,0) = HEADER_HC_DEL_REQUEST_ACK;
+    WFIFOW(cl,0) = HEADER_HC_DEL_REQUEST_ACK;
 	WFIFOL(cl,2) = char_id;
 	WFIFOL(cl,6) = result;
 	WFIFOL(cl,10) = TOL(deltime);

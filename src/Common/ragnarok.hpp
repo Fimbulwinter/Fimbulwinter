@@ -44,12 +44,21 @@
 
 using namespace std;
 
+///! \brief Map Point
 struct Point 
 {
 	unsigned short map;
 	short x,y;
 };
 
+/*! 
+ *  \brief     Character Data
+ *  \details   Main Character Informations
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      ??/12/11
+ *
+ **/
 struct CharData
 {
 	int char_id;
@@ -105,12 +114,14 @@ struct CharData
 	time_t delete_date;
 };
 
+///! \brief Global Reg Table Values
 struct GlobalReg
 {
 	char str[32];
 	char value[256];
 };
 
+///! \brief Account Reg Table Values
 struct AccountReg
 {
 	int account_id, char_id;
@@ -118,6 +129,7 @@ struct AccountReg
 	struct GlobalReg reg[MAX_REG_NUM];
 };
 
+///! \brief Registry
 struct Registry 
 {
 	int global_num;
@@ -128,6 +140,7 @@ struct Registry
 	struct GlobalReg account2[ACCOUNT_REG2_NUM];
 };
 
+///! \brief Sex Type
 enum {
 	SEX_FEMALE = 0,
 	SEX_MALE,
