@@ -21,20 +21,28 @@
 #include "packets.hpp"
 #include "ZoneServer.hpp"
 
-enum talkarea {
+/*! \brief     Talk Area
+ *  \author    Fimbulwinter Development Team
+ *  \date      31/12/11
+ **/
+typedef enum talkarea {
 
 	COMMONTALK_AREA = 0,
 	
-};
+}TalkArea;
 
-enum typechat {
+/*! \brief     TypeChat
+ *  \author    Fimbulwinter Development Team
+ *  \date      31/12/11
+ **/
+typedef enum typechat {
 
 	NORMAL_CHAT = 0,
 	PARTY_CHAT,
 	GUILD_CHAT,
 	WHISPER_CHAT,
 
-};
+}TypeChat;
 
 void packet_ticksend(tcp_connection::pointer cl, ZoneSessionData *sd);
 void packet_loadendack(tcp_connection::pointer cl, ZoneSessionData *sd);

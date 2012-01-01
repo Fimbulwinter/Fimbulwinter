@@ -26,13 +26,14 @@
 #include <boost/foreach.hpp>
 #include <strfuncs.hpp>
 
-
-/*==============================================================*
-* Function:	Connect to Auth-Server								*                                                     
-* Author: GreenBox                                              *
-* Date: 08/12/11 												*
-* Description: Do the Connection between char and auth server   *
-**==============================================================*/
+/*! 
+ *  \brief     Connect to Auth Server
+ *  \details   Do the connection between char and auth server
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 void CharServer::connect_to_auth()
 {
 	auth_conn_ok = false;
@@ -77,7 +78,7 @@ void CharServer::connect_to_auth()
 		auth_conn->start();
 
 		WFIFOHEAD(auth_conn, 76);
-		WFIFOW(auth_conn, 0) = INTER_CA_LOGIN;
+	    WFIFOW(auth_conn, 0) = INTER_CA_LOGIN;
 		strncpy((char*)WFIFOP(auth_conn, 2), config.inter_login_user.c_str(), NAME_LENGTH);
 		strncpy((char*)WFIFOP(auth_conn, 26), config.inter_login_pass.c_str(), NAME_LENGTH);
 		strncpy((char*)WFIFOP(auth_conn, 50), config.server_name.c_str(), 20);
@@ -90,12 +91,14 @@ void CharServer::connect_to_auth()
 }
 
 
-/*==============================================================*
-* Function:	Parse from Login Server								*                                                     
-* Author: GreenBox												*
-* Date: 08/05/11												*
-* Description: Parse informations from auth server	            *
-**==============================================================*/
+/*! 
+ *  \brief     Parse from Login
+ *  \details   Parse informations from auth server
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      08/12/11
+ *
+ **/
 int CharServer::parse_from_login(tcp_connection::pointer cl)
 {
 	CharSessionData *csd;
@@ -162,14 +165,15 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 					}
 					else
 					{
-						WFIFOHEAD(client_cl,3);
-						WFIFOW(client_cl,0) = HEADER_HC_REFUSE_ENTER;
-						WFIFOB(client_cl,2) = 0;
-						client_cl->send_buffer(3);
+						WFIFOPACKET(client_cl,packet,HC_REFUSE_ENTER);
+						packet->header = HEADER_HC_REFUSE_ENTER;
+						packet->error_code = 0;
+						client_cl->send_buffer(sizeof(struct PACKET_HC_REFUSE_ENTER));
 					}
 				}
 			}
 			break;
+		
 		case INTER_AC_KICK:
 			{
 				int aid = RFIFOL(cl, 2);
@@ -185,10 +189,10 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 					{
 						if (!online_chars[aid].cl->flags.eof)
 						{
-							WFIFOHEAD(online_chars[aid].cl,3);
-							WFIFOW(online_chars[aid].cl,0) = HEADER_SC_NOTIFY_BAN;
-							WFIFOB(online_chars[aid].cl,2) = 2;
-							online_chars[aid].cl->send_buffer(3);
+							WFIFOPACKET(online_chars[aid].cl,packet,SC_NOTIFY_BAN);
+							packet->header = HEADER_SC_NOTIFY_BAN;
+							packet->error_code = 2;
+							online_chars[aid].cl->send_buffer(sizeof(struct PACKET_SC_NOTIFY_BAN));
 							online_chars[aid].cl->set_eof();
 						}
 						else
@@ -226,6 +230,7 @@ int CharServer::parse_from_login(tcp_connection::pointer cl)
 	return 0;
 }
 
+///! \brief Request Acc Register
 void CharServer::request_accreg2( int account_id, int char_id )
 {
 	throw std::exception("The method or operation is not implemented.");

@@ -27,6 +27,14 @@
 #include "PacketHandling.hpp"
 #include "PlayerModules.hpp"
 
+/*! 
+ *  \brief     Initialize Packets
+ * 
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      01/01/12
+ *
+ **/
 void ZoneServer::init_packets() 
 {
 	memset(client_packets, 0, sizeof(client_packets));
@@ -1651,7 +1659,7 @@ void ZoneServer::init_packets()
 #endif
 }
 
-int packet_msgsend(const unsigned char* buf, int len, struct block_list* bl, enum talkarea type)
+int packet_msgsend(const unsigned char* buf, int len, struct block_list* bl, TalkArea type)
 {
 	int i;
 
@@ -1786,6 +1794,14 @@ void packet_chatpackets(tcp_connection::pointer cl, struct ZoneSessionData* zd, 
 	}
 }
 
+/*! 
+*  \brief     Packet Want to Connect
+*  \details   Request a connection to the Zone Server
+*  \author    Fimbulwinter Development Team
+*  \author    GreenBox
+*  \date      ??/12/11
+*
+**/
 void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd)
 {
 	int cmd, account_id, char_id, login_id1, sex;
@@ -1804,10 +1820,10 @@ void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd)
 	{
 		ShowError("packet_wanttoconnect: a non-player object already has id %d, please increase the starting account number.\n", account_id);
 
-		WFIFOHEAD(cl, 3);
-		WFIFOW(cl, 0) = 0x6a;
-		WFIFOB(cl, 2) = 3; // Rejected by server
-		cl->send_buffer(3);
+		WFIFOPACKET(cl,packet,AC_REFUSE_LOGIN);
+		packet->header = HEADER_AC_REFUSE_LOGIN;
+		packet->error_code = 3; // Rejected By Server
+		cl->send_buffer(sizeof(struct PACKET_AC_REFUSE_LOGIN));
 		cl->set_eof();
 
 		return;
@@ -1826,19 +1842,27 @@ void packet_wanttoconnect(tcp_connection::pointer cl, ZoneSessionData *sd)
 	PC::set_new_pc(sd, account_id, char_id, login_id1, client_tick, sex, cl);
 
 #if PACKETVER < 20070521
-	WFIFOHEAD(cl,4);
+    WFIFOHEAD(cl,4);
 	WFIFOL(cl,0) = sd->bl.id;
 	cl->send_buffer(4);
 #else
-	WFIFOHEAD(cl, 6);
-	WFIFOW(cl,0) = HEADER_ZC_AID;
-	WFIFOL(cl,2) = sd->bl.id;
-	cl->send_buffer(6);
+	WFIFOPACKET(cl,packet,ZC_AID);
+	packet->header = HEADER_ZC_AID;
+	packet->AID = sd->bl.id;
+    cl->send_buffer(6);
 #endif
 
 	ZoneServer::inter_confirm_auth(sd);
 }
 
+/*! 
+*  \brief     Less Effect Packet
+*  \details   "/effect"
+*  \author    Fimbulwinter Development Team
+*  \author    GreenBox
+*  \date      ??/12/11
+*
+**/
 void packet_lesseffect(tcp_connection::pointer cl, ZoneSessionData *sd)
 {
 	int isLess = RFIFOL(cl, ZoneServer::client_packets[RFIFOW(cl, 0)]->pos[0]);
@@ -1846,6 +1870,14 @@ void packet_lesseffect(tcp_connection::pointer cl, ZoneSessionData *sd)
 	sd->state.lesseffect = (isLess != 0);
 }
 
+/*! 
+*  \brief     Load Enviroment
+*  \details   Load the Enviroment informations
+*  \author    Fimbulwinter Development Team
+*  \author    GreenBox
+*  \date      ??/12/11
+*
+**/
 void packet_loadendack(tcp_connection::pointer cl, ZoneSessionData *sd)
 {
 	if(sd->bl.prev != NULL)
@@ -1866,12 +1898,20 @@ void packet_loadendack(tcp_connection::pointer cl, ZoneSessionData *sd)
 	// TODO: Info about nearby objects
 }
 
+/*! 
+*  \brief     Clock Tick Send
+*  \details   Send Time
+*  \author    Fimbulwinter Development Team
+*  \author    GreenBox
+*  \date      ??/12/11
+*
+**/
 void packet_ticksend(tcp_connection::pointer cl, ZoneSessionData *sd)
 {
 	sd->client_tick = RFIFOL(cl, ZoneServer::client_packets[RFIFOW(cl, 0)]->pos[0]);
 
-	WFIFOHEAD(cl, 6);
-	WFIFOW(cl,0) = 0x7f;
-	WFIFOL(cl,2) = (unsigned int)time(NULL);
-	cl->send_buffer(6);
+	WFIFOPACKET(cl,packet,ZC_NOTIFY_TIME);
+	packet->header = HEADER_ZC_NOTIFY_TIME;
+	packet->time = (unsigned int)time(NULL);
+	cl->send_buffer(sizeof(struct PACKET_ZC_NOTIFY_TIME));
 }

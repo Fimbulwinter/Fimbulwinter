@@ -16,6 +16,14 @@
 #include "ZoneServer.hpp"
 #include "PlayerModules.hpp"
 
+/*! 
+ *  \brief     PC Auth OK
+ *  \details   Success generate a char into zone
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      29/12/11
+ *
+ **/
 bool PC::auth_ok(ZoneSessionData * sd, unsigned int login_id2, time_t expiration_time, int gmlevel, struct CharData * st)
 {
 	int i;
@@ -54,11 +62,28 @@ bool PC::auth_ok(ZoneSessionData * sd, unsigned int login_id2, time_t expiration
 	return true;
 }
 
+/*! 
+ *  \brief     PC Auth Fail
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      29/12/11
+ *
+ **/
 void PC::auth_fail(ZoneSessionData * sd)
 {
 	ZoneServer::auth_fail(sd->cl, 0);
 }
 
+
+/*! 
+ *  \brief     PC Set Position
+ *  \details   Set a player in a position of the map
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      29/12/11
+ *
+ **/
 int PC::set_pos( ZoneSessionData * sd, unsigned short mapindex, short x, short y, ClearType clrtype )
 {
 	int m;
@@ -107,6 +132,14 @@ int PC::set_pos( ZoneSessionData * sd, unsigned short mapindex, short x, short y
 	return 0;
 }
 
+/*! 
+ *  \brief     Register Received
+ *  \details   Register a Character into the zone server
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      29/12/11
+ *
+ **/
 void PC::reg_received( struct ZoneSessionData * sd )
 {
 	if (sd->state.active)

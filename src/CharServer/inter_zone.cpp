@@ -24,13 +24,14 @@
 #include <iostream>
 #include <boost/foreach.hpp>
 #include <strfuncs.hpp>
-
-/*==============================================================*
-* Function:	Parse from Zone Server								*                                                     
-* Author: TODO													*
-* Date: TODO 													*
-* Description: TODO									            *
-**==============================================================*/
+/*! 
+ *  \brief     Parse from Zone
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      ??/12/11
+ *
+ **/
 int CharServer::parse_from_zone(tcp_connection::pointer cl)
 {
 	if (cl->flags.eof)

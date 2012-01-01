@@ -5,6 +5,14 @@
 
 using namespace std;
 
+/*! 
+ *  \brief     Block Manage Modules
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    Vianna
+ *  \date      29/12/11
+ *
+ **/
 class BlockManager
 {
 public:

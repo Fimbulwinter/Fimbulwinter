@@ -23,12 +23,14 @@ using namespace soci;
 
 struct CharSessionData;
 
-/*==============================================================*
-* Class: CharDB      											*                                                     
-* Author: GreenBox                                              *
-* Date: 10/12/11 												*
-* Description: Constructor and Char-Server Manipulation Modules *
-**==============================================================*/
+/*! 
+ *  \brief     Char DB
+ *  \details   Constructor and Char-Server Manipulation Modules
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      10/12/11
+ *
+ **/
 class CharDB
 {
 public:
@@ -37,7 +39,8 @@ public:
 		db_ = db;
 	}
 
-	int get_char_count(int accid) // Get the number of chars in a account. 
+	///! \brief Get the number of chars in a account
+	int get_char_count(int accid) 
 	{
 		soci::statement s =	(db_->prepare << "SELECT `char_id` FROM `char` WHERE `account_id`=:id LIMIT 1", use(accid));
 	
@@ -46,6 +49,7 @@ public:
 		return (int)s.get_affected_rows();
 	}
 
+	///! \brief Load chars into the cache
 	int load_chars_to_buf(int account_id, struct CHARACTER_INFO *charinfo, CharSessionData *csd) // Load the characters into a Buffer
 	{
 		CharData c;
@@ -116,6 +120,7 @@ public:
 		return j;
 	}
 
+	///! \brief Load Character
 	void load_char(int id, CharData &c, bool full) // Load the character
 	{
 		string lastmap;
@@ -191,6 +196,7 @@ public:
 		}
 	}
 
+	///! \brief Save a Character
 	int save(CharData &c, bool nw) // Save the character into the database.
 	{
 		if (nw)
@@ -210,6 +216,7 @@ public:
 		}
 	}
 
+	///! \brief Delete a Character
 	bool delete_char(int cid) // Delete a Character.
 	{
 		// TODO: Divorce, De-addopt, leave party, delete pets, delete homunculus, mercenary data, friend list, saved hotkeys, invetory, memo areas, char registry, skills, sc's and leave or break guild
@@ -220,6 +227,7 @@ public:
 		return true;
 	}
 
+	///! \brief Load Account register
 	void load_acc_reg( int account_id, int char_id, struct AccountReg &reg, int type) 
 	{
 		struct GlobalReg *r;

@@ -21,20 +21,26 @@
 vector<MapData> MapManager::maps;
 map_index MapManager::mapsidx;
 
+/*! 
+ *  \brief     Map Gat to Cell
+ *  \details   Reads a gat and convert the information to cells.
+ *  \author    Fimbulwinter Development Team
+ *  \author    Vianna
+ *  \date      28/12/11
+ *
+ *	@param	gat	0 - Walkable and shootable floor 
+ *	@param	gat	1 - Non-Walkable and non shootable floor 
+ *	@param	gat	2 - ???
+ *	@param	gat	3 - Walkable and shootable water
+ *	@param	gat	4 - ???
+ *	@param	gat 5 - Non-Walkable and shootable floor
+ *	@param	gat	6 - ???
+ **/
 inline static struct MapCell map_gat2cell(int gat)
 {
 	struct MapCell cell = { 0 };
 
-	// Tipos de GAT
-	// 0: Chão andável e atirável
-	// 1: Chão não-andável e não-atirável
-	// 2: Chão andável e atirável (???)
-	// 3: Água andável e atirável
-	// 4: Chão andável e atirável (???)
-	// 5: Chão não-andável e atirável
-	// 6: Chão andável e atirável (???)
-
-	if ((gat < 0) || (gat > 6))
+    if ((gat < 0) || (gat > 6))
 		ShowWarning("map_gat2cell: unrecognized gat type '%d'\n", gat);
 	else
 	{
@@ -49,11 +55,27 @@ inline static struct MapCell map_gat2cell(int gat)
 	return cell;
 }
 
+/*! 
+ *  \brief     Decode Zip
+ *  \details   Read a zip file.
+ *  \author    Fimbulwinter Development Team
+ *  \author    Vianna
+ *  \date      28/12/11
+ *
+ **/
 inline static int decode_zip(void* dest, unsigned long* destLen, const void* source, unsigned long sourceLen)
 {
 	return uncompress((Bytef *)dest, destLen, (const Bytef *)source, sourceLen);
 }
 
+/*! 
+ *  \brief     Initialize MapManager
+ *  \details   Read MapCache and MapFiles
+ *  \author    Fimbulwinter Development Team
+ *  \author    Vianna
+ *  \date      28/12/11
+ *
+ **/
 void MapManager::initialize()
 {
 	vector<int> my_maps;
@@ -176,6 +198,14 @@ void MapManager::initialize()
 	}
 }
 
+/*! 
+ *  \brief     Decode MapCache
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    Vianna
+ *  \date      28/12/11
+ *
+ **/
 bool MapManager::decode_mapcache(struct MapData *m, char *buffer, char *decode_buffer)
 {
 	int i;
@@ -227,6 +257,14 @@ bool MapManager::decode_mapcache(struct MapData *m, char *buffer, char *decode_b
 	return false;
 }
 
+/*! 
+ *  \brief     Check a MapCell
+ *  
+ *  \author    Fimbulwinter Development Team
+ *  \author    Vianna
+ *  \date      28/12/11
+ *
+ **/
 bool MapManager::check_cell( unsigned int mi, short x, short y, CellCheck cellchk )
 {
 	struct MapData *m;

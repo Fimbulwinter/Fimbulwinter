@@ -36,6 +36,14 @@ enum SessionState
 	ST_MAPCHANGE 
 };
 
+/*! 
+ *  \brief     Zone Server Authorization node
+ *
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      ??/12/11
+ *
+ **/
 struct AuthNode
 {
 	AuthNode()
@@ -55,6 +63,13 @@ struct AuthNode
 	tcp_connection::pointer cl;
 };
 
+/*! 
+ *  \brief     Online Char Informations
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      ??/12/11
+ *
+ **/
 struct OnlineChar 
 {
 	int account_id;
@@ -74,6 +89,14 @@ struct PacketData
 
 #define addpacket(id, size, func, ...) ZoneServer::client_add_packet(id, size, func, __VA_ARGS__, 0xFFFF)
 
+/*! 
+ *  \brief     Zone Server Main Class
+ *  \details   Zone Server common modules
+ *  \author    Fimbulwinter Development Team
+ *  \author    GreenBox
+ *  \date      ??/12/11
+ *
+ **/
 class ZoneServer
 {
 public:
