@@ -43,7 +43,6 @@ void ZoneServer::init_packets()
 	// find: NULL,(.*)\); \/\/ loadendack
 	// rep: name,\1); // loadendack
 
-#if CLIENTVER >= 5
 	addpacket(0x0064, 55, NULL);
 	addpacket(0x0065, 17, NULL);
 	addpacket(0x0066, 6, NULL);
@@ -470,10 +469,9 @@ void ZoneServer::init_packets()
 	//addpacket(0x020b, -1, NULL);
 	//addpacket(0x020c, -1, NULL);
 	addpacket(0x020d, -1, NULL);
-#endif
 
 	//2004-07-05aSakexe
-#if CLIENTVER >= 6
+#if PACKETVER >= 20040705
 	addpacket(0x0072, 22, packet_wanttoconnect,5,9,13,17,21); // loadendackion
 	addpacket(0x0085, 8, NULL,5); // walktoxy
 	addpacket(0x00a7, 13, NULL,5,9); // useitem
@@ -485,7 +483,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2004-07-13aSakexe
-#if CLIENTVER >= 7
+#if PACKETVER >= 20040713
 	addpacket(0x0072, 39, packet_wanttoconnect,12,22,30,34,38); // loadendackion
 	addpacket(0x0085, 9, NULL,6); // walktoxy
 	addpacket(0x009b, 13, NULL,5,12); // changedir
@@ -497,7 +495,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2004-07-26aSakexe
-#if CLIENTVER >= 8
+#if PACKETVER >= 20040726
 	addpacket(0x0072, 14, NULL,5,12); // dropitem
 	addpacket(0x007e, 33, packet_wanttoconnect,12,18,24,28,32); // loadendackion
 	addpacket(0x0085, 20, NULL,7,12,16); // useskilltoid
@@ -518,7 +516,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2004-08-09aSakexe
-#if CLIENTVER >= 9
+#if PACKETVER >= 20040809
 	addpacket(0x0072, 17, NULL,8,15); // dropitem
 	addpacket(0x007e, 37, packet_wanttoconnect,9,21,28,32,36); // loadendackion
 	addpacket(0x0085, 26, NULL,11,18,22); // useskilltoid
@@ -534,19 +532,23 @@ void ZoneServer::init_packets()
 	addpacket(0x0113, 23, NULL,5,19); // movetokafra
 	addpacket(0x0190, 26, NULL,11,22); // movefromkafra
 	addpacket(0x0193, 18, NULL,7,17); // actionrequest
+#endif
 
 	//2004-08-16aSakexe
+#if PACKETVER >= 20040816
 	addpacket(0x0212, 26, NULL,2); // rc
 	addpacket(0x0213, 26, NULL,2); // check
 	addpacket(0x0214, 42, NULL);
+#endif
 
 	//2004-08-17aSakexe
+#if PACKETVER >= 20040817	
 	addpacket(0x020f, 10, NULL,2,6); // pvpinfo
 	addpacket(0x0210, 22, NULL);
 #endif
 
 	//2004-09-06aSakexe
-#if CLIENTVER >= 10
+#if PACKETVER >= 20040906
 	addpacket(0x0072, 20, NULL,9,20); // useitem
 	addpacket(0x007e, 19, NULL,3,15); // movetokafra
 	addpacket(0x0085, 23, NULL,9,22); // actionrequest
@@ -567,7 +569,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2004-09-20aSakexe
-#if CLIENTVER >= 11
+#if PACKETVER >= 20040920
 	addpacket(0x0072, 18, NULL,10,14); // useitem
 	addpacket(0x007e, 25, NULL,6,21); // movetokafra
 	addpacket(0x0085, 9, NULL,3,8); // actionrequest
@@ -586,7 +588,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2004-10-05aSakexe
-#if CLIENTVER >= 12
+#if PACKETVER >= 20041005
 	addpacket(0x0072, 17, NULL,6,13); // useitem
 	addpacket(0x007e, 16, NULL,5,12); // movetokafra
 	addpacket(0x0089, 6, NULL,3); // walktoxy
@@ -604,7 +606,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2004-10-25aSakexe
-#if CLIENTVER >= 13
+#if PACKETVER >= 20041025
 	addpacket(0x0072, 13, NULL,5,9); // useitem
 	addpacket(0x007e, 13, NULL,6,9); // movetokafra
 	addpacket(0x0085, 15, NULL,4,14); // actionrequest
@@ -619,12 +621,16 @@ void ZoneServer::init_packets()
 	addpacket(0x0116, 9, packet_ticksend,5); // loadendack
 	addpacket(0x0190, 26, NULL,4,10,22); // useskilltoid
 	addpacket(0x0193, 22, NULL,12,18); // movefromkafra
+#endif
 
 	//2004-11-01aSakexe
+#if PACKETVER >= 20041101
 	addpacket(0x0084, -1, NULL);
 	addpacket(0x0215, 6, NULL);
+#endif
 
 	//2004-11-08aSakexe
+#if PACKETVER >= 20041108
 	addpacket(0x0084, 2, NULL);
 	addpacket(0x0216, 6, NULL);
 	addpacket(0x0217, 2, NULL,0); // blacksmith
@@ -633,13 +639,15 @@ void ZoneServer::init_packets()
 	addpacket(0x021a, 282, NULL);
 	addpacket(0x021b, 10, NULL);
 	addpacket(0x021c, 10, NULL);
+#endif
 
 	//2004-11-15aSakexe
+#if PACKETVER >= 20041115
 	addpacket(0x021d, 6, packet_lesseffect,2); // loadendack
 #endif
 
 	//2004-11-29aSakexe
-#if CLIENTVER >= 14
+#if PACKETVER >= 20041129
 	addpacket(0x0072, 22, NULL,8,12,18); // useskilltoid
 	addpacket(0x007e, 30, NULL,4,9,22,28); // useskilltopos
 	addpacket(0x0085, -1, boost::bind(packet_chatpackets, _1, _2, NORMAL_CHAT)); // globalmessage
@@ -660,9 +668,11 @@ void ZoneServer::init_packets()
 	addpacket(0x0221, -1, NULL);
 	addpacket(0x0222, 6, NULL,2); // weaponrefine
 	addpacket(0x0223, 8, NULL);
+#endif
 
 	//2004-12-13aSakexe
 	//skipped, many packets being set to -1
+#if PACKETVER >= 20041213
 	addpacket(0x0066, 3, NULL);
 	addpacket(0x0070, 3, NULL);
 	addpacket(0x01ca, 3, NULL);
@@ -672,7 +682,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2005-01-10bSakexe
-#if CLIENTVER >= 15
+#if PACKETVER >= 20050110
 	addpacket(0x0072, 26, NULL,8,16,22); // useskilltoid
 	addpacket(0x007e, 114, NULL,10,18,22,32,34); // useskilltoposinfo
 	addpacket(0x0085, 23, NULL,12,22); // changedir
@@ -690,23 +700,31 @@ void ZoneServer::init_packets()
 	addpacket(0x0116, 20, NULL,15,18); // dropitem
 	addpacket(0x0190, 20, NULL,9,19); // actionrequest
 	addpacket(0x0193, 2, NULL,0); // closekafra
+#endif
 
 	//2005-03-28aSakexe
+#if PACKETVER >= 20050328
 	addpacket(0x0224, 10, NULL);
 	addpacket(0x0225, 2, NULL,0); // taekwon
 	addpacket(0x0226, 282, NULL);
+#endif
 
 	//2005-04-04aSakexe
+#if PACKETVER >= 20050404
 	addpacket(0x0227, 18, NULL);
 	addpacket(0x0228, 18, NULL);
+#endif
 
 	//2005-04-11aSakexe
+#if PACKETVER >= 20050411
 	addpacket(0x0229, 15, NULL);
 	addpacket(0x022a, 58, NULL);
 	addpacket(0x022b, 57, NULL);
 	addpacket(0x022c, 64, NULL);
+#endif
 
 	//2005-04-25aSakexe
+#if PACKETVER >= 20050425
 	addpacket(0x022d, 5, NULL,4); // hommenu
 	addpacket(0x0232, 9, NULL,6); // hommoveto
 	addpacket(0x0233, 11, NULL,0); // homattack
@@ -714,7 +732,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2005-05-09aSakexe
-#if CLIENTVER >= 16
+#if PACKETVER >= 20050509
 	addpacket(0x0072, 25, NULL,6,10,21); // useskilltoid
 	addpacket(0x007e, 102, NULL,5,9,12,20,22); // useskilltoposinfo
 	addpacket(0x0085, 11, NULL,7,10); // changedir
@@ -730,23 +748,31 @@ void ZoneServer::init_packets()
 	addpacket(0x0113, 22, NULL,5,9,12,20); // useskilltopos
 	addpacket(0x0116, 10, NULL,5,8); // dropitem
 	addpacket(0x0190, 19, NULL,5,18); // actionrequest
+#endif
 
 	//2005-05-23aSakexe
+#if PACKETVER >= 20050523
 	addpacket(0x022e, 69, NULL);
 	addpacket(0x0230, 12, NULL);
+#endif
 
 	//2005-05-30aSakexe
+#if PACKETVER >= 20050530
 	addpacket(0x022e, 71, NULL);
 	addpacket(0x0235, -1, NULL);
 	addpacket(0x0236, 10, NULL);
 	addpacket(0x0237, 2, NULL,0); // rankingpk
 	addpacket(0x0238, 282, NULL);
+#endif
 
 	//2005-05-31aSakexe
+#if PACKETVER >= 20050531
 	addpacket(0x0216, 2, NULL);
 	addpacket(0x0239, 11, NULL);
+#endif
 
 	//2005-06-08aSakexe
+#if PACKETVER >= 20050608
 	addpacket(0x0216, 6, NULL);
 	addpacket(0x0217, 2, NULL,0); // blacksmith
 	addpacket(0x022f, 5, NULL);
@@ -754,13 +780,15 @@ void ZoneServer::init_packets()
 	addpacket(0x023a, 4, NULL);
 	addpacket(0x023b, 24, NULL,0); // storagepassword
 	addpacket(0x023c, 6, NULL);
+#endif
 
 	//2005-06-22aSakexe
+#if PACKETVER >= 20050622
 	addpacket(0x022e, 71, NULL);
 #endif
 
 	//2005-06-28aSakexe
-#if CLIENTVER >= 17
+#if PACKETVER >= 20050628
 	addpacket(0x0072, 34, NULL,6,17,30); // useskilltoid
 	addpacket(0x007e, 113, NULL,12,15,18,31,33); // useskilltoposinfo
 	addpacket(0x0085, 17, NULL,8,16); // changedir
@@ -782,7 +810,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2005-07-18aSakexe
-#if CLIENTVER >= 18
+#if PACKETVER >= 20050718
 	addpacket(0x0072, 19, NULL,5,11,15); // useskilltoid
 	addpacket(0x007e, 110, NULL,9,15,23,28,30); // useskilltoposinfo
 	addpacket(0x0085, 11, NULL,6,10); // changedir
@@ -822,7 +850,7 @@ void ZoneServer::init_packets()
 #endif
 
 	//2005-07-19bSakexe
-#if CLIENTVER >= 19
+#if PACKETVER >= 20050719
 	addpacket(0x0072, 34, NULL,6,17,30); // useskilltoid
 	addpacket(0x007e, 113, NULL,12,15,18,31,33); // useskilltoposinfo
 	addpacket(0x0085, 17, NULL,8,16); // changedir
@@ -838,54 +866,76 @@ void ZoneServer::init_packets()
 	addpacket(0x0113, 33, NULL,12,15,18,31); // useskilltopos
 	addpacket(0x0116, 12, NULL,3,10); // dropitem
 	addpacket(0x0190, 24, NULL,11,23); // actionrequest
+#endif
 
 	//2005-08-01aSakexe
+#if PACKETVER >= 20050801
 	addpacket(0x0245, 3, NULL);
 	addpacket(0x0251, 4, NULL);
+#endif
 
 	//2005-08-08aSakexe
+#if PACKETVER >= 20050808
 	addpacket(0x024d, 12, NULL,2,6,10); // auctionregister
 	addpacket(0x024e, 4, NULL);
+#endif
 
 	//2005-08-17aSakexe
+#if PACKETVER >= 20050817
 	addpacket(0x0253, 3, NULL);
 	addpacket(0x0254, 3, NULL,0); // feelsaveok
+#endif
 
 	//2005-08-29aSakexe
+#if PACKETVER >= 20050829
 	addpacket(0x0240, -1, NULL);
 	addpacket(0x0248, -1, NULL,2,4,28,68); // mailsend
 	addpacket(0x0255, 5, NULL);
 	addpacket(0x0256, -1, NULL);
 	addpacket(0x0257, 8, NULL);
+#endif
 
 	//2005-09-12bSakexe
+#if PACKETVER >= 20050912
 	addpacket(0x0256, 5, NULL);
 	addpacket(0x0258, 2, NULL);
 	addpacket(0x0259, 3, NULL);
+#endif
 
 	//2005-10-10aSakexe
+#if PACKETVER >= 20051010
 	addpacket(0x020e, 32, NULL);
 	addpacket(0x025a, -1, NULL);
 	addpacket(0x025b, 6, NULL,0); // cooking
+#endif
 
 	//2005-10-13aSakexe
+#if PACKETVER >= 20051013
 	addpacket(0x007a, 6, NULL);
 	addpacket(0x0251, 32, NULL);
 	addpacket(0x025c, 4, NULL,2); // auctionbuysell
+#endif
 
 	//2005-10-17aSakexe
+#if PACKETVER >= 20051017
 	addpacket(0x007a, 58, NULL);
 	addpacket(0x025d, 6, NULL,2); // auctionclose
 	addpacket(0x025e, 4, NULL);
+#endif
 
 	//2005-10-24aSakexe
+#if PACKETVER >= 20051024
 	addpacket(0x025f, 6, NULL);
 	addpacket(0x0260, 6, NULL);
+#endif
 
 	//2005-11-07aSakexe
+#if PACKETVER >= 20051107
 	addpacket(0x0251, 34, NULL,2,4,8,32); // auctionsearch
+#endif
 
 	//2006-01-09aSakexe
+#if PACKETVER >= 20060109
 	addpacket(0x0261, 11, NULL);
 	addpacket(0x0262, 11, NULL);
 	addpacket(0x0263, 11, NULL);
@@ -903,20 +953,26 @@ void ZoneServer::init_packets()
 	addpacket(0x0270, 2, NULL);
 	addpacket(0x0271, 38, NULL);
 	addpacket(0x0272, 44, NULL);
+#endif
 
 	//2006-01-26aSakexe
+#if PACKETVER >= 20060126
 	addpacket(0x0271, 40, NULL);
+#endif
 
 	//2006-03-06aSakexe
+#if PACKETVER >= 20060306
 	addpacket(0x0273, 6, NULL);
 	addpacket(0x0274, 8, NULL);
+#endif
 
 	//2006-03-13aSakexe
+#if PACKETVER >= 20060313
 	addpacket(0x0273, 30, NULL,2,6); // mailreturn
 #endif
 
 	//2006-03-27aSakexe
-#if CLIENTVER >= 20
+#if PACKETVER >= 20060327
 	addpacket(0x0072, 26, NULL,11,18,22); // useskilltoid
 	addpacket(0x007e, 120, NULL,5,15,29,38,40); // useskilltoposinfo
 	addpacket(0x0085, 12, NULL,7,11); // changedir
@@ -932,11 +988,10 @@ void ZoneServer::init_packets()
 	addpacket(0x0113, 40, NULL,5,15,29,38); // useskilltopos
 	addpacket(0x0116, 17, NULL,8,15); // dropitem
 	addpacket(0x0190, 18, NULL,7,17); // actionrequest
-
-	//2006-10-23aSakexe
-	addpacket(0x006d, 110, NULL);
+#endif
 
 	//2006-04-24aSakexe to 2007-01-02aSakexe
+#if PACKETVER >= 20060424
 	addpacket(0x023e, 8, NULL);
 	addpacket(0x0277, 84, NULL);
 	addpacket(0x0278, 2, NULL);
@@ -983,8 +1038,13 @@ void ZoneServer::init_packets()
 	addpacket(0x02a2, 8, NULL);
 #endif
 
+	//2006-10-23aSakexe
+#if PACKETVER >= 20061023
+	addpacket(0x006d, 110, NULL);
+#endif
+
 	//2007-01-08aSakexe
-#if CLIENTVER >= 21
+#if PACKETVER >= 20070108
 	addpacket(0x0072, 30, NULL,10,14,26); // useskilltoid
 	addpacket(0x007e, 120, NULL,10,19,23,38,40); // useskilltoposinfo
 	addpacket(0x0085, 14, NULL,10,13); // changedir
@@ -1000,25 +1060,31 @@ void ZoneServer::init_packets()
 	addpacket(0x0113, 40, NULL,10,19,23,38); // useskilltopos
 	addpacket(0x0116, 19, NULL,11,17); // dropitem
 	addpacket(0x0190, 10, NULL,4,9); // actionrequest
+#endif
 
 	//2007-01-22aSakexe
+#if PACKETVER >= 20070122
 	addpacket(0x02a3, 18, NULL);
 	addpacket(0x02a4, 2, NULL);
+#endif
 
 	//2007-01-29aSakexe
+#if PACKETVER >= 20070129
 	addpacket(0x029b, 72, NULL);
 	addpacket(0x02a3, -1, NULL);
 	addpacket(0x02a4, -1, NULL);
 	addpacket(0x02a5, 8, NULL);
+#endif
 
 	// 2007-02-05aSakexe
+#if PACKETVER >= 20070205
 	addpacket(0x02aa, 4, NULL);
 	addpacket(0x02ab, 36, NULL);
 	addpacket(0x02ac, 6, NULL);
 #endif
 
 	//2007-02-12aSakexe
-#if CLIENTVER >= 22
+#if PACKETVER >= 20070212
 	addpacket(0x0072, 25, NULL,6,10,21); // useskilltoid
 	addpacket(0x007e, 102, NULL,5,9,12,20,22); // useskilltoposinfo
 	addpacket(0x0085, 11, NULL,7,10); // changedir
@@ -1034,11 +1100,10 @@ void ZoneServer::init_packets()
 	addpacket(0x0113, 22, NULL,5,9,12,20); // useskilltopos
 	addpacket(0x0116, 10, NULL,5,8); // dropitem
 	addpacket(0x0190, 19, NULL,5,18); // actionrequest
-
-	//2007-05-07aSakexe
-	addpacket(0x01fd, 15, NULL,2); // repairitem
+#endif
 
 	//2007-02-27aSakexe to 2007-10-02aSakexe
+#if PACKETVER >= 20070227
 	addpacket(0x0288, 10, NULL,2,4,6); // cashshopbuy
 	addpacket(0x0289, 12, NULL);
 	addpacket(0x02a6, 22, NULL);
@@ -1092,32 +1157,49 @@ void ZoneServer::init_packets()
 	addpacket(0x02de, 6, NULL);
 	addpacket(0x02df, 36, NULL);
 	addpacket(0x02e0, 34, NULL);
+#endif
+
+	//2007-05-07aSakexe
+#if PACKETVER >= 20070507
+	addpacket(0x01fd, 15, NULL,2); // repairitem
+#endif
 
 	//2007-10-23aSakexe
+#if PACKETVER >= 20071023
 	addpacket(0x02cb, 65, NULL);
 	addpacket(0x02cd, 71, NULL);
+#endif
 
 	//2007-11-06aSakexe
+#if PACKETVER >= 20071106
 	addpacket(0x0078, 55, NULL);
 	addpacket(0x007c, 42, NULL);
 	addpacket(0x022c, 65, NULL);
 	addpacket(0x029b, 80, NULL);
+#endif
 
 	//2007-11-13aSakexe
+#if PACKETVER >= 20071113
 	addpacket(0x02e1, 33, NULL);
+#endif
 
 	//2007-11-20aSakexe
+#if PACKETVER >= 20071120
 	//addpacket(0x01df, 10, NULL); <- ???
 	addpacket(0x02e2, 14, NULL);
 	addpacket(0x02e3, 25, NULL);
 	addpacket(0x02e4, 8, NULL);
 	addpacket(0x02e5, 8, NULL);
 	addpacket(0x02e6, 6, NULL);
+#endif
 
 	//2007-11-27aSakexe
+#if PACKETVER >= 20071127
 	addpacket(0x02e7, -1, NULL);
+#endif
 
 	//2008-01-02aSakexe
+#if PACKETVER >= 20080102
 	addpacket(0x01df, 6, NULL,2); // gmreqaccname
 	addpacket(0x02e8, -1, NULL);
 	addpacket(0x02e9, -1, NULL);
@@ -1127,15 +1209,19 @@ void ZoneServer::init_packets()
 	addpacket(0x02ed, 59, NULL);
 	addpacket(0x02ee, 60, NULL);
 	addpacket(0x02ef, 8, NULL);
+#endif
 
 	//2008-03-18aSakexe
+#if PACKETVER >= 20080318
 	addpacket(0x02bf, -1, NULL);
 	addpacket(0x02c0, -1, NULL);
 	addpacket(0x02f0, 10, NULL);
 	addpacket(0x02f1, 2, NULL,0); // progressbar
 	addpacket(0x02f2, 2, NULL);
+#endif
 
 	//2008-03-25bSakexe
+#if PACKETVER >= 20080325
 	addpacket(0x02f3, -1, NULL);
 	addpacket(0x02f4, -1, NULL);
 	addpacket(0x02f5, -1, NULL);
@@ -1150,8 +1236,10 @@ void ZoneServer::init_packets()
 	addpacket(0x02fe, -1, NULL);
 	addpacket(0x02ff, -1, NULL);
 	addpacket(0x0300, -1, NULL);
+#endif
 
 	//2008-04-01aSakexe
+#if PACKETVER >= 20080401
 	addpacket(0x0301, -1, NULL);
 	addpacket(0x0302, -1, NULL);
 	addpacket(0x0303, -1, NULL);
@@ -1242,16 +1330,20 @@ void ZoneServer::init_packets()
 	addpacket(0x0358, -1, NULL);
 	addpacket(0x0359, -1, NULL);
 	addpacket(0x035a, -1, NULL);
+#endif
 
 	//2008-05-27aSakexe
+#if PACKETVER >= 20080527
 	addpacket(0x035b, -1, NULL);
 	addpacket(0x035c, 2, NULL);
 	addpacket(0x035d, -1, NULL);
 	addpacket(0x035e, 2, NULL);
 	addpacket(0x035f, -1, NULL);
 	addpacket(0x0389, -1, NULL);
+#endif
 
 	//2008-08-20aSakexe
+#if PACKETVER >= 20080820
 	addpacket(0x040c, -1, NULL);
 	addpacket(0x040d, -1, NULL);
 	addpacket(0x040e, -1, NULL);
@@ -1297,49 +1389,66 @@ void ZoneServer::init_packets()
 #endif
 
 	//2008-09-10aSakexe
-#if CLIENTVER >= 23
+#if PACKETVER >= 20080910
 	addpacket(0x0436, 19, packet_wanttoconnect,2,6,10,14,18); // loadendackion
 	addpacket(0x0437, 7, NULL,2,6); // actionrequest
 	addpacket(0x0438, 10, NULL,2,4,6); // useskilltoid
 	addpacket(0x0439, 8, NULL,2,4); // useitem
+#endif
 
 	//2008-11-13aSakexe
+#if PACKETVER >= 20081113
 	addpacket(0x043d, 8, NULL);
 	addpacket(0x043e, -1, NULL);
 	addpacket(0x043f, 8, NULL);
+#endif
 
 	//2008-11-26aSakexe
+#if PACKETVER >= 20081126
 	addpacket(0x01a2, 37, NULL);
 	addpacket(0x0440, 10, NULL);
 	addpacket(0x0441, 4, NULL);
+#endif
 
 	//2008-12-10aSakexe
+#if PACKETVER >= 20081210
 	addpacket(0x0442, -1, NULL);
 	addpacket(0x0443, 8, NULL,2,6); // skillselectmenu
+#endif
 
 	//2009-01-14aSakexe
+#if PACKETVER >= 20090114
 	addpacket(0x043f, 25, NULL);
 	addpacket(0x0444, -1, NULL);
 	addpacket(0x0445, 10, NULL);
+#endif
 
 	//2009-02-18aSakexe
+#if PACKETVER >= 20090218
 	addpacket(0x0446, 14, NULL);
+#endif
 
 	//2009-02-25aSakexe
+#if PACKETVER >= 20090225
 	addpacket(0x0448, -1, NULL);
+#endif
 
 	//2009-03-30aSakexe
+#if PACKETVER >= 20090330
 	addpacket(0x0449, 4, NULL);
+#endif
 
 	//2009-04-08aSakexe
+#if PACKETVER >= 20090408
 	addpacket(0x02a6, -1, NULL);
 	addpacket(0x02a7, -1, NULL);
 	addpacket(0x044a, 6, NULL);
 #endif
 
 	//Renewal Clients
+#ifndef SAKEXE_CONFLICTS
 	//2008-08-27aRagexeRE
-#if CLIENTVER >= 24
+#if PACKETVER >= 20080827
 	addpacket(0x0072, 22, NULL,9,15,18); // useskilltoid
 	addpacket(0x007c, 44, NULL);
 	addpacket(0x007e, 105, NULL,10,14,18,23,25); // useskilltoposinfo
@@ -1363,45 +1472,64 @@ void ZoneServer::init_packets()
 #endif
 
 	//2008-09-10aRagexeRE
-#if CLIENTVER >= 25
+#if PACKETVER >= 20080910
 	addpacket(0x0436, 19, packet_wanttoconnect,2,6,10,14,18); // loadendackion
 	addpacket(0x0437, 7, NULL,2,6); // actionrequest
 	addpacket(0x0438, 10, NULL,2,4,6); // useskilltoid
 	addpacket(0x0439, 8, NULL,2,4); // useitem
+#endif
 
 	//2008-11-12aRagexeRE
+#if PACKETVER >= 20081112
 	addpacket(0x043d, 8, NULL);
 	//addpacket(0x043e, -1, NULL);
 	addpacket(0x043f, 8, NULL);
+#endif
 
 	//2008-12-17aRagexeRE
+#if PACKETVER >= 20081217
 	addpacket(0x01a2, 37, NULL);
 	//addpacket(0x0440, 10, NULL);
 	//addpacket(0x0441, 4, NULL);
 	//addpacket(0x0442, 8, NULL);
 	//addpacket(0x0443, 8, NULL);
+#endif
 
 	//2008-12-17bRagexeRE
+#if PACKETVER >= 20081217
 	addpacket(0x006d, 114, NULL);
+#endif
 
 	//2009-01-21aRagexeRE
+#if PACKETVER >= 20090121
 	addpacket(0x043f, 25, NULL);
 	//addpacket(0x0444, -1, NULL);
 	//addpacket(0x0445, 10, NULL);
+#endif
 
 	//2009-02-18aRagexeRE
+#if PACKETVER >= 20090218
 	//addpacket(0x0446, 14, NULL);
+#endif
 
 	//2009-02-26cRagexeRE
+#if PACKETVER >= 20090226
 	//addpacket(0x0448, -1, NULL);
+#endif
 
 	//2009-04-01aRagexeRE
+#if PACKETVER >= 20090401
 	//addpacket(0x0449, 4, NULL);
+#endif
+#endif //#ifndef SAKEXE_CONFLICTS
 
 	//2009-05-14aRagexeRE
+#if PACKETVER >= 20090514
 	//addpacket(0x044b, 2, NULL);
+#endif
 
 	//2009-05-20aRagexeRE
+#if PACKETVER >= 20090520
 	//addpacket(0x07d0, 6, NULL);
 	//addpacket(0x07d1, 2, NULL);
 	//addpacket(0x07d2, -1, NULL);
@@ -1410,53 +1538,75 @@ void ZoneServer::init_packets()
 	//addpacket(0x07d5, 4, NULL);
 	//addpacket(0x07d6, 4, NULL);
 	//addpacket(0x0447, 2, NULL);
+#endif
 
 	//2009-06-03aRagexeRE
+#if PACKETVER >= 20090603
 	addpacket(0x07d7, 8, NULL,2,6); // partychangeoption
 	addpacket(0x07d8, 8, NULL);
 	addpacket(0x07d9, 254, NULL);
 	addpacket(0x07da, 6, NULL,2); // partychangeleader
+#endif
 
 	//2009-06-10aRagexeRE
+#if PACKETVER >= 20090610
 	//addpacket(0x07db, 8, NULL);
+#endif
 
 	//2009-06-17aRagexeRE
+#if PACKETVER >= 20090617
 	addpacket(0x07d9, 268, NULL);
 	//addpacket(0x07dc, 6, NULL);
 	//addpacket(0x07dd, 54, NULL);
 	//addpacket(0x07de, 30, NULL);
 	//addpacket(0x07df, 54, NULL);
+#endif
 
 	//2009-07-01aRagexeRE
+#if PACKETVER >= 20090701
 	//addpacket(0x0275, 37, NULL);
 	//addpacket(0x0276, -1, NULL);
+#endif
 
 	//2009-07-08aRagexeRE
+#if PACKETVER >= 20090708
 	//addpacket(0x07e0, 58, NULL);
+#endif
 
 	//2009-07-15aRagexeRE
+#if PACKETVER >= 20090715
 	addpacket(0x07e1, 15, NULL);
+#endif
 
 	//2009-08-05aRagexeRE
+#if PACKETVER >= 20090805
 	addpacket(0x07e2, 8, NULL);
+#endif
 
 	//2009-08-18aRagexeRE
+#if PACKETVER >= 20090818
 	addpacket(0x07e3, 6, NULL);
 	addpacket(0x07e4, -1, NULL,2,4,8); // itemlistwindowselected
 	addpacket(0x07e6, 8, NULL);
+#endif
 
 	//2009-08-25aRagexeRE
+#if PACKETVER >= 20090825
 	//addpacket(0x07e6, 28, NULL);
 	addpacket(0x07e7, 5, NULL);
+#endif
 
 	//2009-09-22aRagexeRE
+#if PACKETVER >= 20090922
 	addpacket(0x07e5, 8, NULL);
 	addpacket(0x07e6, 8, NULL);
 	addpacket(0x07e7, 32, NULL);
 	addpacket(0x07e8, -1, NULL);
 	addpacket(0x07e9, 5, NULL);
+#endif
 
 	//2009-09-29aRagexeRE
+#if PACKETVER >= 20090929
 	//addpacket(0x07ea, 2, NULL);
 	//addpacket(0x07eb, -1, NULL);
 	//addpacket(0x07ec, 6, NULL);
@@ -1466,8 +1616,10 @@ void ZoneServer::init_packets()
 	//addpacket(0x07f0, 4, NULL);
 	//addpacket(0x07f2, 4, NULL);
 	//addpacket(0x07f3, 3, NULL);
+#endif
 
 	//2009-10-06aRagexeRE
+#if PACKETVER >= 20091006
 	//addpacket(0x07ec, 8, NULL);
 	//addpacket(0x07ed, 10, NULL);
 	//addpacket(0x07f0, 8, NULL);
@@ -1475,33 +1627,47 @@ void ZoneServer::init_packets()
 	//addpacket(0x07f2, 6, NULL);
 	//addpacket(0x07f3, 4, NULL);
 	//addpacket(0x07f4, 3, NULL);
+#endif
 
 	//2009-10-27aRagexeRE
+#if PACKETVER >= 20091027
 	addpacket(0x07f5, 6, NULL,2); // gmreqaccname
 	addpacket(0x07f6, 14, NULL);
+#endif
 
 	//2009-11-03aRagexeRE
+#if PACKETVER >= 20091103
 	addpacket(0x07f7, -1, NULL);
 	addpacket(0x07f8, -1, NULL);
 	addpacket(0x07f9, -1, NULL);
+#endif
 
 	//2009-11-17aRagexeRE
+#if PACKETVER >= 20091117
 	addpacket(0x07fa, 8, NULL);
+#endif
 
 	//2009-11-24aRagexeRE
+#if PACKETVER >= 20091124
 	addpacket(0x07fb, 25, NULL);
+#endif
 
 	//2009-12-01aRagexeRE
+#if PACKETVER >= 20091201
 	//addpacket(0x07fc, 10, NULL);
 	//addpacket(0x07fd, -1, NULL);
 	addpacket(0x07fe, 26, NULL);
 	//addpacket(0x07ff, -1, NULL);
+#endif
 
 	//2009-12-15aRagexeRE
+#if PACKETVER >= 20091215
 	//addpacket(0x0800, -1, NULL);
 	//addpacket(0x0801, -1, NULL);
+#endif
 
 	//2009-12-22aRagexeRE
+#if PACKETVER >= 20091222
 	addpacket(0x0802, 18, NULL,2,4,6); // bookingregreq
 	addpacket(0x0803, 4, NULL);
 	addpacket(0x0804, 8, NULL);		// Booking System
@@ -1513,8 +1679,10 @@ void ZoneServer::init_packets()
 	//addpacket(0x080A, 50, NULL);
 	//addpacket(0x080B, 18, NULL);
 	//addpacket(0x080C, 6, NULL);
+#endif
 
 	//2009-12-29aRagexeRE
+#if PACKETVER >= 20091229
 	addpacket(0x0804, 14, NULL,2,4,6,8,12); // bookingsearchreq
 	addpacket(0x0806, 2, NULL,0); // bookingdelreq
 	addpacket(0x0807, 4, NULL);
@@ -1522,22 +1690,32 @@ void ZoneServer::init_packets()
 	addpacket(0x0809, 50, NULL);
 	addpacket(0x080A, 18, NULL);
 	addpacket(0x080B, 6, NULL);		// Booking System
+#endif
 
 	//2010-01-05aRagexeRE
+#if PACKETVER >= 20100105
 	addpacket(0x0801, -1, NULL,2,4,8,12); // purchasereq2
+#endif
 
 	//2010-01-26aRagexeRE
+#if PACKETVER >= 20100126
 	//addpacket(0x080C, 2, NULL);
 	//addpacket(0x080D, 3, NULL);
 	addpacket(0x080E, 14, NULL);
+#endif
 
 	//2010-02-09aRagexeRE
+#if PACKETVER >= 20100209
 	//addpacket(0x07F0, 6, NULL);
+#endif
 
 	//2010-02-23aRagexeRE
+#if PACKETVER >= 20100223
 	addpacket(0x080F, 20, NULL);
+#endif
 
 	//2010-03-03aRagexeRE
+#if PACKETVER >= 20100303
 	addpacket(0x0810, 3, NULL);
 	addpacket(0x0811, -1, NULL,2,4,8,9,89); // reqopenbuyingstore
 	//addpacket(0x0812, 86, NULL);
@@ -1547,8 +1725,10 @@ void ZoneServer::init_packets()
 	//addpacket(0x0817, -1, NULL);
 	//addpacket(0x0818, 6, NULL);
 	//addpacket(0x0819, 4, NULL);
+#endif
 
 	//2010-03-09aRagexeRE
+#if PACKETVER >= 20100309
 	addpacket(0x0813, -1, NULL);
 	//addpacket(0x0814, 2, NULL);
 	//addpacket(0x0815, 6, NULL);
@@ -1560,24 +1740,34 @@ void ZoneServer::init_packets()
 	//addpacket(0x081C, 6, NULL);
 	addpacket(0x081d, 22, NULL);
 	addpacket(0x081e, 8, NULL);
+#endif
 
 	//2010-03-23aRagexeRE
+#if PACKETVER >= 20100323
 	//addpacket(0x081F, -1, NULL);
+#endif
 
 	//2010-04-06aRagexeRE
+#if PACKETVER >= 20100406
 	//addpacket(0x081A, 6, NULL);
+#endif
 
 	//2010-04-13aRagexeRE
+#if PACKETVER >= 20100413
 	//addpacket(0x081A, 10, NULL);
 	addpacket(0x0820, 11, NULL);
 	//addpacket(0x0821, 2, NULL);
 	//addpacket(0x0822, 9, NULL);
 	//addpacket(0x0823, -1, NULL);
+#endif
 
 	//2010-04-14dRagexeRE
+#if PACKETVER >= 20100414
 	//addpacket(0x081B, 8, NULL);
+#endif
 
 	//2010-04-20aRagexeRE
+#if PACKETVER >= 20100420
 	addpacket(0x0812, 8, NULL);
 	addpacket(0x0814, 86, NULL);
 	addpacket(0x0815, 2, NULL,0); // reqclosebuyingstore
@@ -1587,38 +1777,52 @@ void ZoneServer::init_packets()
 	addpacket(0x081b, 10, NULL);
 	addpacket(0x081c, 10, NULL);
 	addpacket(0x0824, 6, NULL);
+#endif
 
 	//2010-06-01aRagexeRE
+#if PACKETVER >= 20100601
 	//addpacket(0x0825, -1, NULL);
 	//addpacket(0x0826, 4, NULL);
 	addpacket(0x0835, -1, NULL,2,4,5,9,13,14,15); // searchstoreinfo
 	addpacket(0x0836, -1, NULL);
 	addpacket(0x0837, 3, NULL);
 	//addpacket(0x0838, 3, NULL);
+#endif
 
 	//2010-06-08aRagexeRE
+#if PACKETVER >= 20100608
 	addpacket(0x0838, 2, NULL,0); // searchstoreinfonextpage
 	addpacket(0x083A, 4, NULL); 	// Search Stalls Feature
 	addpacket(0x083B, 2, NULL,0); // closesearchstoreinfo
 	addpacket(0x083C, 12, NULL,2,6,10); // searchstoreinfolistitemclick
 	addpacket(0x083D, 6, NULL);
+#endif
 
 	//2010-06-15aRagexeRE
+#if PACKETVER >= 20100615
 	//addpacket(0x083E, 26, NULL);
+#endif
 
 	//2010-06-22aRagexeRE
+#if PACKETVER >= 20100622
 	//addpacket(0x083F, 22, NULL);
+#endif
 
 	//2010-06-29aRagexeRE
+#if PACKETVER >= 20100629
 	addpacket(0x00AA, 9, NULL);
 	//addpacket(0x07F1, 18, NULL);
 	//addpacket(0x07F2, 8, NULL);
 	//addpacket(0x07F3, 6, NULL);
+#endif
 
 	//2010-07-01aRagexeRE
+#if PACKETVER >= 20100701
 	addpacket(0x083A, 5, NULL); 	// Search Stalls Feature
+#endif
 
 	//2010-07-13aRagexeRE
+#if PACKETVER >= 20100713
 	//addpacket(0x0827, 6, NULL);
 	//addpacket(0x0828, 14, NULL);
 	//addpacket(0x0829, 6, NULL);
@@ -1627,18 +1831,22 @@ void ZoneServer::init_packets()
 	//addpacket(0x082C, 14, NULL);
 	//addpacket(0x0840, -1, NULL);
 	//addpacket(0x0841, 19, NULL);
+#endif
 
 	//2010-07-14aRagexeRE
+#if PACKETVER >= 20100714
 	//addpacket(0x841, 4, NULL);
+#endif
 
 	//2010-08-03aRagexeRE
+#if PACKETVER >= 20100803
 	addpacket(0x0839, 66, NULL);
 	addpacket(0x0842, 6, NULL,2); // recall2
 	addpacket(0x0843, 6, NULL,2); // remove2
 #endif
 
 	//2010-11-24aRagexeRE
-#if CLIENTVER >= 26
+#if PACKETVER >= 20101124
 	addpacket(0x0288, -1, NULL,4,8); // cashshopbuy
 	addpacket(0x0436, 19, packet_wanttoconnect,2,6,10,14,18); // loadendackion
 	addpacket(0x035f, 5, NULL,2); // walktoxy
