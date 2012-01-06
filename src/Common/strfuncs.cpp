@@ -36,3 +36,6 @@ int remove_control_chars(char* str)
 
 	return change;
 }
+
+template<typename T, int size>
+int GetArrayLength(T(&)[size]){ return size; }

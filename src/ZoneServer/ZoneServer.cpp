@@ -12,6 +12,7 @@
 * ----------------------------------------------------------------- *
 *                           Zone Server 	               	        *
 * ==================================================================*/
+#pragma once
 
 #include "ZoneServer.hpp"
 
@@ -28,6 +29,7 @@
 #include <fstream>
 #include <zlib.h>
 #include "mapmanager.hpp"
+#include "itemdb.hpp"
 
 static struct BlockList bl_head;
 
@@ -112,6 +114,7 @@ void ZoneServer::run()
 
 	TimerManager::Initialize(io_service);
 	MapManager::initialize();
+	ItemDB::Initialize();
 
 	// Initialize Database System
 	{

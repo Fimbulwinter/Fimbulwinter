@@ -1867,7 +1867,7 @@ void ZoneServer::init_packets()
 #endif
 }
 
-int packet_msgsend(const unsigned char* buf, int len, struct block_list* bl, TalkArea type)
+/*int packet_msgsend(const unsigned char* buf, int len, struct block_list* bl, TalkArea type)
 {
 	int i;
 
@@ -1882,7 +1882,7 @@ int packet_msgsend(const unsigned char* buf, int len, struct block_list* bl, Tal
 	}
 
 	return 0;
-}
+}*/
 
 /*! 
 *  \brief     Message Format
@@ -1895,7 +1895,7 @@ int packet_msgsend(const unsigned char* buf, int len, struct block_list* bl, Tal
 **/
 static bool packet_msgformat(struct ZoneSessionData* zd, char** _name, char** _mes, int type)
 {
-	char *text, *name, *mes, *_namelen, *_meslen;
+	char *text, *name, *mes;
 	unsigned int packetlen, textlen, namelen, meslen;
 
 	*_name = NULL; *_mes = NULL;
@@ -1990,16 +1990,13 @@ void packet_chatpackets(tcp_connection::pointer cl, struct ZoneSessionData* zd, 
 	int textlen = RFIFOW(cl,2) - 4;
 
 	char *name, *message;
-	int namelen, messagelen;
-
+	
 	if( !packet_msgformat(zd, &name, &message, 0) )
 		return;
 
-	
-
-	switch(tc)
+	/*switch(tc)
 	{
-	}
+	}*/
 }
 
 /*! 

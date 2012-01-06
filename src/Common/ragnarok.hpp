@@ -18,37 +18,30 @@
 #include <time.h>
 #include <string>
 
-// Protocol Version (ZC/CZ packets)
-// Note: Unlike other emulators, this setting affects both received
-// and sent packets, so this needs to be configured to the version 
-// of the client used, and not only to the last version which affects
-// packets sent by the server. Wrong values may cause the client to
-// crash, disconnect or behave unexpectedly.
+/// Client Version
 #define PACKETVER 20110111
+#define CLIENTVER 26
 
-// Uncomment the folowing line if you're using one of the following
-// clients which conflict with RagexeRE packets:
-// 2008-09-10aSakexe, 2008-11-13aSakexe, 2008-11-26aSakexe,
-// 2008-12-10aSakexe, 2009-01-14aSakexe, 2009-02-18aSakexe,
-// 2009-02-25aSakexe, 2009-03-30aSakexe, 2009-04-08aSakexe.
-//#define SAKEXE_CONFLICTS
-
+/// Lenghts
 #define NAME_LENGTH (23 + 1)
 #define MESSAGE_SIZE (79 + 1)
+#define ITEM_NAME_LENGTH 50
 
+/// Character Infos
 #define MAX_CHARS_SLOTS 9
-
 #define MAX_CHARS MAX_CHARS_SLOTS
 
+/// Movement Infos
 #define DEFAULT_WALK_SPEED 150
 #define MIN_WALK_SPEED 0
 #define MAX_WALK_SPEED 1000
 
+/// Map Infos
 #define MAP_NAME_LENGTH (11 + 1)
 #define MAP_NAME_LENGTH_EXT (MAP_NAME_LENGTH + 4)
-
 #define MAP_PRONTERA "prontera"
 
+/// Reg Infos
 #define GLOBAL_REG_NUM 256
 #define ACCOUNT_REG_NUM 64
 #define ACCOUNT_REG2_NUM 16
