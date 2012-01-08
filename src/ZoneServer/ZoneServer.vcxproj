@@ -12,7 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BlockManager.cpp" />
-    <ClCompile Include="itemdb.cpp" />
+    <ClCompile Include="item_db.cpp" />
     <ClCompile Include="MapManager.cpp" />
     <ClCompile Include="PacketHandling.cpp" />
     <ClCompile Include="PlayerModules.cpp" />
@@ -22,7 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlockManager.hpp" />
-    <ClInclude Include="itemdb.hpp" />
+    <ClInclude Include="item_db.hpp" />
     <ClInclude Include="MapManager.hpp" />
     <ClInclude Include="PacketHandling.hpp" />
     <ClInclude Include="PlayerModules.hpp" />

@@ -29,7 +29,7 @@
 #include <fstream>
 #include <zlib.h>
 #include "mapmanager.hpp"
-#include "itemdb.hpp"
+#include "item_db.hpp"
 
 static struct BlockList bl_head;
 
@@ -115,7 +115,7 @@ void ZoneServer::run()
 	TimerManager::Initialize(io_service);
 	MapManager::initialize();
 	ItemDB::Initialize();
-
+	
 	// Initialize Database System
 	{
 		ShowInfo("Opening connection to database...\n");

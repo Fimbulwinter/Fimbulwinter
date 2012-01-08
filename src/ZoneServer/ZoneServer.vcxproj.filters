@@ -8,7 +8,7 @@
     <ClCompile Include="BlockManager.cpp" />
     <ClCompile Include="PacketHandling.cpp" />
     <ClCompile Include="PlayerModules.cpp" />
-    <ClCompile Include="itemdb.cpp" />
+    <ClCompile Include="item_db.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZoneServer.hpp" />
@@ -16,6 +16,6 @@
     <ClInclude Include="BlockManager.hpp" />
     <ClInclude Include="PacketHandling.hpp" />
     <ClInclude Include="PlayerModules.hpp" />
-    <ClInclude Include="itemdb.hpp" />
+    <ClInclude Include="item_db.hpp" />
   </ItemGroup>
 </Project>
