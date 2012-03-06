@@ -88,7 +88,7 @@ class tcp_connection
 {
 public:
 	typedef boost::shared_ptr<tcp_connection> pointer;
-	typedef boost::function<int (pointer)> parse;
+	typedef boost::function parse;
 
 	static pointer create(boost::asio::io_service &io_service)
 	{

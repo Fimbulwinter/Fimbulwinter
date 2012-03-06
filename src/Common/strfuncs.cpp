@@ -1,4 +1,6 @@
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
 
 /// Produces the hexadecimal representation of the given input.
 /// The output buffer must be at least count*2+1 in size.

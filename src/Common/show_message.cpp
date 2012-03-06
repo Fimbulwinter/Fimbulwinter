@@ -3,10 +3,12 @@
 
 #include <cstdio>
 #include <cstring>
-#include <stdarg.h>
+#include <cstdarg>
 #include <ctime>
 #include <cstdlib> // atexit
 #include <cctype>
+
+
 
 #include "show_message.hpp"
 
@@ -523,7 +525,7 @@ int	VFPRINTF(FILE *file, const char *fmt, va_list argptr)
 			q=q+2;	
 			while(1)
 			{
-				if( ISDIGIT(*q) ) 
+				if( isdigit(*q) ) 
 				{					
 					++q;
 					// and next character

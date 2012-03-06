@@ -7,7 +7,7 @@ set( COMMON_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
 mark_as_advanced( COMMON_SOURCE_DIR )
 
 if( WITH_ZLIB )
-message( STATUS "Creating target common_base" )
+message( STATUS "Creating target common" )
 set( COMMON_HEADERS
 	"${COMMON_SOURCE_DIR}/config_file.hpp"
 	"${COMMON_SOURCE_DIR}/core.hpp"
