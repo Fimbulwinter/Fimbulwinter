@@ -15,10 +15,13 @@
 
 #pragma once
 
-#include <show_message.hpp>
+#include  "../Common/show_message.hpp"
+#include  "../Common/packets.hpp"
+
+
 #include <iostream>
 #include <cstdlib>
-#include "packets.hpp"
+
 #include "ZoneServer.hpp"
 
 /*! \brief     Talk Area

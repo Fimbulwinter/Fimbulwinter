@@ -17,11 +17,11 @@
 
 #include <string>
 #include <map>
-#include <datastruct.hpp>
+#include "datastruct.hpp"
 #include <fstream>
-#include <show_message.hpp>
+#include "show_message.hpp"
 #include <ctype.h>
-#include <ragnarok.hpp>
+#include "ragnarok.hpp"
 
 using namespace std;
 

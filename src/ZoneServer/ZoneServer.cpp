@@ -16,16 +16,21 @@
 
 #include "ZoneServer.hpp"
 
-#include <show_message.hpp>
-#include <database_helper.h>
+#include  "../Common/show_message.hpp"
+#include  "../Common/database_helper.h"
+#include  "../Common/ragnarok.hpp"
+#include  "../Common/packets.hpp"
+#include  "../Common/datastruct.hpp"
+#include  "../Common/timers.hpp"
+#include  "../Common/strfuncs.hpp"
+#include  "../Common/core.hpp"
+
+
 #include <boost/thread.hpp>
 #include <ragnarok.hpp>
-#include <packets.hpp>
-#include <core.hpp>
-#include <timers.hpp>
+
 #include <iostream>
 #include <boost/foreach.hpp>
-#include <strfuncs.hpp>
 #include <fstream>
 #include <zlib.h>
 #include "mapmanager.hpp"

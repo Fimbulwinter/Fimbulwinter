@@ -15,9 +15,11 @@
 
 #pragma once
 
-#include <ragnarok.hpp>
-#include <packets.hpp>
-#include <timers.hpp>
+
+#include  "../Common/ragnarok.hpp"
+#include  "../Common/packets.hpp"
+#include  "../Common/timers.hpp"
+
 #include <iostream>
 #include "BlockManager.hpp"
 #include "PacketHandling.hpp"

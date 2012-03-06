@@ -15,12 +15,13 @@
 
 #include "AuthServer.hpp"
 
-#include <show_message.hpp>
-#include <database_helper.h>
-#include <ragnarok.hpp>
-#include <packets.hpp>
-#include <timers.hpp>
-#include <md5.hpp>
+#include  "../Common/show_message.hpp"
+#include  "../Common/database_helper.h"
+#include  "../Common/ragnarok.hpp"
+#include  "../Common/packets.hpp"
+#include  "../Common/timers.hpp"
+#include  "../Common/md5.hpp"
+
 #include <boost/foreach.hpp>
 #include <iostream>
 

@@ -15,9 +15,11 @@
 
 #pragma once
 
-#include <config_file.hpp>
-#include <show_message.hpp>
+#include "config_file.hpp"
+#include "show_message.hpp"
 #include <soci/soci.h>
+
+#include <cstdlib>
 
 class database_helper
 {

@@ -31,10 +31,12 @@ documentation and/or software.
 */
 
 /* interface header */
-#include <md5.hpp>
+#include "md5.hpp"
 
 /* system implementation headers */
 #include <stdio.h>
+#include <cstdlib>
+#include <cstring>
 
 
 // Constants for MD5Transform routine.

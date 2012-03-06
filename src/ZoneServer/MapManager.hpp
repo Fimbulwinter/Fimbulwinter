@@ -1,7 +1,8 @@
 #pragma once
 
-#include <ragnarok.hpp>
-#include <map_index.hpp>
+#include  "../Common/ragnarok.hpp"
+#include  "../Common/map_index.hpp"
+
 #include <vector>
 
 #define BLOCK_SIZE 8

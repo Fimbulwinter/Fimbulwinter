@@ -16,7 +16,7 @@
 #pragma once
 
 #include <soci/soci.h>
-#include <database_helper.h>
+#include "../Common/database_helper.h"
 
 using namespace soci;
 

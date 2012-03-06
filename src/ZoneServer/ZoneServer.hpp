@@ -15,12 +15,14 @@
 
 #pragma once
 
-#include <config_file.hpp>
-#include <tcp_server.hpp>
+#include  "../Common/config_file.hpp"
+#include  "../Common/tcp_server.hpp"
+#include  "../Common/ragnarok.hpp"
+#include  "../Common/map_index.hpp"
+
 #include <string>
 #include <soci/soci.h>
-#include <ragnarok.hpp>
-#include <map_index.hpp>
+
 #include "BlockManager.hpp"
 #include "PlayerModules.hpp"
 

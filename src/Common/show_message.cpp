@@ -1,14 +1,14 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <show_message.hpp>
-
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <stdarg.h>
-#include <time.h>
-#include <stdlib.h> // atexit
-#include <ctype.h>
+#include <ctime>
+#include <cstdlib> // atexit
+#include <cctype>
+
+#include "show_message.hpp"
 
 #if !defined(va_copy)
 #if defined(__va_copy)

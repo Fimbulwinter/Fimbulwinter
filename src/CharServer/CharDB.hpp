@@ -14,10 +14,12 @@
 * ==================================================================*/
 #pragma once
 
-#include <ragnarok.hpp>
-#include <packets.hpp>
+
+#include  "../Common/database_helper.h"
+#include  "../Common/ragnarok.hpp"
+#include  "../Common/packets.hpp"
+
 #include <soci/soci.h>
-#include <database_helper.h>
 
 using namespace soci;
 
