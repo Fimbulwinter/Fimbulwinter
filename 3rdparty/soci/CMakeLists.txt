@@ -7,12 +7,12 @@ find_library( SOCI_LOCAL_LIBRARIES
 	NAMES libmysql
 	PATHS "${CMAKE_CURRENT_SOURCE_DIR}/lib"
 	NO_DEFAULT_PATH )
-mark_as_advanced( SOCI_LOCAL_LIBRARIES )
+mark_as_advanced( SOCI_LIBRARIES )
 mark_as_advanced( SOCI_DIR )
 
 if( SOCI_LOCAL_LIBRARIES AND SOCI_DIR )
 
-	message( STATUS "Found SOCI: ${SOCI_LOCAL_LIBRARIES}" )
+	message( STATUS "Found SOCI: ${SOCI_LIBRARIES}" )
 	
 	set( HAVE_LOCAL_MYSQL ON
 		CACHE BOOL "mysql client is available as a local copy")

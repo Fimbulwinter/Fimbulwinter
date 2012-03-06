@@ -23,6 +23,7 @@
 #include  "../Common/md5.hpp"
 
 #include <boost/foreach.hpp>
+#include <boost/bind.hpp>
 #include <iostream>
 
 AuthServer::auth_node_db AuthServer::auth_nodes;

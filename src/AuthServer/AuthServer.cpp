@@ -24,6 +24,8 @@
 
 #include <iostream>
 #include <boost/foreach.hpp>
+#include <boost/asio.hpp>
+#include <boost/system/error_code.hpp>
 #include "AuthServer.hpp"
 
 

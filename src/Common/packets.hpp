@@ -25,14 +25,14 @@
 
 // Packet Manipulation Macros
 
-#define TYPECAST_PACKET_ONCE(buf,NAME) ((struct PACKET_##NAME *)(buf))
-#define TYPECAST_PACKET(buf,var,NAME) struct PACKET_##NAME *##var = TYPECAST_PACKET_ONCE(buf,##NAME)
+#define TYPECAST_PACKET_ONCE( buf, NAME) ((struct PACKET_##NAME * )(buf))
+#define TYPECAST_PACKET( buf, var, NAME) struct PACKET_##NAME * var = TYPECAST_PACKET_ONCE( buf, NAME)
 
-#define WFIFOPACKET2(cl,var,NAME,add) \
+#define WFIFOPACKET2( cl, var, NAME, add) \
 	WFIFOHEAD(cl, sizeof(HEADER_##NAME) +  (add)); \
-	TYPECAST_PACKET(WFIFOP(cl,0), ##var, ##NAME); \
+	TYPECAST_PACKET( WFIFOP(cl,0), var, NAME); \
 	var->header = HEADER_##NAME
-#define WFIFOPACKET(cl,var,NAME) WFIFOPACKET2(cl,##var,##NAME,0)
+#define WFIFOPACKET( cl, var, NAME) WFIFOPACKET2(cl, var, NAME, 0)
 
 // Packet Headers
 
@@ -1144,8 +1144,9 @@ enum {
 #pragma warning(disable : 4200)
 #define PACKED
 #else
-#define PACKET __attribute__((packed))
+#define PACKED __attribute__((packed))
 #endif
+
 
 struct CHARACTER_INFO {
 	unsigned int char_id;

@@ -25,6 +25,8 @@
 #include <soci/soci.h>
 #include <map>
 
+#include <boost/asio.hpp>
+
 using namespace std;
 
 #define AUTH_TIMEOUT 30000

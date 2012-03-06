@@ -23,6 +23,8 @@
 #include  "../Common/md5.hpp"
 
 #include <boost/foreach.hpp>
+#include <boost/bind.hpp>
+#include <soci/soci.h>
 
 /*! 
  *  \brief     Send all WoS

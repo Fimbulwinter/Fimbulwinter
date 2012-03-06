@@ -12,7 +12,6 @@
 * ----------------------------------------------------------------- *
 *                       Client to Auth Modules 	               	    *
 * ==================================================================*/
-
 #include "AuthServer.hpp"
 
 #include  "../Common/show_message.hpp"
@@ -22,8 +21,10 @@
 #include  "../Common/timers.hpp"
 #include  "../Common/core.hpp"
 #include  "../Common/strfuncs.hpp"
+#include  "../Common/md5.hpp"
 
-#include <boost/foreach.hpp>
+#include <boost/asio.hpp>
+#include <boost/system/error_code.hpp>
 
 /*! 
  *  \brief     Parse Informations From Client ( Auth )

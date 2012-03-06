@@ -2,6 +2,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/function.hpp>
 #include <map>
 
 class TimerManager

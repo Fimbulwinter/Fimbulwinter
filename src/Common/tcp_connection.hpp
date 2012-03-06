@@ -20,6 +20,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/function.hpp>
 #include <malloc.h>
 #include <stdint.h>
 #include <map>
@@ -88,7 +89,7 @@ class tcp_connection
 {
 public:
 	typedef boost::shared_ptr<tcp_connection> pointer;
-	typedef boost::function parse;
+	typedef boost::function<int (pointer)> parse;
 
 	static pointer create(boost::asio::io_service &io_service)
 	{
