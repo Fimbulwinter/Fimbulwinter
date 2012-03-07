@@ -15,7 +15,7 @@ if( SOCI_LOCAL_LIBRARIES AND SOCI_DIR )
 	message( STATUS "Found SOCI: ${SOCI_LIBRARIES}" )
 	
 	set( HAVE_LOCAL_MYSQL ON
-		CACHE BOOL "mysql client is available as a local copy")
+		CACHE BOOL "SOCI client is available as a local copy")
 	mark_as_advanced( HAVE_LOCAL_SOCI )
 else()
 	foreach( _VAR SOCI_LOCAL_LIBRARIES SOCI_DIR )

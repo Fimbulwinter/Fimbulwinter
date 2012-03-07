@@ -13,6 +13,8 @@
 *                       Authentication Server              	        *
 * ==================================================================*/
 
+#include "AuthServer.hpp"
+
 #include  "../Common/show_message.hpp"
 #include  "../Common/database_helper.h"
 #include  "../Common/ragnarok.hpp"
@@ -25,9 +27,6 @@
 #include <iostream>
 #include <boost/foreach.hpp>
 #include <boost/asio.hpp>
-#include <boost/system/error_code.hpp>
-#include "AuthServer.hpp"
-
 
 // Config
 config_file *AuthServer::auth_config;

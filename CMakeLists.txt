@@ -97,7 +97,7 @@ IF (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     ADD_DEFINITIONS( "-DHAS_BOOST" )
 else()
-    message( FATAL ERROR "Boost Library  Not Found!")
+    message( FATAL ERROR "Boost Library - Not Found")
 ENDIF()
 
 #
@@ -139,7 +139,8 @@ set( CPACK_PACKAGE_NAME "Fimbulwinter" )
 set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "MMORPG server package" )
 set( CPACK_PACKAGE_VERSION "Alpha" )
 set( CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/licence.txt )
-set( CMAKE_CXX_FLAGS "-pthread" )
+set( CMAKE_CXX_FLAGS "-pthread -c" )
+set( CMAKE_EXE_LINKER_FLAGS "-o -lm" )
 #set( CPACK_MONOLITHIC_INSTALL ON )
 include( CPACK  OPTIONAL  RESULT_VARIABLE HAVE_CPACK )
 if( HAVE_CPACK )
@@ -160,7 +161,7 @@ cpack_add_component_group( Runtime DESCRIPTION ${Runtime} DISPLAY_NAME "Runtime"
 cpack_add_component( Runtime_base DESCRIPTION ${Runtime_base} DISPLAY_NAME "Base files" GROUP Runtime )
 
 set( Development "Development files"  CACHE INTERNAL "" )
-set( Development_base "projects, 3rdparty, sources, templates"  CACHE INTERNAL "" )
+set( Development_base "projects, 3rdparty, sources "  CACHE INTERNAL "" )
 cpack_add_component_group( Development DESCRIPTION ${Development} DISPLAY_NAME "Development" )
 cpack_add_component( Development_base DESCRIPTION ${Development_base} DISPLAY_NAME "Base files" GROUP Development )
 

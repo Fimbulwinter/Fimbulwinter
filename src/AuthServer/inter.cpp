@@ -12,7 +12,6 @@
 * ----------------------------------------------------------------- *
 *                          Inter Server 	               	        *
 * ==================================================================*/
-
 #include "AuthServer.hpp"
 
 #include  "../Common/show_message.hpp"
@@ -26,6 +25,9 @@
 #include <boost/bind.hpp>
 #include <soci/soci.h>
 
+#include <iostream>
+#include <cstdlib>
+
 /*! 
  *  \brief     Send all WoS
  *  
@@ -36,7 +38,7 @@
  **/
 void AuthServer::char_sendallwos(int cs, unsigned char *buf, size_t len)
 {			
-	BOOST_FOREACH(char_server_db::value_type &pair, servers)
+	BOOST_FOREACH(char_server_db::value_type &pair, servers  )
 	{
 		if (pair.second.account_id != cs)
 		{

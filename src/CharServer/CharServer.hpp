@@ -16,9 +16,10 @@
 #pragma once
 
 #include  "../Common/config_file.hpp"
-#include  "../Common/tcp_server.h"
+#include  "../Common/tcp_server.hpp"
 #include  "../Common/ragnarok.hpp"
 #include  "../Common/map_index.hpp"
+#include  "../Common/datastruct.hpp"
 
 
 #include <string>

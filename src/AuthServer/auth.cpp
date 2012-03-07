@@ -22,7 +22,6 @@
 #include  "../Common/timers.hpp"
 #include  "../Common/md5.hpp"
 
-#include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
 
